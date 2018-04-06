@@ -17,4 +17,3 @@ ignore/
 .Rproj.user
 rmaverick.Rproj
 R/.Rd*
-.travis.yml
