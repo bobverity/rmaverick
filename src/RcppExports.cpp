@@ -5,19 +5,21 @@
 
 using namespace Rcpp;
 
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _rmaverick_rcpp_hello_world() {
+// example_mcmc_cpp
+Rcpp::List example_mcmc_cpp(Rcpp::NumericVector x, Rcpp::List args_params);
+RcppExport SEXP _rmaverick_example_mcmc_cpp(SEXP xSEXP, SEXP args_paramsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type args_params(args_paramsSEXP);
+    rcpp_result_gen = Rcpp::wrap(example_mcmc_cpp(x, args_params));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rmaverick_rcpp_hello_world", (DL_FUNC) &_rmaverick_rcpp_hello_world, 0},
+    {"_rmaverick_example_mcmc_cpp", (DL_FUNC) &_rmaverick_example_mcmc_cpp, 2},
     {NULL, NULL, 0}
 };
 
