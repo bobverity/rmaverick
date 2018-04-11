@@ -130,10 +130,13 @@ void print_array(std::vector< std::vector< std::vector<TYPE> > > &x) {
 //------------------------------------------------
 // helper function for printing contents of an Rcpp numeric vector
 void rcpp_print_vector(Rcpp::NumericVector &x);
+void rcpp_print_vector(Rcpp::IntegerVector &x);
+void rcpp_print_vector(RcppParallel::RVector<int> x);
 
 //------------------------------------------------
 // helper function for printing contents of an Rcpp numeric matrix
 void rcpp_print_matrix(Rcpp::NumericMatrix &x);
+void rcpp_print_matrix(Rcpp::IntegerMatrix &x);
 
 //------------------------------------------------
 // print simple bar-graph composed of title followed by n stars

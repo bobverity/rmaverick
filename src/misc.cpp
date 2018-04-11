@@ -75,10 +75,34 @@ void rcpp_print_vector(Rcpp::NumericVector &x) {
   Rcpp::Rcout << "\n";
   R_FlushConsole();
 }
+void rcpp_print_vector(Rcpp::IntegerVector &x) {
+  for (int i=0; i<x.length(); i++) {
+    Rcpp::Rcout << x[i] << " ";
+  }
+  Rcpp::Rcout << "\n";
+  R_FlushConsole();
+}
+void rcpp_print_vector(RcppParallel::RVector<int> x) {
+  for (int i=0; i<x.length(); i++) {
+    Rcpp::Rcout << x[i] << " ";
+  }
+  Rcpp::Rcout << "\n";
+  R_FlushConsole();
+}
 
 //------------------------------------------------
 // helper function for printing contents of an Rcpp numeric matrix
 void rcpp_print_matrix(Rcpp::NumericMatrix &x) {
+  for (int i=0; i<x.nrow(); i++) {
+    for (int j=0; j<x.ncol(); j++) {
+      Rcpp::Rcout << x(i,j) << " ";
+    }
+    Rcpp::Rcout << "\n";
+  }
+  Rcpp::Rcout << "\n";
+  R_FlushConsole();
+}
+void rcpp_print_matrix(Rcpp::IntegerMatrix &x) {
   for (int i=0; i<x.nrow(); i++) {
     for (int j=0; j<x.ncol(); j++) {
       Rcpp::Rcout << x(i,j) << " ";
