@@ -83,7 +83,7 @@ struct functor_run_chains : public RcppParallel::Worker {
       for (int rep=start_it[rung]; rep<end_it[rung]; rep++) {
         
         // update component means
-        update_mu(mu_prior_mean, rung*mu_prior_var, mu, rung, K);
+        update_mu(mu_prior_mean, mu_prior_var, mu, rung, K);
         
         // store results
         for (int k=0; k<K; k++) {

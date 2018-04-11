@@ -14,6 +14,7 @@ NULL
 #' Demonstrates the use of Rcpp and RcppParallel through a simple MCMC.
 #'
 #' @param x TODO
+#' @param K TODO
 #' @param mu_prior_mean TODO
 #' @param mu_prior_var TODO
 #' @param burnin TODO
@@ -21,6 +22,7 @@ NULL
 #' @param rungs TODO
 #' @param mc_interval TODO
 #' @param num_threads TODO
+#' @param parallel_on TODO
 #'
 #' @export
 #' @examples

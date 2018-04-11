@@ -4,11 +4,14 @@
 \alias{example_mcmc}
 \title{Example MCMC}
 \usage{
-example_mcmc(x, mu_prior_mean = 0, mu_prior_var = 1000, burnin = 100,
-  samples = 1000, rungs = 10, num_threads = NULL)
+example_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000,
+  burnin = 100, samples = 1000, rungs = 10, mc_interval = 100,
+  num_threads = NULL, parallel_on = TRUE)
 }
 \arguments{
 \item{x}{TODO}
+
+\item{K}{TODO}
 
 \item{mu_prior_mean}{TODO}
 
@@ -20,7 +23,11 @@ example_mcmc(x, mu_prior_mean = 0, mu_prior_var = 1000, burnin = 100,
 
 \item{rungs}{TODO}
 
+\item{mc_interval}{TODO}
+
 \item{num_threads}{TODO}
+
+\item{parallel_on}{TODO}
 }
 \description{
 Demonstrates the use of Rcpp and RcppParallel through a simple MCMC.

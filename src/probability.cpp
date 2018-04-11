@@ -31,9 +31,9 @@ bool rbernoulli1(double p) {
 //------------------------------------------------
 // draw from univariate normal distribution
 double rnorm1(double mean, double sd) {
-  //normal_distribution<double> dist_norm(mean,sd);
-  //return dist_norm(generator);
-  return R::rnorm(mean, sd);
+  normal_distribution<double> dist_norm(mean,sd);
+  return dist_norm(generator);
+  //return R::rnorm(mean, sd);
 }
 
 //------------------------------------------------
