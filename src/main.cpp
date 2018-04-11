@@ -13,18 +13,9 @@ Rcpp::List example_mcmc_cpp(Rcpp::NumericVector x, Rcpp::List args_params) {
   
   // create MCMC object
   MCMC mainMCMC(x, args_params);
+  
+  // run MCMC
   mainMCMC.parallel_mcmc();
-  
-  //rcpp_print_vector(mu_store( Rcpp::_, 0 ));
-  //print_stars();
-  
-  //---------------------
-  
-  // carry out MCMC in serial or in parallel
-  //linear_mcmc(x);
-  //parallel_mcmc(x, mu_store, num_threads);
-  
-  //---------------------
   
   // create return object
   Rcpp::List ret;
