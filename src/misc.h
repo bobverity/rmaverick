@@ -2,7 +2,6 @@
 #pragma once
 
 #include <Rcpp.h>
-#include <RcppParallel.h>
 
 //------------------------------------------------
 // define very large/small numbers for catching overflow/underflow problems
@@ -131,7 +130,6 @@ void print_array(std::vector< std::vector< std::vector<TYPE> > > &x) {
 // helper function for printing contents of an Rcpp numeric vector
 void rcpp_print_vector(Rcpp::NumericVector &x);
 void rcpp_print_vector(Rcpp::IntegerVector &x);
-void rcpp_print_vector(RcppParallel::RVector<int> x);
 
 //------------------------------------------------
 // helper function for printing contents of an Rcpp numeric matrix

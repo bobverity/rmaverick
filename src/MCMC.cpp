@@ -52,6 +52,7 @@ void MCMC::serial_mcmc() {
   
 }
 
+/*
 //------------------------------------------------
 // functor to run multiple MCMC chains
 struct functor_run_chains : public RcppParallel::Worker {
@@ -98,7 +99,7 @@ struct functor_run_chains : public RcppParallel::Worker {
     
   }
 };
-
+*/
 //------------------------------------------------
 // Run parallel version of MCMC
 void MCMC::parallel_mcmc() {
@@ -106,28 +107,7 @@ void MCMC::parallel_mcmc() {
   // print header
   print("Running", num_threads, "threads in parallel");
   
-  // store start and end iterations for each parallel chunk
-  Rcpp::IntegerVector start_it(rungs);
-  Rcpp::IntegerVector end_it(rungs);
-  fill(end_it.begin(), end_it.end(), mc_interval);
   
-  // pass input and output to functor
-  functor_run_chains run_chains(start_it, end_it, group, mu, mu_prior_mean, mu_prior_var, K, beta_vec, mu_store);
-  
-  // carry out MCMC in chunks
-  for (int i=0; i<(iterations/mc_interval); i++) {
-    
-    //print("chunk", i);
-    
-    // run this chunk in parallel
-    parallelFor(0, rungs, run_chains);
-    
-    // move to next chunk
-    fill(start_it.begin(), start_it.end(), end_it[0]);
-    fill(end_it.begin(), end_it.end(), end_it[0] + mc_interval);
-    
-    rcpp_print_vector(start_it);
-  }
   
 }
 

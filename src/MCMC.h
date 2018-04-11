@@ -2,9 +2,7 @@
 #pragma once
 
 #include <Rcpp.h>
-#include <RcppParallel.h>
 #include "particle.h"
-//#include "probability.h"
 
 //------------------------------------------------
 // class defining MCMC

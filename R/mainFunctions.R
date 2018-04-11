@@ -4,7 +4,6 @@
 #' @useDynLib rmaverick
 #' @import assertthat
 #' @importFrom Rcpp evalCpp
-#' @importFrom RcppParallel RcppParallelLibs defaultNumThreads setThreadOptions
 #' @import stats
 NULL
 
@@ -28,10 +27,10 @@ NULL
 #' @examples
 #' example_mcmc(1:5)
 
-example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin =1e2, samples = 1e3, rungs = 10, mc_interval = 1e2, num_threads = NULL, parallel_on = TRUE) {
+example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin =1e2, samples = 1e3, rungs = 10, mc_interval = 1e2, num_threads = 5, parallel_on = TRUE) {
   
   # set defaults
-  num_threads <- define_default(num_threads, defaultNumThreads())
+  #num_threads <- define_default(num_threads, defaultNumThreads())
   
   # check inputs
   assert_that(K > 0)
@@ -40,7 +39,7 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin
   assert_that(samples > 0)
   assert_that(rungs > 0)
   assert_that(mc_interval > 0)
-  assert_that(num_threads <= defaultNumThreads(), msg = paste("num_threads is not less than or equal to", defaultNumThreads()))
+  #assert_that(num_threads <= defaultNumThreads(), msg = paste("num_threads is not less than or equal to", defaultNumThreads()))
   
   # define composite parameters
   iterations <- burnin + samples
@@ -56,7 +55,7 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin
   }
   
   # set thread options
-  setThreadOptions(numThreads = num_threads)
+  #setThreadOptions(numThreads = num_threads)
   
   # run efficient Rcpp function
   args_params <- list(K = K, mu_prior_mean = mu_prior_mean, mu_prior_var = mu_prior_var, burnin = burnin, samples = samples, rungs = rungs, mc_interval = mc_interval, num_threads = num_threads, parallel_on = parallel_on)

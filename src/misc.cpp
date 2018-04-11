@@ -82,13 +82,6 @@ void rcpp_print_vector(Rcpp::IntegerVector &x) {
   Rcpp::Rcout << "\n";
   R_FlushConsole();
 }
-void rcpp_print_vector(RcppParallel::RVector<int> x) {
-  for (int i=0; i<x.length(); i++) {
-    Rcpp::Rcout << x[i] << " ";
-  }
-  Rcpp::Rcout << "\n";
-  R_FlushConsole();
-}
 
 //------------------------------------------------
 // helper function for printing contents of an Rcpp numeric matrix

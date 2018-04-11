@@ -6,7 +6,7 @@
 \usage{
 example_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000,
   burnin = 100, samples = 1000, rungs = 10, mc_interval = 100,
-  num_threads = NULL, parallel_on = TRUE)
+  num_threads = 5, parallel_on = TRUE)
 }
 \arguments{
 \item{x}{TODO}
