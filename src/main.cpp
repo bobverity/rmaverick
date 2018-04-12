@@ -15,23 +15,16 @@ Rcpp::List example_mcmc_cpp(Rcpp::NumericVector x, Rcpp::List args_params) {
   MCMC mainMCMC(x, args_params);
   mainMCMC.parallel_mcmc();
   
-  //rcpp_print_vector(mu_store( Rcpp::_, 0 ));
-  //print_stars();
-  
-  //---------------------
-  
-  // carry out MCMC in serial or in parallel
-  //linear_mcmc(x);
-  //parallel_mcmc(x, mu_store, num_threads);
-  
-  //---------------------
-  
   // create return object
   Rcpp::List ret;
   ret.push_back(Rcpp::wrap( mainMCMC.mu_store ));
+  ret.push_back(Rcpp::wrap( mainMCMC.group ));
+  ret.push_back(Rcpp::wrap( mainMCMC.counts ));
   
   Rcpp::StringVector ret_names;
   ret_names.push_back("mu");
+  ret_names.push_back("group");
+  ret_names.push_back("counts");
   
   ret.names() = ret_names;
   return ret;

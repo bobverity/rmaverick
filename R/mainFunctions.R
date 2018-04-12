@@ -28,7 +28,7 @@ NULL
 #' @examples
 #' example_mcmc(1:5)
 
-example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin =1e2, samples = 1e3, rungs = 10, mc_interval = 1e2, num_threads = NULL, parallel_on = TRUE) {
+example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, mc_interval = 1e2, num_threads = NULL, parallel_on = TRUE) {
   
   # set defaults
   num_threads <- define_default(num_threads, defaultNumThreads())
@@ -36,6 +36,7 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin
   # check inputs
   assert_that(K > 0)
   assert_that(mu_prior_var > 0)
+  assert_that(sigma > 0)
   assert_that(burnin > 0)
   assert_that(samples > 0)
   assert_that(rungs > 0)
@@ -59,15 +60,13 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, burnin
   setThreadOptions(numThreads = num_threads)
   
   # run efficient Rcpp function
-  args_params <- list(K = K, mu_prior_mean = mu_prior_mean, mu_prior_var = mu_prior_var, burnin = burnin, samples = samples, rungs = rungs, mc_interval = mc_interval, num_threads = num_threads, parallel_on = parallel_on)
+  args_params <- list(K = K, mu_prior_mean = mu_prior_mean, mu_prior_var = mu_prior_var, sigma = sigma, burnin = burnin, samples = samples, rungs = rungs, mc_interval = mc_interval, num_threads = num_threads, parallel_on = parallel_on)
   output_raw <- example_mcmc_cpp(x, args_params)
-  
-  return(output_raw)
   
   # process raw output
   mu <- list()
   for (rung in 1:rungs) {
-    mu[[rung]] <- matrix(unlist(output_raw$mu[[rung]]), nrow=iterations)
+    mu[[rung]] <- matrix(output_raw$mu[rung,], nrow=K)
   }
   
   # return as list
