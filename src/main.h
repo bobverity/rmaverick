@@ -5,4 +5,4 @@
 
 //------------------------------------------------
 // Run MCMC
-Rcpp::List example_mcmc_cpp(Rcpp::NumericVector x, Rcpp::List args_params);
+Rcpp::List example_mcmc_cpp(Rcpp::List args);

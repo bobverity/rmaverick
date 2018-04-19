@@ -7,115 +7,297 @@ using namespace std;
 
 //------------------------------------------------
 // constructor for MCMC class
-MCMC::MCMC(Rcpp::NumericVector x_, Rcpp::List args_params) {
+MCMC::MCMC(vector<double> &x, Rcpp::List &args) {
   
   // extract data and parameters
-  x = x_;
-  n = x.length();
-  K = rcpp_to_int(args_params["K"]);
-  mu_prior_mean = rcpp_to_double(args_params["mu_prior_mean"]);
-  mu_prior_var = rcpp_to_double(args_params["mu_prior_var"]);
-  burnin = rcpp_to_int(args_params["burnin"]);
-  samples = rcpp_to_int(args_params["samples"]);
+  x_ptr = &x;
+  n = x.size();
+  K = rcpp_to_int(args["K"]);
+  burnin = rcpp_to_int(args["burnin"]);
+  samples = rcpp_to_int(args["samples"]);
   iterations = burnin + samples;
-  rungs = rcpp_to_int(args_params["rungs"]);
-  mc_interval = rcpp_to_int(args_params["mc_interval"]);
-  num_threads = rcpp_to_int(args_params["num_threads"]);
+  rungs = rcpp_to_int(args["rungs"]);
+  solve_label_switching_on = rcpp_to_bool(args["solve_label_switching_on"]);
+  coupling_on = rcpp_to_bool(args["coupling_on"]);
+  scaf_on = rcpp_to_bool(args["scaffold_on"]);
+  scaf_n = rcpp_to_int(args["scaf_n"]);
+  parallel_on = rcpp_to_bool(args["parallel_on"]);
+  print_console = !parallel_on;
   
-  // thermodynamic powers
-  beta_vec = Rcpp::NumericVector(rungs);
-  for (int i=0; i<rungs; i++) {
-    beta_vec(i) = i/double(rungs-1);
+  // thermodynamic parameters
+  beta_vec = vector<double>(rungs);
+  for (int rung=0; rung<rungs; rung++) {
+    beta_vec[rung] = (rungs==1) ? 1 : rung/double(rungs-1);
+    //beta_vec[rung] = beta_vec[rung] * beta_vec[rung];
+  }
+  rung_order = seq_int(0,rungs-1);
+  cold_rung = rung_order[rungs-1];
+  
+  // vector of particles
+  particle_vec = std::vector<particle>(rungs);
+  for (int rung=0; rung<rungs; rung++) {
+    particle_vec[rung] = particle(x, args, beta_vec[rung]);
   }
   
-  // initialize component means
-  mu = Rcpp::NumericMatrix(rungs, K);
+  // scaffold objects
+  scaf_group = vector<vector<vector<int>>>(rungs, vector<vector<int>>(scaf_n, vector<int>(n)));
+  scaf_counts = vector<vector<vector<int>>>(rungs, vector<vector<int>>(scaf_n, vector<int>(K)));
+  scaf_x_sum = vector<vector<vector<double>>>(rungs, vector<vector<double>>(scaf_n, vector<double>(K)));
   
-  // initialize group allocation
-  group = Rcpp::IntegerMatrix(rungs, n);
-  for (int i=0; i<rungs; i++) {
-    for (int j=0; j<n; j++) {
-      group(i, j) = sample2(0, K-1);
-    }
-  }
+  // objects for storing results
+  mu_store = vector<vector<double>>(iterations, vector<double>(K));
+  loglike_store = vector<vector<double>>(rungs, vector<double>(iterations));
+  qmatrix_running = vector<vector<double>>(n, vector<double>(K));
+  log_qmatrix_running = vector<vector<double>>(n, vector<double>(K));
+  qmatrix_final = vector<vector<double>>(n, vector<double>(K));
   
-  // define objects for storing results
-  mu_store = Rcpp::NumericMatrix(rungs, K*iterations);
-  
+  // objects for storing acceptance rates
+  mc_accept = vector<int>(rungs-1);
 }
 
 //------------------------------------------------
-// run serial version of MCMC
-void MCMC::serial_mcmc() {
-  
-  print("serial MCMC");
-  
-}
-
-/*
-//------------------------------------------------
-// functor to run multiple MCMC chains
-struct functor_run_chains : public RcppParallel::Worker {
-  
-  // input objects
-  RcppParallel::RVector<int> start_it;
-  RcppParallel::RVector<int> end_it;
-  RcppParallel::RMatrix<int> group;
-  RcppParallel::RMatrix<double> mu;
-  const double mu_prior_mean;
-  const double mu_prior_var;
-  const int K;
-  RcppParallel::RVector<double> beta;
-  
-  // output objects
-  RcppParallel::RMatrix<double> mu_store;
-  
-  // initialize with input and output
-  functor_run_chains(Rcpp::IntegerVector start_it, Rcpp::IntegerVector end_it, const Rcpp::IntegerMatrix group, const Rcpp::NumericMatrix mu, const double mu_prior_mean, const double mu_prior_var, const int K, const Rcpp::NumericVector beta, Rcpp::NumericMatrix mu_store)
-    : start_it(start_it), end_it(end_it), group(group), mu(mu), mu_prior_mean(mu_prior_mean), mu_prior_var(mu_prior_var), K(K), beta(beta), mu_store(mu_store) {}
-  
-  // operator to be called by parallel functions
-  void operator()(size_t begin, size_t end) {
-    
-    // loop over MCMC chains
-    for (size_t rung=begin; rung<end; rung++) {
-      
-      // MCMC for this chunk
-      for (int rep=start_it[rung]; rep<end_it[rung]; rep++) {
-        
-        // update component means
-        update_mu(mu_prior_mean, mu_prior_var, mu, rung, K);
-        
-        // store results
-        for (int k=0; k<K; k++) {
-          mu_store(rung, rep*K + k) = mu(rung, k);
-        }
-      }
-      
-      // move chunk forward
-      start_it[rung] = end_it[rung];
-      
-    }
-    
-  }
-};
-*/
-//------------------------------------------------
-// Run parallel version of MCMC
-void MCMC::parallel_mcmc() {
+// generate scaffold groupings
+void MCMC::scaffold_mcmc(Rcpp::List &args) {
   
   // print header
-  print("Running", num_threads, "threads in parallel");
+  if (print_console) {
+    print("Generating", scaf_n, "scaffolds");
+  }
   
+  // extract R functions
+  Rcpp::Function test_convergence = args["test_convergence"];
+  Rcpp::Function update_progress = args["update_progress"];
   
+  // initialise objects needed for generating scaffolds
+  int batch_size = 10;
+  int max_batches = 10;
+  vector<double> batch_vec(batch_size);
+  
+  // generate scaffolds for each rung in turn
+  for (int rung=0; rung<rungs; rung++) {
+    
+    // generate multiple scaffolds per rung
+    for (int scaf_rep=0; scaf_rep<scaf_n; scaf_rep++) {
+      
+      // reset particle
+      particle_vec[rung].reset();
+      
+      // store log-likelihoods
+      vector<double> scaf_log_like(batch_size);
+      
+      // loop through iterations in batches
+      for (int batch=0; batch<max_batches; batch++) {
+        
+        for (int rep=0; rep<batch_size; rep++) {
+          
+          // update parameters
+          particle_vec[rung].update_mu();
+          particle_vec[rung].update_group();
+          
+          // calculate log-likelihood
+          particle_vec[rung].calc_log_like();
+          
+          // store log-likelihood
+          scaf_log_like[batch*batch_size + rep] = particle_vec[rung].loglike;
+        }
+        
+        // break if converged
+        bool has_converged = test_convergence(scaf_log_like);
+        if (has_converged) {
+          break;
+        }
+        
+        // otherwise expand scaf_log_like
+        push_back_multiple(scaf_log_like, batch_vec);
+        
+        // throw warning if still not converged at end of batches
+        if (batch == (max_batches-1)) {
+          print("warning: scaffold did not converge");
+        }
+      } // loop over batches
+      
+      // re-order group allocation to be always-increasing
+      particle_vec[rung].group_increasing();
+      
+      // store this particle
+      scaf_group[rung][scaf_rep] = particle_vec[rung].group;
+      for (int i=0; i<n; i++) {
+        scaf_counts[rung][scaf_rep][scaf_group[rung][scaf_rep][i]] ++;
+        scaf_x_sum[rung][scaf_rep][scaf_group[rung][scaf_rep][i]] += (*x_ptr)[i];
+      }
+      
+    } // loop over scaf_n
+    
+    // update scaffold progress bar
+    if (print_console) {
+      update_progress(args, 1, rung+1, rungs);
+    }
+    
+  } // loop over rungs
+  
+  // load these scaffolds back into particles
+  for (int rung=0; rung<rungs; rung++) {
+    particle_vec[rung].scaf_group = scaf_group[rung];
+    particle_vec[rung].scaf_counts = scaf_counts[rung];
+    particle_vec[rung].scaf_x_sum = scaf_x_sum[rung];
+  }
   
 }
 
 //------------------------------------------------
-// update mu
-void update_mu(const double mu_prior_mean, const double mu_prior_var, RcppParallel::RMatrix<double> &mu, const int rung, const int K) {
-  for (int k=0; k<K; k++) {
-    mu(rung, k) = rnorm1(mu_prior_mean, mu_prior_var);
+// run MCMC
+void MCMC::main_mcmc(Rcpp::List &args) {
+  
+  // extract R functions
+  Rcpp::Function update_progress = args["update_progress"];
+  
+  // loop through burn-in iterations
+  for (int rep=0; rep<iterations; rep++) {
+    
+    // print headers
+    if (rep==0 && print_console) {
+      print("MCMC burn-in phase");
+    }
+    if (rep==burnin && print_console) {
+      print("MCMC sampling phase");
+    }
+    
+    // update particles
+    for (int rung=0; rung<rungs; rung++) {
+      
+      // update parameters
+      particle_vec[rung].update_mu();
+      particle_vec[rung].update_group();
+      
+      // calculate log-likelihood
+      particle_vec[rung].calc_log_like();
+      
+      // propose swap with scaffolds
+      if (scaf_on) {
+        particle_vec[rung].scaf_propose();
+      }
+      
+    }
+    
+    // Metropolis-coupling
+    if (coupling_on) {
+      metropolis_coupling();
+    }
+    
+    // focus on cold rung
+    cold_rung = rung_order[rungs-1];
+    
+    // fix labels
+    if (solve_label_switching_on) {
+      particle_vec[cold_rung].solve_label_switching(log_qmatrix_running);
+    }
+    
+    // add qmatrix to qmatrix_running and qmatrix_final
+    update_qmatrix_running();
+    if (rep >= burnin) {
+      update_qmatrix_final();
+    }
+    
+    // store results of this iteration
+    for (int k=0; k<K; k++) {
+      mu_store[rep][k] = particle_vec[cold_rung].mu[particle_vec[cold_rung].label_order[k]];
+    }
+    for (int rung=0; rung<rungs; rung++) {
+      loglike_store[rung][rep] = particle_vec[rung_order[rung]].loglike;
+    }
+    
+    // update progress bars
+    if (print_console) {
+      if (rep<burnin) {
+        int remainder = rep % int(ceil(burnin/100));
+        if (remainder==0 || (rep+1)==burnin) {
+          update_progress(args, 2, rep+1, burnin);
+        }
+      } else {
+        int remainder = (rep-burnin) % int(ceil(samples/100));
+        if (remainder==0 || (rep-burnin+1)==samples) {
+          update_progress(args, 3, rep-burnin+1, samples);
+        }
+      }
+    }
+    
+  } // end MCMC loop
+  
+  // finalise Q-matrix
+  for (int i=0; i<n; i++) {
+    for (int j=0; j<K; j++) {
+      qmatrix_final[i][j] /= samples;
+    }
   }
+  
 }
 
+//------------------------------------------------
+// add qmatrix to qmatrix_running
+void MCMC::update_qmatrix_running() {
+  
+  for (int i=0; i<n; i++) {
+    for (int k=0; k<K; k++) {
+      qmatrix_running[i][k] += particle_vec[cold_rung].qmatrix[i][particle_vec[cold_rung].label_order[k]];
+      double lq = log(qmatrix_running[i][k]);
+      if (lq < -OVERFLO) {
+        log_qmatrix_running[i][k] = -OVERFLO;
+      } else {
+        log_qmatrix_running[i][k] = lq;
+      }
+    }
+  }
+  
+}
+
+//------------------------------------------------
+// add qmatrix to qmatrix_final
+void MCMC::update_qmatrix_final() {
+  
+  for (int i=0; i<n; i++) {
+    for (int k=0; k<K; k++) {
+      qmatrix_final[i][k] += particle_vec[cold_rung].qmatrix[i][particle_vec[cold_rung].label_order[k]];
+    }
+  }
+  
+}
+
+//------------------------------------------------
+// Metropolis-coupling to propose swaps between temperature rungs
+void MCMC::metropolis_coupling() {
+  
+  // loop over rungs, starting with the hottest chain and moving to the cold
+  // chain. Each time propose a swap with the next rung up
+  for (int i=0; i<(rungs-1); i++) {
+    
+    // define rungs of interest
+    int rung1 = rung_order[i];
+    int rung2 = rung_order[i+1];
+    
+    // get log-likelihoods and beta values of two chains in the comparison
+    double log_like1 = particle_vec[rung1].loglike;
+    double log_like2 = particle_vec[rung2].loglike;
+    
+    double beta1 = particle_vec[rung1].beta;
+    double beta2 = particle_vec[rung2].beta;
+    
+    // calculate acceptance ratio (still in log space)
+    double acceptance = (log_like2*beta1 + log_like1*beta2) - (log_like1*beta1 + log_like2*beta2);
+    
+    // accept or reject move
+    double rand1 = runif1();
+    if (log(rand1)<acceptance) {
+      
+      // swap beta values
+      particle_vec[rung1].beta = beta2;
+      particle_vec[rung2].beta = beta1;
+      
+      // swap rung order
+      rung_order[i] = rung2;
+      rung_order[i+1] = rung1;
+      
+      // update acceptance rates
+      mc_accept[i] ++;
+    }
+  }
+}

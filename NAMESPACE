@@ -2,6 +2,8 @@
 
 export(example_mcmc)
 import(assertthat)
+import(coda)
+import(parallel)
 import(stats)
 importFrom(Rcpp,evalCpp)
 useDynLib(rmaverick)

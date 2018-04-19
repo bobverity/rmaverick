@@ -6,10 +6,6 @@
 
 using namespace std;
 
-//-- set random seed --
-random_device rd;
-default_random_engine generator(rd());
-
 //------------------------------------------------
 // draw from continuous uniform distribution on interval [0,1)
 double runif_0_1() {
@@ -31,9 +27,13 @@ bool rbernoulli1(double p) {
 //------------------------------------------------
 // draw from univariate normal distribution
 double rnorm1(double mean, double sd) {
-  normal_distribution<double> dist_norm(mean,sd);
-  return dist_norm(generator);
-  //return R::rnorm(mean, sd);
+  return R::rnorm(mean, sd);
+}
+
+//------------------------------------------------
+// density of univariate normal distribution
+double dnorm1(double x, double mean, double sd, bool log_on) {
+  return R::dnorm(x, mean, sd, log_on);
 }
 
 //------------------------------------------------

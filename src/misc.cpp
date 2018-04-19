@@ -1,5 +1,6 @@
 
 #include "misc.h"
+#include "Hungarian.h"
 
 using namespace std;
 
@@ -35,6 +36,71 @@ using namespace std;
 // DEFINED IN HEADER
 
 //------------------------------------------------
+// test whether value can be found in vector
+// is_in_vec
+// DEFINED IN HEADER
+
+//------------------------------------------------
+// return unique values in a contiguous sequence of integers. v_max gives the
+// maximum possible value in v, which might be larger than the maximum actual
+// value in v.
+// Example1: v = {1 1 2 2 0 0} and v_max = 2
+// Result: unique_int(v) = {1 2 0}
+// Example2: v = {1 1 2 2 0 0} and v_max = 3
+// Result: unique_int(v) = {1 2 0 3}
+// Example3: v = {1 1 3 3 0 0} and v_max = 3
+// Result: unique_int(v) = {1 3 0 2}
+vector<int> unique_int(const vector<int> &v, int v_max) {
+  
+  vector<int> mask(v_max);
+  vector<int> ret(v_max);
+  int j = 0;
+  for (int i=0; i<int(v.size()); i++) {
+    if (mask[v[i]]==0) {
+      ret[j] = v[i];
+      mask[v[i]] = 1;
+      j++;
+    }
+  }
+  for (int k=0; k<v_max; k++) {
+    if (mask[k]==0) {
+      ret[j] = k;
+      j++;
+    }
+  }
+  return ret;
+}
+
+//------------------------------------------------
+// return order of unique values in a contiguous sequence of integers. v_max 
+// gives the maximum possible value in v, which might be larger than the maximum
+// actual value in v.
+// Example1: v = {1 1 2 2 0 0} and v_max = 2
+// Result: order_unique_int(v) = {2 0 1}
+// Example2: v = {1 1 2 2 0 0} and v_max = 3
+// Result: order_unique_int(v) = {2 0 1 3}
+// Example3: v = {1 1 3 3 0 0} and v_max = 3
+// Result: order_unique_int(v) = {2 0 3 1}
+vector<int> order_unique_int(const vector<int> &v, int v_max) {
+  
+  vector<int> ret(v_max, -1);
+  int j = 0;
+  for (int i=0; i<int(v.size()); i++) {
+    if (ret[v[i]]<0) {
+      ret[v[i]] = j;
+      j++;
+    }
+  }
+  for (int k=0; k<v_max; k++) {
+    if (ret[k]<0) {
+      ret[k] = j;
+      j++;
+    }
+  }
+  return ret;
+}
+
+//------------------------------------------------
 // add two numbers together in log space. One number (but not both) is allowed to be -inf.
 double log_sum(double logA, double logB) {
     if (logA-logB > 100) {
@@ -42,8 +108,27 @@ double log_sum(double logA, double logB) {
     } else if (logB-logA > 100) {
         return logB;
     }
-    double output = (logA<logB) ? logB + log(1+exp(logA-logB)) : logA + log(1+exp(logB-logA));
-    return output;
+    double ret = (logA<logB) ? logB + log(1+exp(logA-logB)) : logA + log(1+exp(logB-logA));
+    return ret;
+}
+
+//------------------------------------------------
+// call Hungarian algorithm for binding best matching in a linear sum assigment problem
+// [[Rcpp::export]]
+Rcpp::List call_hungarian_cpp(Rcpp::List args) {
+  
+  // objects for calling Hungarian algorithm
+  vector<vector<double>> cost_mat = rcpp_to_mat_double(args["cost_mat"]);
+  int n = cost_mat.size();
+  vector<int> edges_left(n);
+  vector<int> edges_right(n);
+  vector<int> blocked_left(n);
+  vector<int> blocked_right(n);
+  vector<int> best_perm = hungarian(cost_mat, edges_left, edges_right, blocked_left, blocked_right);
+  
+  // return
+  Rcpp::List ret = Rcpp::List::create(Rcpp::Named("best_matching") = best_perm);
+  return ret;
 }
 
 //------------------------------------------------

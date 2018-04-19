@@ -12,41 +12,54 @@ public:
   
   // PUBLIC OBJECTS
   
-  // data and basic data properties
-  Rcpp::NumericVector x;
+  // extract data and parameters
+  std::vector<double>* x_ptr;
   int n;
   int K;
-  double mu_prior_mean;
-  double mu_prior_var;
   int burnin;
   int samples;
   int iterations;
   int rungs;
-  int mc_interval;
-  int num_threads;
+  bool solve_label_switching_on;
+  bool coupling_on;
+  bool scaf_on;
+  int scaf_n;
+  bool parallel_on;
+  bool print_console;
   
-  // thermodynamic powers
-  Rcpp::NumericVector beta_vec;
+  // thermodynamic parameters
+  std::vector<double> beta_vec;
+  std::vector<int> rung_order;
+  int cold_rung;
   
-  // component means and group allocation
-  Rcpp::NumericMatrix mu;
-  Rcpp::IntegerMatrix group;
+  // vector of particles
+  std::vector<particle> particle_vec;
   
-  // define objects for storing results
-  Rcpp::NumericMatrix mu_store;
+  // scaffold objects
+  std::vector<std::vector<std::vector<int>>> scaf_group;
+  std::vector<std::vector<std::vector<int>>> scaf_counts;
+  std::vector<std::vector<std::vector<double>>> scaf_x_sum;
+  
+  // objects for storing results
+  std::vector<std::vector<double>> mu_store;
+  std::vector<std::vector<double>> loglike_store;
+  std::vector<std::vector<double>> qmatrix_running;
+  std::vector<std::vector<double>> log_qmatrix_running;
+  std::vector<std::vector<double>> qmatrix_final;
+  
+  // objects for storing acceptance rates
+  std::vector<int> mc_accept;
   
   // PUBLIC FUNCTIONS
   
   // constructors
-  MCMC(Rcpp::NumericVector x, Rcpp::List args_params);
+  MCMC(std::vector<double> &x, Rcpp::List &args);
   
   // other functions
-  void serial_mcmc();
-  void parallel_mcmc();
+  void scaffold_mcmc(Rcpp::List &args);
+  void main_mcmc(Rcpp::List &args);
+  void update_qmatrix_running();
+  void update_qmatrix_final();
+  void metropolis_coupling();
   
 };
-
-//------------------------------------------------
-// update mu
-void update_mu(const double mu_prior_mean, const double mu_prior_var, RcppParallel::RMatrix<double> &mu, const int rung, const int k);
-

@@ -17,7 +17,11 @@ bool rbernoulli1(double p);
 
 //------------------------------------------------
 // draw from univariate normal distribution
-double rnorm1(double mean, double sd);
+double rnorm1(double mean=0, double sd=1);
+
+//------------------------------------------------
+// density of univariate normal distribution
+double dnorm1(double x, double mean=0, double sd=1, bool log_on=true);
 
 //------------------------------------------------
 // draw from univariate normal distribution and reflect to interval (a,b)

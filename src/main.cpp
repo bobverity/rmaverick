@@ -3,26 +3,42 @@
 #include "misc.h"
 #include "probability.h"
 #include "MCMC.h"
+#include "Hungarian.h"
 
 using namespace std;
 
 //------------------------------------------------
 // Run MCMC
 // [[Rcpp::export]]
-Rcpp::List example_mcmc_cpp(Rcpp::NumericVector x, Rcpp::List args_params) {
+Rcpp::List example_mcmc_cpp(Rcpp::List args) {
+  
+  // convert data to base C++ format
+  vector<double> x = rcpp_to_vector_double(args["x"]);
+  bool scaf_on = rcpp_to_bool(args["scaffold_on"]);
   
   // create MCMC object
-  MCMC mainMCMC(x, args_params);
+  MCMC m(x, args);
+  
+  // generate scaffold groupings
+  if (scaf_on) {
+    m.scaffold_mcmc(args);
+  }
   
   // run MCMC
-  mainMCMC.parallel_mcmc();
+  m.main_mcmc(args);
   
   // create return object
   Rcpp::List ret;
-  ret.push_back(Rcpp::wrap( mainMCMC.mu_store ));
+  ret.push_back(Rcpp::wrap( m.loglike_store ));
+  ret.push_back(Rcpp::wrap( m.mu_store ));
+  ret.push_back(Rcpp::wrap( m.qmatrix_final ));
+  ret.push_back(Rcpp::wrap( m.mc_accept ));
   
   Rcpp::StringVector ret_names;
+  ret_names.push_back("loglike");
   ret_names.push_back("mu");
+  ret_names.push_back("qmatrix");
+  ret_names.push_back("mc_accept");
   
   ret.names() = ret_names;
   return ret;
