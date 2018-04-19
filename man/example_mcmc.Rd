@@ -6,7 +6,8 @@
 \usage{
 example_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000,
   sigma = 1, burnin = 100, samples = 1000, rungs = 10,
-  coupling_on = TRUE, parallel_on = TRUE, num_cores = NULL)
+  solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE,
+  scaffold_n = 10, parallel_on = TRUE, num_cores = NULL)
 }
 \arguments{
 \item{x}{TODO}
@@ -25,7 +26,13 @@ example_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000,
 
 \item{rungs}{TODO}
 
+\item{solve_label_switching_on}{TODO}
+
 \item{coupling_on}{TODO}
+
+\item{scaffold_on}{TODO}
+
+\item{scaffold_n}{TODO}
 
 \item{parallel_on}{TODO}
 
@@ -35,5 +42,6 @@ example_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000,
 Demonstrates the use of Rcpp and RcppParallel through a simple MCMC.
 }
 \examples{
-#TODO
+# run example MCMC
+m <- example_mcmc(1:5, parallel_on = FALSE)
 }

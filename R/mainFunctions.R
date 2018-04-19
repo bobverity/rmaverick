@@ -7,6 +7,7 @@
 #' @import coda
 #' @importFrom Rcpp evalCpp
 #' @import stats
+#' @import utils
 NULL
 
 #------------------------------------------------
@@ -22,13 +23,17 @@ NULL
 #' @param burnin TODO
 #' @param samples TODO
 #' @param rungs TODO
+#' @param solve_label_switching_on TODO
 #' @param coupling_on TODO
+#' @param scaffold_on TODO
+#' @param scaffold_n TODO
 #' @param parallel_on TODO
 #' @param num_cores TODO
 #'
 #' @export
 #' @examples
-#' #TODO
+#' # run example MCMC
+#' m <- example_mcmc(1:5, parallel_on = FALSE)
 
 example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, scaffold_n = 10, parallel_on = TRUE, num_cores = NULL) {
   
