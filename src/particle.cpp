@@ -193,7 +193,7 @@ void particle::scaf_propose() {
   double prop_backwards = scaf_prop_logprob(group);
   
   // break if no chance of backwards move
-  if (isinf(prop_backwards)) {
+  if (std::isinf(prop_backwards)) {
     return;
   }
   
