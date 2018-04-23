@@ -61,9 +61,17 @@ particle::particle(vector<double> &x, Rcpp::List &args_params, double beta_) {
   blocked_right = vector<int>(K);
   
   // initialise scaffold objects
+  scaf_mu = vector<double>(K);
   scaf_group = vector<vector<int>>(scaf_n, vector<int>(n));
   scaf_counts = vector<vector<int>>(scaf_n, vector<int>(K));
   scaf_x_sum = vector<vector<double>>(scaf_n, vector<double>(K));
+  
+  // initialise objects for split-merge
+  splitmerge_targets = seq_int(0,K-1);
+  splitmerge_mu = vector<double>(K);
+  splitmerge_group = vector<int>(n);
+  splitmerge_counts = vector<int>(K);
+  splitmerge_x_sum = vector<double>(K);
   
 }
 
@@ -71,11 +79,17 @@ particle::particle(vector<double> &x, Rcpp::List &args_params, double beta_) {
 // reset particle
 void particle::reset() {
   
-  // zero counts etc.
+  // reset values
+  loglike = 0;
   fill(mu.begin(), mu.end(), 0);
   fill(group.begin(), group.end(), 0);
   fill(counts.begin(), counts.end(), 0);
   fill(x_sum.begin(), x_sum.end(), 0);
+  for (int i=0; i<n; i++) {
+    fill(qmatrix[i].begin(), qmatrix[i].end(), 0);
+    fill(log_qmatrix[i].begin(), log_qmatrix[i].end(), 0);
+  }
+  label_order = seq_int(0,K-1);
   
   // re-draw group allcoation
   for (int i=0; i<n; i++) {
@@ -184,7 +198,7 @@ double particle::scaf_prop_logprob(const vector<int> &prop_group) {
 
 //------------------------------------------------
 // propose swap with scaffold grouping
-void particle::scaf_propose() {
+void particle::scaf_propose(int &scaf_accept) {
   
   // re-order group allocation to be always-increasing
   group_increasing();
@@ -201,19 +215,17 @@ void particle::scaf_propose() {
   vector<int> group_old = group;
   int rand1 = sample2(0, scaf_n-1);
   double prop_forwards = scaf_prop_logprob(scaf_group[rand1]);
-  //vector<int> group_new = scaf_group[rand_int1];
   
   // propose new mu
-  vector<double> mu_new(K);
   for (int k=0; k<K; k++) {
     double mu_post_var = 1/(beta*scaf_counts[rand1][k]/sigma_sq + 1/mu_prior_var);
     double mu_post_mean = mu_post_var * (beta*scaf_x_sum[rand1][k]/sigma_sq + mu_prior_mean/mu_prior_var);
     double mu_post_sd = sqrt(mu_post_var);
-    mu_new[k] = rnorm1(mu_post_mean, mu_post_sd);
-    prop_forwards += dnorm1(mu_new[k], mu_post_mean, mu_post_sd);
+    scaf_mu[k] = rnorm1(mu_post_mean, mu_post_sd);
+    prop_forwards += dnorm1(scaf_mu[k], mu_post_mean, mu_post_sd);
   }
   
-  // calculate backwards probability of drawing this mu
+  // calculate backwards probability of drawing current mu
   for (int k=0; k<K; k++) {
     double mu_post_var = 1/(beta*counts[k]/sigma_sq + 1/mu_prior_var);
     double mu_post_mean = mu_post_var * (beta*x_sum[k]/sigma_sq + mu_prior_mean/mu_prior_var);
@@ -221,31 +233,121 @@ void particle::scaf_propose() {
     prop_backwards += dnorm1(mu[k], mu_post_mean, mu_post_sd);
   }
   
-  // calculate old and new likelihoods
-  double loglike_old = beta*loglike;
+  // calculate new likelihood
   double loglike_new = 0;
   for (int i=0; i<n; i++) {
-    loglike_new += dnorm1((*x_ptr)[i], mu_new[scaf_group[rand1][i]], sigma);
+    loglike_new += dnorm1((*x_ptr)[i], scaf_mu[scaf_group[rand1][i]], sigma);
   }
-  loglike_new *= beta;
   
   // calculate old and new priors
   double logprior_old = 0;
   double logprior_new = 0;
   for (int k=0; k<K; k++) {
     logprior_old += dnorm1(mu[k], mu_prior_mean, sqrt(mu_prior_var));
-    logprior_new += dnorm1(mu_new[k], mu_prior_mean, sqrt(mu_prior_var));
+    logprior_new += dnorm1(scaf_mu[k], mu_prior_mean, sqrt(mu_prior_var));
   }
   
   // Metropolis-Hastings
-  double MH = ((loglike_new + logprior_new) - (loglike_old + logprior_old)) - (prop_forwards - prop_backwards);
+  double MH = ((beta*loglike_new + logprior_new) - (beta*loglike + logprior_old)) - (prop_forwards - prop_backwards);
   if (log(runif1()) < MH) {
-    //accept_jump[rung] <- accept_jump[rung] + 1
+    
+    // jump to scaffold
     group = scaf_group[rand1];
     counts = scaf_counts[rand1];
     x_sum = scaf_x_sum[rand1];
-    mu = mu_new;
+    mu = scaf_mu;
+    loglike = loglike_new;
+    
+    // update acceptance rate
+    scaf_accept ++;
   }
+}
+
+//------------------------------------------------
+// split-merge proposal
+void particle::splitmerge_propose(int &splitmerge_accept) {
+  
+  // only for K>=3
+  if (K<3) {
+    return;
+  }
+  
+  // zero counts etc.
+  fill(splitmerge_counts.begin(), splitmerge_counts.end(), 0);
+  fill(splitmerge_x_sum.begin(), splitmerge_x_sum.end(), 0);
+  
+  // sample 3 groups (without replacement). Merge first to second, split third
+  // with first. Count the number of splits that take place in the forward
+  // proposal, and that must take place to do the reverse move.
+  sample3(splitmerge_targets, 3);
+  int n_forwards = 0;
+  int n_backwards = 0;
+  for (int i=0; i<n; i++) {
+    
+    // split and merge groups
+    if (group[i]==splitmerge_targets[0]) {
+      splitmerge_group[i] = splitmerge_targets[1];
+    } else if (group[i]==splitmerge_targets[2]) {
+      n_forwards ++;
+      if (runif_0_1()<0.5) {
+        splitmerge_group[i] = splitmerge_targets[0];
+      } else {
+        splitmerge_group[i] = splitmerge_targets[2];
+      }
+    } else {
+      splitmerge_group[i] = group[i];
+    }
+    if (splitmerge_group[i]==splitmerge_targets[1]) {
+      n_backwards ++;
+    }
+    
+    // update counts etc.
+    splitmerge_counts[splitmerge_group[i]] ++;
+    splitmerge_x_sum[splitmerge_group[i]] += (*x_ptr)[i];
+  }
+  
+  // initialise forward and backward proposal probabilities
+  double prop_forwards = n_forwards*log(0.5);
+  double prop_backwards = n_backwards*log(0.5);
+  
+  // propose new mu
+  for (int k=0; k<K; k++) {
+    double mu_post_var = 1/(beta*splitmerge_counts[k]/sigma_sq + 1/mu_prior_var);
+    double mu_post_mean = mu_post_var * (beta*splitmerge_x_sum[k]/sigma_sq + mu_prior_mean/mu_prior_var);
+    double mu_post_sd = sqrt(mu_post_var);
+    splitmerge_mu[k] = rnorm1(mu_post_mean, mu_post_sd);
+    prop_forwards += dnorm1(splitmerge_mu[k], mu_post_mean, mu_post_sd);
+  }
+  
+  // calculate new likelihood
+  double loglike_new = 0;
+  for (int i=0; i<n; i++) {
+    loglike_new += dnorm1((*x_ptr)[i], splitmerge_mu[splitmerge_group[i]], sigma);
+  }
+  
+  // calculate old and new priors
+  double logprior_old = 0;
+  double logprior_new = 0;
+  for (int k=0; k<K; k++) {
+    logprior_old += dnorm1(mu[k], mu_prior_mean, sqrt(mu_prior_var));
+    logprior_new += dnorm1(splitmerge_mu[k], mu_prior_mean, sqrt(mu_prior_var));
+  }
+  
+  // Metropolis-Hastings
+  double MH = ((beta*loglike_new + logprior_new) - (beta*loglike + logprior_old)) - (prop_forwards - prop_backwards);
+  if (log(runif1()) < MH) {
+    
+    // jump to split-merge proposal
+    group = splitmerge_group;
+    counts = splitmerge_counts;
+    x_sum = splitmerge_x_sum;
+    mu = splitmerge_mu;
+    loglike = loglike_new;
+    
+    // update acceptance rate
+    splitmerge_accept ++;
+  }
+  
 }
 
 //------------------------------------------------

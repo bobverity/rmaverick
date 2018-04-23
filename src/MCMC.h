@@ -24,6 +24,7 @@ public:
   bool coupling_on;
   bool scaf_on;
   int scaf_n;
+  bool splitmerge_on;
   bool parallel_on;
   bool print_console;
   
@@ -49,6 +50,8 @@ public:
   
   // objects for storing acceptance rates
   std::vector<int> mc_accept;
+  std::vector<int> scaf_accept;
+  std::vector<int> splitmerge_accept;
   
   // PUBLIC FUNCTIONS
   

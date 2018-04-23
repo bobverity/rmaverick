@@ -28,12 +28,30 @@ double dnorm1(double x, double mean=0, double sd=1, bool log_on=true);
 double rnorm1_interval(double mean, double sd, double a, double b);
 
 //------------------------------------------------
-// sample single value x that lies between a and b (inclusive) with equal probability
+// sample single value from given probability vector (that sums to pSum)
+int sample1(std::vector<double> &p, double pSum=1.0);
+
+//------------------------------------------------
+// sample single value x that lies between a and b (inclusive) with equal 
+// probability. Works on positive or negative values of a or b, and works 
+// irrespective of which of a or b is larger.
 int sample2(int a, int b);
 
 //------------------------------------------------
-// sample single value from given probability vector (that sums to pSum)
-int sample1(std::vector<double> &p, double pSum=1.0);
+// sample a given number of values from a vector without replacement (templated
+// for different data types). Note, this function re-arranges the original
+// vector (passed in by reference), and the result is stored in the first n
+// elements.
+template<class TYPE>
+void sample3(std::vector<TYPE> &x, int n) {
+  int N = x.size();
+  for (int i=0; i<n; i++) {
+    int y = sample2(i,N-1);
+    TYPE z = x[y];
+    x[y] = x[i];
+    x[i] = z;
+  }
+}
 
 //------------------------------------------------
 // draw from gamma(shape,rate) distribution

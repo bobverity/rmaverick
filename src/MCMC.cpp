@@ -21,6 +21,7 @@ MCMC::MCMC(vector<double> &x, Rcpp::List &args) {
   coupling_on = rcpp_to_bool(args["coupling_on"]);
   scaf_on = rcpp_to_bool(args["scaffold_on"]);
   scaf_n = rcpp_to_int(args["scaf_n"]);
+  splitmerge_on = rcpp_to_bool(args["splitmerge_on"]);
   parallel_on = rcpp_to_bool(args["parallel_on"]);
   print_console = !parallel_on;
   
@@ -28,7 +29,6 @@ MCMC::MCMC(vector<double> &x, Rcpp::List &args) {
   beta_vec = vector<double>(rungs);
   for (int rung=0; rung<rungs; rung++) {
     beta_vec[rung] = (rungs==1) ? 1 : rung/double(rungs-1);
-    //beta_vec[rung] = beta_vec[rung] * beta_vec[rung];
   }
   rung_order = seq_int(0,rungs-1);
   cold_rung = rung_order[rungs-1];
@@ -53,6 +53,8 @@ MCMC::MCMC(vector<double> &x, Rcpp::List &args) {
   
   // objects for storing acceptance rates
   mc_accept = vector<int>(rungs-1);
+  scaf_accept = vector<int>(rungs);
+  splitmerge_accept = vector<int>(rungs);
 }
 
 //------------------------------------------------
@@ -72,23 +74,30 @@ void MCMC::scaffold_mcmc(Rcpp::List &args) {
   int batch_size = 10;
   int max_batches = 10;
   vector<double> batch_vec(batch_size);
+  int dummy_accept = 0;
   
-  // generate scaffolds for each rung in turn
-  for (int rung=0; rung<rungs; rung++) {
+  // generate multiple scaffolds
+  for (int scaf_rep=0; scaf_rep<scaf_n; scaf_rep++) {
     
-    // generate multiple scaffolds per rung
-    for (int scaf_rep=0; scaf_rep<scaf_n; scaf_rep++) {
+    // reset particles
+    for (int r=0; r<rungs; r++) {
+      particle_vec[r].reset();
+      particle_vec[r].beta = beta_vec[r];
+    }
+    rung_order = seq_int(0,rungs-1);
+    
+    // store log-likelihoods
+    vector<vector<double>> scaf_log_like(rungs, vector<double>(batch_size));
+    
+    // loop through iterations in batches
+    for (int batch=0; batch<max_batches; batch++) {
       
-      // reset particle
-      particle_vec[rung].reset();
-      
-      // store log-likelihoods
-      vector<double> scaf_log_like(batch_size);
-      
-      // loop through iterations in batches
-      for (int batch=0; batch<max_batches; batch++) {
+      // iterations of this batch
+      for (int rep=0; rep<batch_size; rep++) {
         
-        for (int rep=0; rep<batch_size; rep++) {
+        // update particles
+        for (int r=0; r<rungs; r++) {
+          int rung = rung_order[r];
           
           // update parameters
           particle_vec[rung].update_mu();
@@ -97,24 +106,54 @@ void MCMC::scaffold_mcmc(Rcpp::List &args) {
           // calculate log-likelihood
           particle_vec[rung].calc_log_like();
           
-          // store log-likelihood
-          scaf_log_like[batch*batch_size + rep] = particle_vec[rung].loglike;
+          // split-merge step
+          if (splitmerge_on) {
+            particle_vec[rung].splitmerge_propose(dummy_accept);
+          }
         }
         
-        // break if converged
-        bool has_converged = test_convergence(scaf_log_like);
-        if (has_converged) {
+        // Metropolis-coupling
+        if (coupling_on) {
+          metropolis_coupling();
+        }
+        
+        // store log-likelihoods
+        for (int r=0; r<rungs; r++) {
+          int rung = rung_order[r];
+          scaf_log_like[rung][batch*batch_size + rep] = particle_vec[rung].loglike;
+        }
+        
+      } // end iterations of this batch
+      
+      // break if converged
+      bool all_converged = true;
+      for (int r=0; r<rungs; r++) {
+        int rung = rung_order[r];
+        bool rung_converged = test_convergence(scaf_log_like[rung]);
+        if (!rung_converged) {
+          all_converged = false;
           break;
         }
-        
-        // otherwise expand scaf_log_like
-        push_back_multiple(scaf_log_like, batch_vec);
-        
-        // throw warning if still not converged at end of batches
-        if (batch == (max_batches-1)) {
-          print("warning: scaffold did not converge");
-        }
-      } // loop over batches
+      }
+      if (all_converged) {
+        break;
+      }
+      
+      // if not converged expand scaf_log_like
+      for (int r=0; r<rungs; r++) {
+        push_back_multiple(scaf_log_like[r], batch_vec);
+      }
+      
+      // throw warning if still not converged at end of batches
+      if (batch == (max_batches-1)) {
+        print("warning: scaffold did not converge");
+      }
+      
+    } // loop over batches
+    
+    // loop over rungs
+    for (int r=0; r<rungs; r++) {
+      int rung = rung_order[r];
       
       // re-order group allocation to be always-increasing
       particle_vec[rung].group_increasing();
@@ -125,21 +164,20 @@ void MCMC::scaffold_mcmc(Rcpp::List &args) {
         scaf_counts[rung][scaf_rep][scaf_group[rung][scaf_rep][i]] ++;
         scaf_x_sum[rung][scaf_rep][scaf_group[rung][scaf_rep][i]] += (*x_ptr)[i];
       }
-      
-    } // loop over scaf_n
+    }
     
     // update scaffold progress bar
     if (print_console) {
-      update_progress(args, 1, rung+1, rungs);
+      update_progress(args, 1, scaf_rep+1, scaf_n);
     }
     
-  } // loop over rungs
+  } // loop over scaf_n
   
   // load these scaffolds back into particles
-  for (int rung=0; rung<rungs; rung++) {
-    particle_vec[rung].scaf_group = scaf_group[rung];
-    particle_vec[rung].scaf_counts = scaf_counts[rung];
-    particle_vec[rung].scaf_x_sum = scaf_x_sum[rung];
+  for (int r=0; r<rungs; r++) {
+    particle_vec[r].scaf_group = scaf_group[r];
+    particle_vec[r].scaf_counts = scaf_counts[r];
+    particle_vec[r].scaf_x_sum = scaf_x_sum[r];
   }
   
 }
@@ -163,7 +201,8 @@ void MCMC::main_mcmc(Rcpp::List &args) {
     }
     
     // update particles
-    for (int rung=0; rung<rungs; rung++) {
+    for (int r=0; r<rungs; r++) {
+      int rung = rung_order[r];
       
       // update parameters
       particle_vec[rung].update_mu();
@@ -174,9 +213,13 @@ void MCMC::main_mcmc(Rcpp::List &args) {
       
       // propose swap with scaffolds
       if (scaf_on) {
-        particle_vec[rung].scaf_propose();
+        particle_vec[rung].scaf_propose(scaf_accept[r]);
       }
       
+      // split-merge step
+      if (splitmerge_on) {
+        particle_vec[rung].splitmerge_propose(splitmerge_accept[r]);
+      }
     }
     
     // Metropolis-coupling
@@ -202,8 +245,9 @@ void MCMC::main_mcmc(Rcpp::List &args) {
     for (int k=0; k<K; k++) {
       mu_store[rep][k] = particle_vec[cold_rung].mu[particle_vec[cold_rung].label_order[k]];
     }
-    for (int rung=0; rung<rungs; rung++) {
-      loglike_store[rung][rep] = particle_vec[rung_order[rung]].loglike;
+    for (int r=0; r<rungs; r++) {
+      int rung = rung_order[r];
+      loglike_store[r][rep] = particle_vec[rung].loglike;
     }
     
     // update progress bars

@@ -52,9 +52,17 @@ public:
   std::vector<int> blocked_right;
   
   // scaffold objects
+  std::vector<double> scaf_mu;
   std::vector<std::vector<int>> scaf_group;
   std::vector<std::vector<int>> scaf_counts;
   std::vector<std::vector<double>> scaf_x_sum;
+  
+  // objects for split-merge
+  std::vector<int> splitmerge_targets;
+  std::vector<double> splitmerge_mu;
+  std::vector<int> splitmerge_group;
+  std::vector<int> splitmerge_counts;
+  std::vector<double> splitmerge_x_sum;
   
   // PUBLIC FUNCTIONS
   
@@ -68,7 +76,8 @@ public:
   void update_group();
   void group_increasing();
   double scaf_prop_logprob(const std::vector<int> &prop_group);
-  void scaf_propose();
+  void scaf_propose(int &scaf_accept);
+  void splitmerge_propose(int &splitmerge_accept);
   void solve_label_switching(const std::vector<std::vector<double>> &log_qmatrix_running);
   void calc_log_like();
   

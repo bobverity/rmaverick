@@ -76,18 +76,6 @@ double rnorm1_interval(double mean, double sd, double a, double b) {
 }
 
 //------------------------------------------------
-// sample single value x that lies between a and b (inclusive) with equal 
-// probability. Works on positive or negative values of a or b, and works 
-// irrespective of which of a or b is larger.
-int sample2(int a, int b) {
-  if (a<b) {
-    return floor(runif1(a, b+1));
-  } else {
-    return floor(runif1(b, a+1));
-  }
-}
-
-//------------------------------------------------
 // sample single value from given probability vector (that sums to pSum)
 int sample1(vector<double> &p, double pSum) {
   double rand = pSum*runif_0_1();
@@ -100,6 +88,26 @@ int sample1(vector<double> &p, double pSum) {
   }
   return 0;
 }
+
+//------------------------------------------------
+// sample single value x that lies between a and b (inclusive) with equal 
+// probability. Works on positive or negative values of a or b, and works 
+// irrespective of which of a or b is larger.
+int sample2(int a, int b) {
+  if (a<b) {
+    return floor(runif1(a, b+1));
+  } else {
+    return floor(runif1(b, a+1));
+  }
+}
+
+//------------------------------------------------
+// sample a given number of values from a vector without replacement (templated
+// for different data types). Note, this function re-arranges the original
+// vector (passed in by reference), and the result is stored in the first n
+// elements.
+// sample3
+// DEFINED IN HEADER
 
 //------------------------------------------------
 // draw from gamma(shape,rate) distribution

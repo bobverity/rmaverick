@@ -33,12 +33,16 @@ Rcpp::List example_mcmc_cpp(Rcpp::List args) {
   ret.push_back(Rcpp::wrap( m.mu_store ));
   ret.push_back(Rcpp::wrap( m.qmatrix_final ));
   ret.push_back(Rcpp::wrap( m.mc_accept ));
+  ret.push_back(Rcpp::wrap( m.scaf_accept ));
+  ret.push_back(Rcpp::wrap( m.splitmerge_accept ));
   
   Rcpp::StringVector ret_names;
   ret_names.push_back("loglike");
   ret_names.push_back("mu");
   ret_names.push_back("qmatrix");
   ret_names.push_back("mc_accept");
+  ret_names.push_back("scaf_accept");
+  ret_names.push_back("splitmerge_accept");
   
   ret.names() = ret_names;
   return ret;

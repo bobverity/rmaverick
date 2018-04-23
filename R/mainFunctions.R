@@ -13,29 +13,30 @@ NULL
 #------------------------------------------------
 #' Example MCMC
 #'
-#' Demonstrates the use of Rcpp and RcppParallel through a simple MCMC.
+#' Demonstrates good algorithmic and coding practices for a simple normal mixture model. Implements advanced MCMC methods, including Metropolis-coupling over temperature rungs, a split-merge proposal, and an additional form of proposal referred to here as a "scaffold" proposal. Uses Rcpp and the package parallel for speed and efficiency.
 #'
-#' @param x TODO
-#' @param K TODO
-#' @param mu_prior_mean TODO
-#' @param mu_prior_var TODO
-#' @param sigma TODO
-#' @param burnin TODO
-#' @param samples TODO
-#' @param rungs TODO
-#' @param solve_label_switching_on TODO
-#' @param coupling_on TODO
-#' @param scaffold_on TODO
-#' @param scaffold_n TODO
-#' @param parallel_on TODO
-#' @param num_cores TODO
+#' @param x the raw data (vector)
+#' @param K the number of mixture components
+#' @param mu_prior_mean the mean of the (normal) prior on mixture component locations
+#' @param mu_prior_var the variance of the (normal) prior on mixture component locations
+#' @param sigma the standard deviation of mixture components
+#' @param burnin the number of burn-in iterations
+#' @param samples the number of sampling iterations
+#' @param rungs the number of temperature rungs
+#' @param solve_label_switching_on whether to implement the Stevens' solution to the label-switching problem
+#' @param coupling_on whether to implement Metropolis-coupling over temperature rungs
+#' @param scaffold_on whether to use scaffolds to improve mixing
+#' @param scaffold_n the number of scaffolds to use
+#' @param splitmerge_on whether to implement a split-merge proposal
+#' @param parallel_on whether to run each value of K in parallel
+#' @param num_cores number of cores to use in parallelisation
 #'
 #' @export
 #' @examples
 #' # run example MCMC
 #' m <- example_mcmc(1:5, parallel_on = FALSE)
 
-example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, scaffold_n = 10, parallel_on = TRUE, num_cores = NULL) {
+example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, scaffold_n = 10, splitmerge_on = TRUE, parallel_on = TRUE, num_cores = NULL) {
   
   # set defaults
   num_cores <- define_default(num_cores, detectCores())
@@ -55,10 +56,14 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma 
   # define argument list
   parallel_args <- list()
   for (i in 1:length(K)) {
-    pb_scaf <- txtProgressBar(min = 0, max = rungs, initial = NA, label="goo", style = 3)
+    
+    # create progress bars
+    pb_scaf <- txtProgressBar(min = 0, max = scaffold_n, initial = NA, style = 3)
     pb_burnin <- txtProgressBar(min = 0, max = burnin, initial = NA, style = 3)
     pb_samples <- txtProgressBar(min = 0, max = samples, initial = NA, style = 3)
-    parallel_args[[i]] <- list(x = x, K = K[i], mu_prior_mean = mu_prior_mean, mu_prior_var = mu_prior_var, sigma = sigma, burnin = burnin, samples = samples, rungs = rungs, solve_label_switching_on = solve_label_switching_on, coupling_on = coupling_on, scaffold_on = scaffold_on, scaf_n = scaffold_n, parallel_on = parallel_on, test_convergence = test_convergence, update_progress = update_progress, pb_scaf = pb_scaf, pb_burnin = pb_burnin, pb_samples = pb_samples)
+    
+    # create argument list
+    parallel_args[[i]] <- list(x = x, K = K[i], mu_prior_mean = mu_prior_mean, mu_prior_var = mu_prior_var, sigma = sigma, burnin = burnin, samples = samples, rungs = rungs, solve_label_switching_on = solve_label_switching_on, coupling_on = coupling_on, scaffold_on = scaffold_on, scaf_n = scaffold_n, splitmerge_on = splitmerge_on, parallel_on = parallel_on, test_convergence = test_convergence, update_progress = update_progress, pb_scaf = pb_scaf, pb_burnin = pb_burnin, pb_samples = pb_samples)
   }
   
   #------------------------
@@ -81,7 +86,7 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma 
   
   #------------------------
   
-  # begin processin results
+  # begin processing results
   if (!parallel_on) {
     cat("Processing results\n")
   }
@@ -107,10 +112,12 @@ example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma 
     qmatrix <- rcpp_to_mat(output_raw[[i]]$qmatrix)
     
     # process acceptance rates
-    mc_accept <- output_raw[[i]]$mc_accept
+    mc_accept <- 100 * output_raw[[i]]$mc_accept/(burnin+samples)
+    scaf_accept <- 100 * output_raw[[i]]$scaf_accept/(burnin+samples)
+    splitmerge_accept <- 100 * output_raw[[i]]$splitmerge_accept/(burnin+samples)
     
-    # store results of this K in list
-    ret[[i]] <- list(loglike_burnin = loglike_burnin, loglike_sampling = loglike_sampling, loglike_quantiles = loglike_quantiles, mu = mu, qmatrix = qmatrix, mc_accept = mc_accept)
+    # store results of this K
+    ret[[i]] <- list(loglike_burnin = loglike_burnin, loglike_sampling = loglike_sampling, loglike_quantiles = loglike_quantiles, mu = mu, qmatrix = qmatrix, mc_accept = mc_accept, scaf_accept = scaf_accept, splitmerge_accept = splitmerge_accept)
   }
   
   # return as list
