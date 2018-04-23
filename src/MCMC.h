@@ -2,9 +2,7 @@
 #pragma once
 
 #include <Rcpp.h>
-#include <RcppParallel.h>
 #include "particle.h"
-//#include "probability.h"
 
 //------------------------------------------------
 // class defining MCMC
@@ -14,48 +12,58 @@ public:
   
   // PUBLIC OBJECTS
   
-  // data and basic data properties
-  Rcpp::NumericVector x;
+  // extract data and parameters
+  std::vector<double>* x_ptr;
   int n;
   int K;
-  double mu_prior_mean;
-  double mu_prior_var;
-  double sigma;
-  double sigma_sq;
   int burnin;
   int samples;
   int iterations;
   int rungs;
-  int mc_interval;
-  int num_threads;
+  bool solve_label_switching_on;
+  bool coupling_on;
+  bool scaf_on;
+  int scaf_n;
+  bool splitmerge_on;
+  bool parallel_on;
+  bool print_console;
   
-  // thermodynamic powers
-  Rcpp::NumericVector beta;
+  // thermodynamic parameters
+  std::vector<double> beta_vec;
+  std::vector<int> rung_order;
+  int cold_rung;
   
-  // component means and group allocation
-  Rcpp::NumericMatrix mu;
-  Rcpp::IntegerMatrix group;
-  Rcpp::NumericMatrix x_sum;
-  Rcpp::IntegerMatrix counts;
+  // vector of particles
+  std::vector<particle> particle_vec;
   
-  // Q-matrix
-  Rcpp::NumericMatrix q_matrix;
+  // scaffold objects
+  std::vector<std::vector<std::vector<int>>> scaf_group;
+  std::vector<std::vector<std::vector<int>>> scaf_counts;
+  std::vector<std::vector<std::vector<double>>> scaf_x_sum;
   
-  // define objects for storing results
-  Rcpp::NumericMatrix mu_store;
+  // objects for storing results
+  std::vector<std::vector<double>> mu_store;
+  std::vector<std::vector<double>> loglike_store;
+  std::vector<std::vector<double>> qmatrix_running;
+  std::vector<std::vector<double>> log_qmatrix_running;
+  std::vector<std::vector<double>> qmatrix_final;
+  
+  // objects for storing acceptance rates
+  std::vector<int> mc_accept;
+  std::vector<int> scaf_accept;
+  std::vector<int> splitmerge_accept;
   
   // PUBLIC FUNCTIONS
   
   // constructors
-  MCMC(Rcpp::NumericVector x, Rcpp::List args_params);
+  MCMC(std::vector<double> &x, Rcpp::List &args);
   
   // other functions
-  void serial_mcmc();
-  void parallel_mcmc();
+  void scaffold_mcmc(Rcpp::List &args);
+  void main_mcmc(Rcpp::List &args);
+  void update_qmatrix_running();
+  void update_qmatrix_final();
+  void metropolis_coupling();
   
 };
-
-//------------------------------------------------
-// update mu
-void update_mu_group(RcppParallel::RVector<double> &x, RcppParallel::RMatrix<int> &group, RcppParallel::RMatrix<double> &x_sum, RcppParallel::RMatrix<int> &counts, RcppParallel::RMatrix<double> &q_matrix, RcppParallel::RMatrix<double> &mu, const double mu_prior_mean, const double mu_prior_var, const double sigma, const RcppParallel::RVector<double> &beta, const int rung);
 

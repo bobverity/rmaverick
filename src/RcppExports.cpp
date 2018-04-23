@@ -6,20 +6,31 @@
 using namespace Rcpp;
 
 // example_mcmc_cpp
-Rcpp::List example_mcmc_cpp(Rcpp::NumericVector x, Rcpp::List args_params);
-RcppExport SEXP _rmaverick_example_mcmc_cpp(SEXP xSEXP, SEXP args_paramsSEXP) {
+Rcpp::List example_mcmc_cpp(Rcpp::List args);
+RcppExport SEXP _rmaverick_example_mcmc_cpp(SEXP argsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type args_params(args_paramsSEXP);
-    rcpp_result_gen = Rcpp::wrap(example_mcmc_cpp(x, args_params));
+    Rcpp::traits::input_parameter< Rcpp::List >::type args(argsSEXP);
+    rcpp_result_gen = Rcpp::wrap(example_mcmc_cpp(args));
+    return rcpp_result_gen;
+END_RCPP
+}
+// call_hungarian_cpp
+Rcpp::List call_hungarian_cpp(Rcpp::List args);
+RcppExport SEXP _rmaverick_call_hungarian_cpp(SEXP argsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type args(argsSEXP);
+    rcpp_result_gen = Rcpp::wrap(call_hungarian_cpp(args));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rmaverick_example_mcmc_cpp", (DL_FUNC) &_rmaverick_example_mcmc_cpp, 2},
+    {"_rmaverick_example_mcmc_cpp", (DL_FUNC) &_rmaverick_example_mcmc_cpp, 1},
+    {"_rmaverick_call_hungarian_cpp", (DL_FUNC) &_rmaverick_call_hungarian_cpp, 1},
     {NULL, NULL, 0}
 };
 

@@ -5,33 +5,46 @@
 \title{Example MCMC}
 \usage{
 example_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000,
-  burnin = 100, samples = 1000, rungs = 10, mc_interval = 100,
-  num_threads = NULL, parallel_on = TRUE)
+  sigma = 1, burnin = 100, samples = 1000, rungs = 10,
+  solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE,
+  scaffold_n = 10, splitmerge_on = TRUE, parallel_on = TRUE,
+  num_cores = NULL)
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{the raw data (vector)}
 
-\item{K}{TODO}
+\item{K}{the number of mixture components}
 
-\item{mu_prior_mean}{TODO}
+\item{mu_prior_mean}{the mean of the (normal) prior on mixture component locations}
 
-\item{mu_prior_var}{TODO}
+\item{mu_prior_var}{the variance of the (normal) prior on mixture component locations}
 
-\item{burnin}{TODO}
+\item{sigma}{the standard deviation of mixture components}
 
-\item{samples}{TODO}
+\item{burnin}{the number of burn-in iterations}
 
-\item{rungs}{TODO}
+\item{samples}{the number of sampling iterations}
 
-\item{mc_interval}{TODO}
+\item{rungs}{the number of temperature rungs}
 
-\item{num_threads}{TODO}
+\item{solve_label_switching_on}{whether to implement the Stevens' solution to the label-switching problem}
 
-\item{parallel_on}{TODO}
+\item{coupling_on}{whether to implement Metropolis-coupling over temperature rungs}
+
+\item{scaffold_on}{whether to use scaffolds to improve mixing}
+
+\item{scaffold_n}{the number of scaffolds to use}
+
+\item{splitmerge_on}{whether to implement a split-merge proposal}
+
+\item{parallel_on}{whether to run each value of K in parallel}
+
+\item{num_cores}{number of cores to use in parallelisation}
 }
 \description{
-Demonstrates the use of Rcpp and RcppParallel through a simple MCMC.
+Demonstrates good algorithmic and coding practices for a simple normal mixture model. Implements advanced MCMC methods, including Metropolis-coupling over temperature rungs, a split-merge proposal, and an additional form of proposal referred to here as a "scaffold" proposal. Uses Rcpp and the package parallel for speed and efficiency.
 }
 \examples{
-example_mcmc(1:5)
+# run example MCMC
+m <- example_mcmc(1:5, parallel_on = FALSE)
 }

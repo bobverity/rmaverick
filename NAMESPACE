@@ -2,9 +2,9 @@
 
 export(example_mcmc)
 import(assertthat)
+import(coda)
+import(parallel)
 import(stats)
+import(utils)
 importFrom(Rcpp,evalCpp)
-importFrom(RcppParallel,RcppParallelLibs)
-importFrom(RcppParallel,defaultNumThreads)
-importFrom(RcppParallel,setThreadOptions)
 useDynLib(rmaverick)

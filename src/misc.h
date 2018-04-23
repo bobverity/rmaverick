@@ -2,7 +2,6 @@
 #pragma once
 
 #include <Rcpp.h>
-#include <RcppParallel.h>
 
 //------------------------------------------------
 // define very large/small numbers for catching overflow/underflow problems
@@ -14,8 +13,9 @@
 template<class TYPE>
 TYPE sum(std::vector<TYPE> &x) {
     TYPE output = 0;
-    for (int i=0; i<int(x.size()); i++)
+    for (int i=0; i<int(x.size()); i++) {
         output += x[i];
+    }
     return output;
 }
 
@@ -48,8 +48,38 @@ void push_back_multiple(std::vector<TYPE> &lhs, std::vector<TYPE> &rhs) {
 }
 
 //------------------------------------------------
+// test whether value can be found in vector
+template<class TYPE>
+bool is_in_vec(TYPE x, std::vector<TYPE> &v) {
+  bool ret = false;
+  for (int i=0; i<int(v.size()); i++) {
+    if (v[i] == x) {
+      ret = true;
+      break;
+    }
+  }
+  return ret;
+}
+
+//------------------------------------------------
+// return unique values in a contiguous sequence of integers. v_max gives the
+// maximum possible value in v, which might be larger than the maximum actual
+// value in v.
+std::vector<int> unique_int(const std::vector<int> &v, int v_max);
+
+//------------------------------------------------
+// return order of unique values in a contiguous sequence of integers. v_max 
+// gives the maximum possible value in v, which might be larger than the maximum
+// actual value in v.
+std::vector<int> order_unique_int(const std::vector<int> &v, int v_max);
+
+//------------------------------------------------
 // add two numbers together in log space. One number (but not both) is allowed to be -inf.
 double log_sum(double logA, double logB);
+
+//------------------------------------------------
+// call Hungarian algorithm for binding best matching in a linear sum assigment problem
+Rcpp::List call_hungarian_cpp(Rcpp::List args);
 
 //------------------------------------------------
 // helper function for printing a single value or series of values (templated for different data types)
@@ -131,7 +161,6 @@ void print_array(std::vector< std::vector< std::vector<TYPE> > > &x) {
 // helper function for printing contents of an Rcpp numeric vector
 void rcpp_print_vector(Rcpp::NumericVector &x);
 void rcpp_print_vector(Rcpp::IntegerVector &x);
-void rcpp_print_vector(RcppParallel::RVector<int> x);
 
 //------------------------------------------------
 // helper function for printing contents of an Rcpp numeric matrix
