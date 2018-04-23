@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <RcppParallel.h>
 #include <random>
 
 //------------------------------------------------
@@ -23,10 +22,6 @@ double rnorm1(double mean=0, double sd=1);
 //------------------------------------------------
 // density of univariate normal distribution
 double dnorm1(double x, double mean=0, double sd=1, bool log_on=true);
-
-//------------------------------------------------
-// density of univariate normal distribution
-double dnorm2(const RcppParallel::RVector<double> &x, const RcppParallel::RMatrix<double> &mean, double sd, int i, int rung, int k, bool log_on);
 
 //------------------------------------------------
 // draw from univariate normal distribution and reflect to interval (a,b)

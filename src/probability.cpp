@@ -37,12 +37,6 @@ double dnorm1(double x, double mean, double sd, bool log_on) {
 }
 
 //------------------------------------------------
-// density of univariate normal distribution
-double dnorm2(const RcppParallel::RVector<double> &x, const RcppParallel::RMatrix<double> &mean, double sd, int i, int rung, int k, bool log_on) {
-  return R::dnorm(x[i], mean(rung, k), sd, log_on);
-}
-
-//------------------------------------------------
 // draw from univariate normal distribution and reflect to interval (a,b)
 double rnorm1_interval(double mean, double sd, double a, double b) {
   
