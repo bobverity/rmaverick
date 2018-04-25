@@ -1,3 +1,4 @@
+
 #------------------------------------------------
 # The following commands ensure that package dependencies are listed in the NAMESPACE file.
 
@@ -8,12 +9,207 @@
 #' @importFrom Rcpp evalCpp
 #' @import stats
 #' @import utils
+#' @importFrom grDevices colorRampPalette
 NULL
 
 #------------------------------------------------
-#' Example MCMC
+# load data
+
+load_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ploidy = 1, missing_data = -9, name = NULL, check_delete_output = TRUE) {
+  
+  # check before overwriting existing output
+  if (project$active_set>0 & check_delete_output) {
+    
+    # ask before overwriting
+    user_choice <- user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")
+    
+    # on abort, return original project
+    if (!user_choice) {
+      return(project)
+    }
+    
+    # replace old project with fresh empty version
+    project <- mavproject()
+  }
+  
+  # process and perform checks on data
+  dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, missing_data)
+  
+  # add data to project
+  project[["data"]] <- df
+  project[["data_processed"]] <- dat_proc
+  
+  return(project)
+}
+
+#------------------------------------------------
+# process data
+
+process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, missing_data) {
+  
+  # checks on input
+  assert_that(is.data.frame(df))
+  assert_that(is.int(ID_col))
+  assert_that(!any(duplicated(c(ID_col, pop_col, ploidy_col, data_cols))))
+  
+  # get ploidy in final form
+  if (is.null(ploidy_col)) {
+    if (is.null(ploidy)) {
+      ploidy <- 1
+      cat("using default value of ploidy = 1")
+    }
+    assert_that(is.int(ploidy))
+    assert_that(length(ploidy)==1)
+    assert_that(ploidy>=1)
+    assert_that(ploidy>=1)
+    assert_that((nrow(df)%%ploidy)==0)
+    ploidy <- rep(ploidy, nrow(df)/ploidy)
+  } else {
+    assert_that(is.int(ploidy_col))
+    assert_that(length(ploidy_col)==1)
+    assert_that(ploidy_col>=1)
+    assert_that(ploidy_col<=ncol(df))
+    ploidy_raw <- df[, ploidy_col]
+    ploidy <- NULL
+    i <- 1
+    while (i<nrow(df)) {
+      ploidy <- c(ploidy, ploidy_raw[i])
+      i <- i + ploidy_raw[i]
+    }
+  }
+  assert_that(nrow(df)==sum(ploidy))
+  ind_first_row <- cumsum(ploidy) - ploidy + 1
+  
+  # get pop in final form
+  if (!is.null(pop_col)) {
+    assert_that(is.int(pop_col))
+    assert_that(length(pop_col)==1)
+    assert_that(pop_col>=1)
+    assert_that(pop_col<=ncol(df))
+    pop_raw <- df[,pop_col]
+    pop <- pop_raw[ind_first_row]
+    assert_that(all(is.int(pop)))
+  } else {
+    pop <- NA
+  }
+  
+  # get data
+  if (is.null(data_cols)) {
+    data_cols <- setdiff(1:ncol(df), c(ID_col, pop_col, ploidy_col))
+  }
+  assert_that(all(is.int(data_cols)))
+  assert_that(!any(duplicated(data_cols)))
+  assert_that(all(data_cols>=1))
+  assert_that(all(data_cols<=ncol(df)))
+  dat <- as.matrix(df[,data_cols])
+  assert_that(ncol(dat)>0)
+  assert_that(nrow(dat)>0)
+  
+  # recode to remove redundancy
+  for (j in 1:ncol(dat)) {
+    dat[,j] <- match(dat[,j], unique(dat[,j][!is.na(dat[,j])]))
+  }
+  
+  # return list
+  ret <- list(dat = dat, ind_first_row = ind_first_row, pop = pop, ploidy = ploidy)
+  return(ret)
+}
+
+#------------------------------------------------
+# create new parameter set
+
+new_set <- function(project, name = "(no name)", admix_on = FALSE, K = 1:3, rungs = 11) {
+  
+  # count current parameter sets and add one
+  s <- length(project$parameter_sets) + 1
+  
+  # make new set active
+  project[["active_set"]] <- s
+  
+  # create new parameter set
+  project[["parameter_sets"]][[s]] <- list(name = name,
+                                          admix_on = admix_on,
+                                          K = K,
+                                          rungs = rungs
+                                          )
+  
+  # create new output corresponding to this set
+  project[["output"]][[s]] <- list(name = name)
+  
+  # return
+  return(project)
+}
+
+#------------------------------------------------
+# delete parameter set
+
+delete_set <- function(project, index = NULL, check_delete_output = TRUE) {
+  
+  # set index to activeSet by default
+  index <- define_default(index, project$active_set)
+  
+  # check inputs
+  assert_that(is.int(index))
+  assert_that(length(index)==1)
+  assert_that(index>=1)
+  assert_that(index<=length(project$parameter_sets))
+  
+  # check before overwriting existing output
+  if (project$active_set>0 & check_delete_output) {
+    
+    # ask before overwriting
+    user_choice <- user_yes_no(sprintf("Output for set %s will be deleted. Continue? (Y/N): ", index))
+    
+    # on abort, return original project
+    if (!user_choice) {
+      return(project)
+    }
+  }
+  
+  # drop chosen parameter set
+  project[["parameter_sets"]][[index]] <- NULL
+  
+  # drop chosen output
+  project[["output"]][[index]] <- NULL
+  
+  # make new final set active
+  project[["active_set"]] <- length(project$parameter_sets)
+  
+  # return
+  return(project)
+}
+
+#------------------------------------------------
+#' Generate scaffolds
 #'
-#' Demonstrates good algorithmic and coding practices for a simple normal mixture model. Implements advanced MCMC methods, including Metropolis-coupling over temperature rungs, a split-merge proposal, and an additional form of proposal referred to here as a "scaffold" proposal. Uses Rcpp and the package parallel for speed and efficiency.
+#' TODO
+#'
+#' @param project TODO
+#' @param iterations TODO
+#' @param n TODO
+#' @param coupling_on TODO
+#' @param splitmerge_on TODO
+#' @param cluster TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+generate_scaffolds <- function(project, iterations = NULL, n = 10, coupling_on = TRUE, splitmerge_on = TRUE, cluster = NULL) {
+  
+  # set defaults
+  num_cores <- define_default(num_cores, detectCores())
+  
+  
+  
+  # return
+  return(project)
+}
+
+#------------------------------------------------
+#' Run MCMC
+#'
+#' TODO
 #'
 #' @param x the raw data (vector)
 #' @param K the number of mixture components
@@ -34,9 +230,9 @@ NULL
 #' @export
 #' @examples
 #' # run example MCMC
-#' m <- example_mcmc(1:5, parallel_on = FALSE)
+#' m <- run_mcmc(1:5, parallel_on = FALSE)
 
-example_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, scaffold_n = 10, splitmerge_on = TRUE, parallel_on = TRUE, num_cores = NULL) {
+run_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, scaffold_n = 10, splitmerge_on = TRUE, parallel_on = TRUE, num_cores = NULL) {
   
   # set defaults
   num_cores <- define_default(num_cores, detectCores())
