@@ -13,18 +13,34 @@
 NULL
 
 #------------------------------------------------
-# load data
+#' @title Bind data to project
+#'
+#' @description Bind data to project
+#'
+#' @details TODO
+#' 
+#' @param project TODO
+#' @param df TODO
+#' @param ID_col TODO
+#' @param pop_col TODO
+#' @param ploidy_col TODO
+#' @param data_cols TODO
+#' @param ploidy TODO
+#' @param missing_data TODO
+#' @param name TODO
+#' @param check_delete_output TODO
+#'
+#' @export
+#' @examples
+#' # TODO
 
-load_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ploidy = 1, missing_data = -9, name = NULL, check_delete_output = TRUE) {
+bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ploidy = 1, missing_data = -9, name = NULL, check_delete_output = TRUE) {
   
   # check before overwriting existing output
   if (project$active_set>0 & check_delete_output) {
     
-    # ask before overwriting
-    user_choice <- user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")
-    
-    # on abort, return original project
-    if (!user_choice) {
+    # ask before overwriting. On abort, return original project
+    if (!user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")) {
       return(project)
     }
     
@@ -36,21 +52,23 @@ load_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
   dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, missing_data)
   
   # add data to project
-  project[["data"]] <- df
-  project[["data_processed"]] <- dat_proc
+  project$data <- df
+  project$data_processed <- dat_proc
   
   return(project)
 }
 
 #------------------------------------------------
 # process data
-
+# (not exported)
+#' @noRd
 process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, missing_data) {
   
   # checks on input
-  assert_that(is.data.frame(df))
-  assert_that(is.int(ID_col))
-  assert_that(!any(duplicated(c(ID_col, pop_col, ploidy_col, data_cols))))
+  assert_dataframe(df)
+  assert_scalar_pos_int(ID_col, zero_allowed = FALSE)
+  assert_leq(ID_col, ncol(df))
+  assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
   
   # get ploidy in final form
   if (is.null(ploidy_col)) {
@@ -58,18 +76,13 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, mis
       ploidy <- 1
       cat("using default value of ploidy = 1")
     }
-    assert_that(is.int(ploidy))
-    assert_that(length(ploidy)==1)
-    assert_that(ploidy>=1)
-    assert_that(ploidy>=1)
+    assert_scalar_pos_int(ploidy)
     assert_that((nrow(df)%%ploidy)==0)
     ploidy <- rep(ploidy, nrow(df)/ploidy)
   } else {
-    assert_that(is.int(ploidy_col))
-    assert_that(length(ploidy_col)==1)
-    assert_that(ploidy_col>=1)
-    assert_that(ploidy_col<=ncol(df))
-    ploidy_raw <- df[, ploidy_col]
+    assert_scalar_pos_int(ploidy_col, zero_allowed = FALSE)
+    assert_leq(ploidy_col, ncol(df))
+    ploidy_raw <- df[,ploidy_col]
     ploidy <- NULL
     i <- 1
     while (i<nrow(df)) {
@@ -82,28 +95,27 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, mis
   
   # get pop in final form
   if (!is.null(pop_col)) {
-    assert_that(is.int(pop_col))
-    assert_that(length(pop_col)==1)
-    assert_that(pop_col>=1)
-    assert_that(pop_col<=ncol(df))
+    assert_scalar_pos_int(pop_col, zero_allowed = FALSE)
+    assert_leq(pop_col, ncol(df))
     pop_raw <- df[,pop_col]
     pop <- pop_raw[ind_first_row]
-    assert_that(all(is.int(pop)))
+    assert_pos_int(pop)
   } else {
     pop <- NA
   }
   
-  # get data
+  # get genetic data in final form
   if (is.null(data_cols)) {
     data_cols <- setdiff(1:ncol(df), c(ID_col, pop_col, ploidy_col))
   }
-  assert_that(all(is.int(data_cols)))
-  assert_that(!any(duplicated(data_cols)))
-  assert_that(all(data_cols>=1))
-  assert_that(all(data_cols<=ncol(df)))
-  dat <- as.matrix(df[,data_cols])
+  assert_pos_int(data_cols, zero_allowed = FALSE)
+  assert_leq(data_cols, ncol(df))
+  assert_noduplicates(data_cols)
+  dat <- as.matrix(df[,data_cols,drop = FALSE])
   assert_that(ncol(dat)>0)
   assert_that(nrow(dat)>0)
+  assert_that(all(apply(dat, 1, is.numeric)))
+  dat[dat==missing_data] <- NA
   
   # recode to remove redundancy
   for (j in 1:ncol(dat)) {
@@ -111,12 +123,29 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ploidy, mis
   }
   
   # return list
-  ret <- list(dat = dat, ind_first_row = ind_first_row, pop = pop, ploidy = ploidy)
+  ret <- list(dat = dat,
+              ind_first_row = ind_first_row,
+              pop = pop,
+              ploidy = ploidy)
   return(ret)
 }
 
 #------------------------------------------------
-# create new parameter set
+#' @title Create new parameter set
+#'
+#' @description Create new parameter set
+#'
+#' @details TODO
+#' 
+#' @param project TODO
+#' @param name TODO
+#' @param admix_on TODO
+#' @param K TODO
+#' @param rungs TODO
+#' 
+#' @export
+#' @examples
+#' # TODO
 
 new_set <- function(project, name = "(no name)", admix_on = FALSE, K = 1:3, rungs = 11) {
   
@@ -124,82 +153,119 @@ new_set <- function(project, name = "(no name)", admix_on = FALSE, K = 1:3, rung
   s <- length(project$parameter_sets) + 1
   
   # make new set active
-  project[["active_set"]] <- s
+  project$active_set <- s
   
   # create new parameter set
-  project[["parameter_sets"]][[s]] <- list(name = name,
-                                          admix_on = admix_on,
-                                          K = K,
-                                          rungs = rungs
-                                          )
+  project$parameter_sets[[s]] <- list(name = name,
+                                      admix_on = admix_on,
+                                      K = K,
+                                      rungs = rungs)
   
   # create new output corresponding to this set
-  project[["output"]][[s]] <- list(name = name)
+  project$output[[s]] <- list(name = name)
   
   # return
   return(project)
 }
 
 #------------------------------------------------
-# delete parameter set
+#' @title Delete parameter set
+#'
+#' @description Delete parameter set
+#'
+#' @details TODO
+#' 
+#' @param project TODO
+#' @param index TODO
+#' @param check_delete_output TODO
+#' 
+#' @export
+#' @examples
+#' # TODO
 
 delete_set <- function(project, index = NULL, check_delete_output = TRUE) {
+  
+  # check inputs
+  assert_mavproject(project)
   
   # set index to activeSet by default
   index <- define_default(index, project$active_set)
   
-  # check inputs
-  assert_that(is.int(index))
-  assert_that(length(index)==1)
-  assert_that(index>=1)
-  assert_that(index<=length(project$parameter_sets))
+  # further checks
+  assert_scalar_pos_int(index)
+  assert_leq(index, length(project$parameter_sets))
+  assert_scalar_logical(check_delete_output)
   
   # check before overwriting existing output
   if (project$active_set>0 & check_delete_output) {
     
-    # ask before overwriting
-    user_choice <- user_yes_no(sprintf("Output for set %s will be deleted. Continue? (Y/N): ", index))
-    
-    # on abort, return original project
-    if (!user_choice) {
+    # ask before overwriting. On abort, return original project
+    if (!user_yes_no(sprintf("Output for set %s will be deleted. Continue? (Y/N): ", index))) {
       return(project)
     }
   }
   
   # drop chosen parameter set
-  project[["parameter_sets"]][[index]] <- NULL
+  project$parameter_sets[[index]] <- NULL
   
   # drop chosen output
-  project[["output"]][[index]] <- NULL
+  project$output[[index]] <- NULL
   
   # make new final set active
-  project[["active_set"]] <- length(project$parameter_sets)
+  project$active_set <- length(project$parameter_sets)
   
   # return
   return(project)
 }
 
 #------------------------------------------------
-#' Generate scaffolds
+#' @title Generate scaffolds
 #'
-#' TODO
+#' @description Generate scaffolds
 #'
+#' @details TODO
+#' 
 #' @param project TODO
-#' @param iterations TODO
 #' @param n TODO
 #' @param coupling_on TODO
 #' @param splitmerge_on TODO
 #' @param cluster TODO
-#'
+#' @param output_console TODO
+#' 
 #' @export
 #' @examples
 #' # TODO
 
-generate_scaffolds <- function(project, iterations = NULL, n = 10, coupling_on = TRUE, splitmerge_on = TRUE, cluster = NULL) {
+generate_scaffolds <- function(project, n = 10, coupling_on = TRUE, splitmerge_on = TRUE, cluster = NULL, output_console = is.null(cluster)) {
   
-  # set defaults
-  num_cores <- define_default(num_cores, detectCores())
+  # check inputs
+  assert_mavproject(project)
+  assert_scalar_pos_int(n, zero_allowed = FALSE)
+  assert_scalar_logical(coupling_on)
+  assert_scalar_logical(splitmerge_on)
+  assert_scalar_logical(output_console)
   
+  # define argument list
+  all_args <- list()
+  for (i in 1:n) {
+    
+    # create progress bar
+    pb_scaf <- txtProgressBar(min = 0, max = n, initial = NA, style = 3)
+    
+    # define arguments
+    all_args[[i]] <- list(args_data = project$data_processed, args_params = project$parameter_sets, coupling_on = coupling_on, splitmerge_on = splitmerge_on, output_console = output_console, test_convergence = test_convergence, update_progress = update_progress, pb_scaf = pb_scaf)
+  }
+  
+  # run efficient Rcpp function
+  if (!is.null(cluster)) {  # run in parallel
+    if (!inherits(cluster, "cluster")) {
+      stop("expected a cluster object")
+    }
+    clusterEvalQ(cluster, library(rmaverick))
+    output_raw <- clusterApplyLB(cl = cluster, all_args, generate_scaffolds_cpp)
+  } else {  # run in serial
+    output_raw <- lapply(all_args, generate_scaffolds_cpp)
+  }
   
   
   # return
@@ -207,10 +273,12 @@ generate_scaffolds <- function(project, iterations = NULL, n = 10, coupling_on =
 }
 
 #------------------------------------------------
-#' Run MCMC
+#' @title Run main MCMC
 #'
-#' TODO
+#' @description Run main MCMC
 #'
+#' @details TODO
+#' 
 #' @param x the raw data (vector)
 #' @param K the number of mixture components
 #' @param mu_prior_mean the mean of the (normal) prior on mixture component locations
@@ -226,11 +294,10 @@ generate_scaffolds <- function(project, iterations = NULL, n = 10, coupling_on =
 #' @param splitmerge_on whether to implement a split-merge proposal
 #' @param parallel_on whether to run each value of K in parallel
 #' @param num_cores number of cores to use in parallelisation
-#'
+#' 
 #' @export
 #' @examples
-#' # run example MCMC
-#' m <- run_mcmc(1:5, parallel_on = FALSE)
+#' # TODO
 
 run_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1, burnin =1e2, samples = 1e3, rungs = 10, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, scaffold_n = 10, splitmerge_on = TRUE, parallel_on = TRUE, num_cores = NULL) {
   
@@ -318,64 +385,5 @@ run_mcmc <- function(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1e3, sigma = 1,
   
   # return as list
   return(ret)
-}
-
-#------------------------------------------------
-# geweke_pvalue
-# return p-value of Geweke's diagnostic convergence statistic, estimated from package coda
-# (not exported)
-
-geweke_pvalue <- function(x) {
-  ret <- 2*pnorm(abs(geweke.diag(x)$z), lower.tail=FALSE)
-  return(ret)
-}
-
-#------------------------------------------------
-# test convergence
-# (not exported)
-
-test_convergence <- function(x) {
-  
-  # get Geweke p-value
-  g <- geweke_pvalue(mcmc(x))
-  ret <- (g>0.05)
-  
-  return(ret)
-}
-
-#------------------------------------------------
-# update progress bar
-# (not exported)
-
-update_progress <- function(args, type, i, max_i) {
-  
-  # split by type
-  if (type==1) { # scaffold progress bar
-    setTxtProgressBar(args$pb_scaf, i)
-    if (i==max_i) {
-      close(args$pb_scaf)
-    }
-  } else if (type==2) { # burn-in iterations progress bar
-    setTxtProgressBar(args$pb_burnin, i)
-    if (i==max_i) {
-      close(args$pb_burnin)
-    }
-  } else if (type==3) { # sampling iterations progress bar
-    setTxtProgressBar(args$pb_samples, i)
-    if (i==max_i) {
-      close(args$pb_samples)
-    }
-  }
-}
-
-#------------------------------------------------
-# call_hungarian
-# calls C++ implementation of the Hungarian algorithm for binding best matching
-# in a linear sum assigment problem. This is function is used in testing.
-# (not exported)
-
-call_hungarian <- function(x) {
-  args <- list(cost_mat = mat_to_rcpp(x))
-  call_hungarian_cpp(args)
 }
 

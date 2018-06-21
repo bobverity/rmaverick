@@ -5,12 +5,20 @@
 sim_data <- function(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1.0, admix_on = FALSE, alpha = 1, K = 3, pop_col_on = TRUE, ploidy_col_on = TRUE) {
   
   # check inputs
-  check_sim_data(n, ploidy, loci, allele_num, lambda, admix_on, alpha, K)
+  assert_scalar_pos_int(n);
+  assert_pos_int(ploidy, zero_allowed = FALSE)
+  assert_in(length(ploidy), c(1,n))
+  assert_scalar_pos_int(loci);
+  assert_scalar_pos_int(allele_num);
+  assert_scalar_pos(lambda)
+  assert_scalar_logical(admix_on)
+  assert_scalar_pos(alpha);
+  assert_scalar_pos_int(K);
+  assert_scalar_logical(pop_col_on)
+  assert_scalar_logical(ploidy_col_on)
   
   # expand ploidy to vector
-  if (length(ploidy)==1) {
-    ploidy <- rep(ploidy, n)
-  }
+  ploidy <- force_vector(ploidy, n)
   
   # generate names
   ind_names <- paste0("ind", 1:n)
@@ -50,7 +58,7 @@ sim_data <- function(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1.0
   for (i in 1:n) {
     for (c in 1:ploidy[i]) {
       for (j in 1:loci) {
-        g <- sample(1:K, 1, prob=admix_freqs[i,])
+        g <- sample(1:K, 1, prob = admix_freqs[i,])
         p <- allele_freqs[[g]][j,]
         dat[i2, j] <- sample(1:allele_num, 1, prob = p)
       }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{run_mcmc}
 \alias{run_mcmc}
-\title{Run MCMC}
+\title{Run main MCMC}
 \usage{
 run_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000, sigma = 1,
   burnin = 100, samples = 1000, rungs = 10,
@@ -42,9 +42,11 @@ run_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000, sigma = 1,
 \item{num_cores}{number of cores to use in parallelisation}
 }
 \description{
+Run main MCMC
+}
+\details{
 TODO
 }
 \examples{
-# run example MCMC
-m <- run_mcmc(1:5, parallel_on = FALSE)
+# TODO
 }

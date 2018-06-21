@@ -10,12 +10,10 @@ Description: Carries out analysis of genetic population structure with thermodyn
 License: GPL (>= 2)
 Imports:
     Rcpp (>= 0.12.14),
-    RcppParallel,
     assertthat,
     coda
 LinkingTo:
-    Rcpp,
-    RcppParallel
+    Rcpp
 RoxygenNote: 6.0.1
 Suggests: 
     testthat,

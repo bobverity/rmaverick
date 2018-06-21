@@ -4,13 +4,11 @@
 \alias{generate_scaffolds}
 \title{Generate scaffolds}
 \usage{
-generate_scaffolds(project, iterations = NULL, n = 10, coupling_on = TRUE,
-  splitmerge_on = TRUE, cluster = NULL)
+generate_scaffolds(project, n = 10, coupling_on = TRUE,
+  splitmerge_on = TRUE, cluster = NULL, output_console = is.null(cluster))
 }
 \arguments{
 \item{project}{TODO}
-
-\item{iterations}{TODO}
 
 \item{n}{TODO}
 
@@ -19,8 +17,13 @@ generate_scaffolds(project, iterations = NULL, n = 10, coupling_on = TRUE,
 \item{splitmerge_on}{TODO}
 
 \item{cluster}{TODO}
+
+\item{output_console}{TODO}
 }
 \description{
+Generate scaffolds
+}
+\details{
 TODO
 }
 \examples{

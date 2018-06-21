@@ -78,10 +78,6 @@ std::vector<int> order_unique_int(const std::vector<int> &v, int v_max);
 double log_sum(double logA, double logB);
 
 //------------------------------------------------
-// call Hungarian algorithm for binding best matching in a linear sum assigment problem
-Rcpp::List call_hungarian_cpp(Rcpp::List args);
-
-//------------------------------------------------
 // helper function for printing a single value or series of values (templated for different data types)
 template<class TYPE>
 void print(TYPE x) {

@@ -1,5 +1,6 @@
 context("test-misc.R")
 
+#------------------------------------------------
 test_that("define_default working correctly", {
   
   # tests with NULL input
@@ -13,6 +14,7 @@ test_that("define_default working correctly", {
   expect_equal(define_default(TRUE, NULL), TRUE)
 })
 
+#------------------------------------------------
 test_that("C++ Hungarian algorithm working correctly", {
   
   # test with simple identity matching
@@ -44,4 +46,13 @@ test_that("C++ Hungarian algorithm working correctly", {
   sol <- 1:nrow(m)-1
   expect_equal(call_hungarian(m)$best_matching, sol)
   
+})
+
+#------------------------------------------------
+test_that("log_sum working correctly", {
+  
+  # test finite and infinite inputs
+  expect_equal(log_sum(3,4), log(exp(3)+exp(4)))  # both finite
+  expect_equal(log_sum(-Inf,4), log(exp(-Inf)+exp(4)))  # first value infinite
+  expect_equal(log_sum(3,-Inf), log(exp(3)+exp(-Inf)))  # second value infinite
 })

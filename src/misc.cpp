@@ -102,6 +102,7 @@ vector<int> order_unique_int(const vector<int> &v, int v_max) {
 
 //------------------------------------------------
 // add two numbers together in log space. One number (but not both) is allowed to be -inf.
+// [[Rcpp::export]]
 double log_sum(double logA, double logB) {
     if (logA-logB > 100) {
         return logA;
@@ -110,25 +111,6 @@ double log_sum(double logA, double logB) {
     }
     double ret = (logA<logB) ? logB + log(1+exp(logA-logB)) : logA + log(1+exp(logB-logA));
     return ret;
-}
-
-//------------------------------------------------
-// call Hungarian algorithm for binding best matching in a linear sum assigment problem
-// [[Rcpp::export]]
-Rcpp::List call_hungarian_cpp(Rcpp::List args) {
-  
-  // objects for calling Hungarian algorithm
-  vector<vector<double>> cost_mat = rcpp_to_mat_double(args["cost_mat"]);
-  int n = cost_mat.size();
-  vector<int> edges_left(n);
-  vector<int> edges_right(n);
-  vector<int> blocked_left(n);
-  vector<int> blocked_right(n);
-  vector<int> best_perm = hungarian(cost_mat, edges_left, edges_right, blocked_left, blocked_right);
-  
-  // return
-  Rcpp::List ret = Rcpp::List::create(Rcpp::Named("best_matching") = best_perm);
-  return ret;
 }
 
 //------------------------------------------------

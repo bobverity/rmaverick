@@ -1,8 +1,8 @@
 
 #------------------------------------------------
-# define empty mavProject object
+# define empty mavproject object
 # (not exported)
-
+#' @noRd
 mavproject <- function() {
   
   # initialise project with default values
@@ -21,7 +21,7 @@ mavproject <- function() {
 #------------------------------------------------
 # overload print() function.
 # (not exported)
-
+#' @noRd
 print.mavproject <- function(x, ...) {
   
   # print selected elements
@@ -33,7 +33,7 @@ print.mavproject <- function(x, ...) {
 #------------------------------------------------
 # overload summary() function.
 # (not exported)
-
+#' @noRd
 summary.mavproject <- function(x, ...) {
   
   # print data summary
@@ -103,20 +103,9 @@ summary.mavproject <- function(x, ...) {
 }
 
 #------------------------------------------------
-# overload list assignment symbol. Can only modify allowed elements.
-# (not exported)
-
-`$<-.mavproject` <- function(x, i, value) {
-  
-  # print warning
-  stop("objects of class mavproject can only be modified via functions such as define_params()")
-  
-}
-
-#------------------------------------------------
 # function for determining if object is of class mavProject
 # (not exported)
-
+#' @noRd
 is.mavproject <- function(x) {
   inherits(x, "mavproject")
 }

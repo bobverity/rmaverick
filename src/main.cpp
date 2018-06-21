@@ -10,6 +10,23 @@ using namespace std;
 //------------------------------------------------
 // Run MCMC
 // [[Rcpp::export]]
+Rcpp::List generate_scaffolds_cpp(Rcpp::List args) {
+  foobar();
+  
+  // create return object
+  Rcpp::List ret;
+  ret.push_back(Rcpp::wrap( -9 ));
+  
+  Rcpp::StringVector ret_names;
+  ret_names.push_back("x");
+  
+  ret.names() = ret_names;
+  return ret;
+}
+
+//------------------------------------------------
+// Run MCMC
+// [[Rcpp::export]]
 Rcpp::List example_mcmc_cpp(Rcpp::List args) {
   
   // convert data to base C++ format
