@@ -18,7 +18,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-home">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -55,16 +55,63 @@
 
       
       </header><div class="row">
-  <div class="contents col-md-9">
-    <div id="rmaverick" class="section level1">
+  <div class="col-md-9 contents">
+    
+
+    
+    
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+<div id="rmaverick" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#rmaverick" class="anchor"></a>rmaverick</h1></div>
-
-<p>R version of the MavericK program, which carries out analysis of genetic population structure via thermodynamic integration.</p>
+<p>The goal of rmaverick is to infer population structure from genetic data. What makes rmaverick different from other similar programs is its ability to estimate the <em>evidence</em> for different numbers of sub-populations (K), and even different evolutionary models, through a method called thermodynamic integration. It also contains some advanced MCMC methods that ensure reliable results.</p>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>rmaverick relies on the Rcpp package, which requires the following OS-specific steps:</p>
+<ul>
+<li>Windows
+<ul>
+<li>Download and install the appropriate version of <a href="https://cran.rstudio.com/bin/windows/Rtools/">Rtools</a> for your version of R. On installation, ensure you check the box to arrange your system PATH as recommended by Rtools</li>
+</ul>
+</li>
+<li>Mac OS X
+<ul>
+<li>Download and install <a href="http://itunes.apple.com/us/app/xcode/id497799835?mt=12">XCode</a>
+</li>
+<li>Within XCode go to Preferences : Downloads and install the Command Line Tools</li>
+</ul>
+</li>
+<li>Linux (Debian/Ubuntu)
+<ul>
+<li>
+<p>Install the core software development utilities required for R package development as well as LaTeX by executing</p>
+<pre><code>```
+sudo apt-get install r-base-dev texlive-full
+```</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<p>Next, in R, ensure that you have the devtools package installed by running</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>, <span class="dt">repos=</span><span class="st">'http://cran.us.r-project.org'</span>)</code></pre></div>
+<p>Then we can simply install the rmaverick package directly from GitHub by running</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"bobverity/rmaverick"</span>)</code></pre></div>
+<p>Finally, we need to load the package</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rmaverick)</code></pre></div>
+</div>
+<div id="example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#example" class="anchor"></a>Example</h2>
+<p>This is a basic example which shows you how to solve a common problem:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## basic example code
+<span class="kw">plot</span>(<span class="dv">1</span>:<span class="dv">10</span>)</code></pre></div>
+<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/README-example-1.png" width="700"></p>
+</div>
 </div>
   </div>
 
-  <div class="col-md-3" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <div class="links">
 <h2>Links</h2>
 <ul class="list-unstyled">
@@ -75,7 +122,9 @@
 <div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
-<li>GPL (&gt;= 2)</li>
+<li>
+<a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
+</li>
 </ul>
 </div>
 <div class="developers">
@@ -85,15 +134,8 @@
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://travis-ci.org/bobverity/rmaverick"><img src="https://travis-ci.org/bobverity/rmaverick.png?branch=develop" alt="Build Status"></a></li>
-<li><a href="https://codecov.io/github/bobverity/rmaverick?branch=develop"><img src="https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg" alt="Coverage status"></a></li>
-<li><a href="https://ci.appveyor.com/project/bobverity/rmaverick"><img src="https://ci.appveyor.com/api/projects/status/github/bobverity/rmaverick?branch=develop&amp;svg=true" alt="AppVeyor Build Status"></a></li>
-</ul>
-</div>
-</div>
+      </div>
+
 </div>
 
 
