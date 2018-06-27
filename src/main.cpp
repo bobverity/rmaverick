@@ -106,9 +106,9 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
 }
 
 //------------------------------------------------
-// estimate evidence quantiles by simulation
+// estimate quantiles of posterior probability of K by simulation
 // [[Rcpp::export]]
-Rcpp::List GTI_evidence_sim_cpp(Rcpp::List args) {
+Rcpp::List GTI_posterior_K_sim_cpp(Rcpp::List args) {
   
   // extract arguments
   vector<double> m = rcpp_to_vector_double(args["mean"]);

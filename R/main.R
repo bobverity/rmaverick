@@ -199,8 +199,9 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
                                       estimate_alpha = estimate_alpha)
   
   # create new output corresponding to this set
-  project$output[[s]] <- list()
-  names(project$output) <- paste0("set", 1:length(project$output))
+  project$output$single_set[[s]] <- list(single_K = list(),
+                                         all_K = list())
+  names(project$output$single_set) <- paste0("set", 1:length(project$output$single_set))
   
   # return
   return(project)
@@ -248,7 +249,9 @@ delete_set <- function(project, index = NULL, check_delete_output = TRUE) {
   project$parameter_sets[[index]] <- NULL
   
   # drop chosen output
-  project$output[[index]] <- NULL
+  project$output$single_set[[index]] <- NULL
+  
+  # TODO - recalculate evidence over sets
   
   # make new final set active
   project$active_set <- length(project$parameter_sets)
@@ -520,6 +523,9 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       
       # calculate standard error of GTI estimate
       GTI_ESS <- as.numeric(effectiveSize(GTI_vec))
+      if (GTI_ESS==0) {
+        GTI_ESS <- samples # if no variation then assume perfect mixing
+      }
       GTI_logevidence_SE <- sqrt(var(GTI_vec)/GTI_ESS)
       
       # produce final GTI_logevidence object
@@ -549,53 +555,66 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
     # ---------- save results ----------
     
     # add to project
-    project$output[[s]][[K[i]]] <- list()
+    project$output$single_set[[s]]$single_K[[K[i]]] <- list()
     
-    project$output[[s]][[K[i]]]$summary <- list(qmatrix_ind = qmatrix_ind,
-                                                loglike_quantiles = loglike_quantiles,
-                                                ESS = ESS,
-                                                GTI_path = GTI_path,
-                                                GTI_logevidence = GTI_logevidence)
+    project$output$single_set[[s]]$single_K[[K[i]]]$summary <- list(qmatrix_ind = qmatrix_ind,
+                                                                    loglike_quantiles = loglike_quantiles,
+                                                                    ESS = ESS,
+                                                                    GTI_path = GTI_path,
+                                                                    GTI_logevidence = GTI_logevidence)
     
-    project$output[[s]][[K[i]]]$raw <- list(loglike_burnin = loglike_burnin,
-                                            loglike_sampling = loglike_sampling,
-                                            alpha = alpha,
-                                            coupling_accept = coupling_accept)
+    project$output$single_set[[s]]$single_K[[K[i]]]$raw <- list(loglike_burnin = loglike_burnin,
+                                                                loglike_sampling = loglike_sampling,
+                                                                alpha = alpha,
+                                                                coupling_accept = coupling_accept)
     
-    project$output[[s]][[K[i]]]$function_call <- list(args = output_args,
-                                                      call = match.call())
+    project$output$single_set[[s]]$single_K[[K[i]]]$function_call <- list(args = output_args,
+                                                                          call = match.call())
     
   }
   
   # name output over K
-  names(project$output[[s]]) <- paste0("K", 1:length(project$output[[s]]))
+  K_all <- length(project$output$single_set[[s]]$single_K)
+  names(project$output$single_set[[s]]$single_K) <- paste0("K", 1:K_all)
   
   # ---------- recalculate evidence ----------
   
   # get logevidence over all K
-  GTI_logevidence <- mapply(function(x){
+  GTI_logevidence_raw <- mapply(function(x) {
     GTI_logevidence <- x$summary$GTI_logevidence
     if (is.null(GTI_logevidence)) {
-      return(rep(FALSE,3))
+      return(rep(NA,2))
     } else {
-      return(c(TRUE, GTI_logevidence))
+      return(unlist(GTI_logevidence))
     }
-  }, project$output[[s]])
+  }, project$output$single_set[[s]]$single_K)
+  GTI_logevidence <- as.data.frame(t(GTI_logevidence_raw))
+  names(GTI_logevidence) <- c("mean", "SE")
+  rownames(GTI_logevidence) <- NULL
+  GTI_logevidence <- cbind(K = 1:nrow(GTI_logevidence), GTI_logevidence)
   
-  # if there are logevidence estimates
-  if (any(unlist(GTI_logevidence[1,]))) {
+  # load GTI_logevidence into project
+  project$output$single_set[[s]]$all_K$GTI_logevidence <- GTI_logevidence
+  
+  # obtain posterior K estimates
+  if (any(!is.na(GTI_logevidence$mean))) {
     
-    # produce raw evidence draws by simulation
-    w <- which(unlist(GTI_logevidence[1,]))
-    GTI_evidence_raw <- GTI_evidence_sim_cpp(list(mean = unlist(GTI_logevidence[2,w]),
-                                                  SE = unlist(GTI_logevidence[3,w]),
-                                                  reps = 1e6))
+    # produce posterior estimates by simulation
+    w <- which(!is.na(GTI_logevidence$mean))
+    GTI_posterior_raw <- GTI_posterior_K_sim_cpp(list(mean = GTI_logevidence$mean[w],
+                                                      SE = GTI_logevidence$SE[w],
+                                                      reps = 1e6))$ret
     
-    # get quantiles and load back into output
-    for (i in 1:length(w)) {
-      GTI_evidence <- quantile_95(GTI_evidence_raw$ret[[i]])
-      project$output[[s]][[w[i]]]$summary$GTI_evidence <- GTI_evidence
-    }
+    # get posterior quantiles in dataframe
+    GTI_posterior_quantiles <- t(mapply(quantile_95, GTI_posterior_raw))
+    GTI_posterior <- data.frame(K = 1:nrow(GTI_logevidence),
+                                Q2.5 = NA,
+                                Q50 = NA,
+                                Q97.5 = NA)
+    GTI_posterior[w,-1] <- GTI_posterior_quantiles
+    
+    # load GTI_posterior into project
+    project$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
   }
   
   # return invisibly

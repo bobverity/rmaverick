@@ -9,8 +9,8 @@ run_mcmc_cpp <- function(args) {
     .Call('_rmaverick_run_mcmc_cpp', PACKAGE = 'rmaverick', args)
 }
 
-GTI_evidence_sim_cpp <- function(args) {
-    .Call('_rmaverick_GTI_evidence_sim_cpp', PACKAGE = 'rmaverick', args)
+GTI_posterior_K_sim_cpp <- function(args) {
+    .Call('_rmaverick_GTI_posterior_K_sim_cpp', PACKAGE = 'rmaverick', args)
 }
 
 log_sum <- function(logA, logB) {

@@ -137,7 +137,7 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
   }
   
   # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max), args))
+  do.call(plot_quantiles, c(list(q_min = q_min, q_mid = q_mid, q_max = q_max), args))
 }
 
 #------------------------------------------------
@@ -170,20 +170,20 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 3, connect_points
   }
   
   # set default K to first value with output
-  null_output <- mapply(is.null, proj$output[[s]])
+  null_output <- mapply(is.null, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
     stop("no output for active parameter set")
   }
   K <- define_default(K, which(!null_output)[1])
   
   # check output exists for this K
-  if (is.null(proj$output[[s]][K])) {
+  if (is.null(proj$output$single_set[[s]]$single_K[[K]])) {
     stop(sprintf("no output for K = %s of active set", K))
   }
   
   # x axis options
   if (axis_type %in% c(2,3)) {
-    rungs <- proj$output[[s]][[K]]$function_call$args$rungs
+    rungs <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$rungs
     if (! "width" %in% arg_names) {
       args$width <- 0.02
     }
@@ -197,7 +197,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 3, connect_points
       }
     }
     if (axis_type==3) {
-      GTI_pow <- proj$output[[s]][[K]]$function_call$args$GTI_pow
+      GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
       args$q_x <- ((0:rungs)/rungs)^GTI_pow
       if (! "xlab" %in% arg_names) {
         args$xlab <- parse(text="beta^gamma")
@@ -206,7 +206,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 3, connect_points
   }
   
   # produce quantile plot with finalised list of parameters
-  do.call(plot, c(list(proj$output[[s]][[K]]$summary$loglike_quantiles), args))
+  do.call(plot, c(list(proj$output$single_set[[s]]$single_K[[K]]$summary$loglike_quantiles), args))
 }
 
 #------------------------------------------------
@@ -323,19 +323,19 @@ plot_qmatrix_ind <- function(proj, K = NULL, ...) {
   }
   
   # set default K to first value with output
-  null_output <- mapply(is.null, proj$output[[s]])
+  null_output <- mapply(is.null, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
     stop("no output for active parameter set")
   }
   K <- define_default(K, which(!null_output)[1])
   
   # check output exists for this K
-  if (is.null(proj$output[[s]][K])) {
+  if (is.null(proj$output$single_set[[s]]$single_K[[K]])) {
     stop(sprintf("no output for K = %s of active set", K))
   }
   
   # produce Q-matrix plot
-  plot(proj$output[[s]][[K]]$summary$qmatrix_ind, ...)
+  plot(proj$output$single_set[[s]]$single_K[[K]]$summary$qmatrix_ind, ...)
 }
 
 #------------------------------------------------
@@ -417,20 +417,20 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
   }
   
   # set default K to first value with output
-  null_output <- mapply(is.null, proj$output[[s]])
+  null_output <- mapply(is.null, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
     stop("no output for active parameter set")
   }
   K <- define_default(K, which(!null_output)[1])
   
   # check output exists for this K
-  if (is.null(proj$output[[s]][K])) {
+  if (is.null(proj$output$single_set[[s]]$single_K[[K]])) {
     stop(sprintf("no output for K = %s of active set", K))
   }
   
   # x axis options
   if (axis_type %in% c(2,3)) {
-    rungs <- proj$output[[s]][[K]]$function_call$args$rungs
+    rungs <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$rungs
     if (! "width" %in% arg_names) {
       args$width <- 0.02
     }
@@ -444,7 +444,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
       }
     }
     if (axis_type==3) {
-      GTI_pow <- proj$output[[s]][[K]]$function_call$args$GTI_pow
+      GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
       args$q_x <- ((0:rungs)/rungs)^GTI_pow
       if (! "xlab" %in% arg_names) {
         args$xlab <- parse(text="beta^gamma")
@@ -456,13 +456,13 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
   args$connect_points <- connect_points
   
   # produce quantile plot with finalised list of parameters
-  do.call(plot, c(list(proj$output[[s]][[K]]$summary$GTI_path), args))
+  do.call(plot, c(list(proj$output$single_set[[s]]$single_K[[K]]$summary$GTI_path), args))
 }
 
 #------------------------------------------------
-#' @title Plot model log-evidence estimates over K
+#' @title Plot log-evidence estimates over K
 #'
-#' @description Plot model log-evidence estimates over K
+#' @description Plot log-evidence estimates over K
 #'
 #' @details TODO
 #'
@@ -473,7 +473,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
 #' @examples
 #' # TODO
 
-plot_logevidence <- function(proj, ...) {
+plot_logevidence_K <- function(proj, ...) {
   
   # get input arguments
   args <- list(...)
@@ -485,22 +485,9 @@ plot_logevidence <- function(proj, ...) {
     stop("no active parameter set")
   }
   
-  # set K to all values with output
-  null_output <- mapply(is.null, proj$output[[s]])
-  if (all(null_output)) {
-    stop("no output for active parameter set")
-  }
-  K <- which(!null_output)
-  
-  # get logevidence over all K
-  GTI_logevidence <- mapply(function(x) {
-    GTI_logevidence <- x$summary$GTI_logevidence
-    if (is.null(GTI_logevidence)) {
-      return(rep(NA,2))
-    } else {
-      return(GTI_logevidence)
-    }
-  }, proj$output[[s]])
+  # get posterior over all K
+  GTI_logevidence <- proj$output$single_set[[s]]$all_K$GTI_logevidence
+  K <- GTI_logevidence$K
   
   # set defaults
   if (! "xlab" %in% arg_names) {
@@ -511,18 +498,18 @@ plot_logevidence <- function(proj, ...) {
   }
   
   # get confidence intervals
-  q_mid <- unlist(GTI_logevidence[1,])
-  q_min <- q_mid - 1.96*unlist(GTI_logevidence[2,])
-  q_max <- q_mid + 1.96*unlist(GTI_logevidence[2,])
+  q_mid <- unlist(GTI_logevidence$mean)
+  q_min <- q_mid - 1.96*unlist(GTI_logevidence$SE)
+  q_max <- q_mid + 1.96*unlist(GTI_logevidence$SE)
   
   # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max, q_x=K), args))
+  do.call(plot_quantiles, c(list(q_min = q_min, q_mid = q_mid, q_max = q_max, q_x = K), args))
 }
 
 #------------------------------------------------
-#' @title Plot model evidence estimates over K
+#' @title Plot posterior K
 #'
-#' @description Plot model evidence estimates over K
+#' @description Plot posterior K
 #'
 #' @details TODO
 #'
@@ -533,7 +520,7 @@ plot_logevidence <- function(proj, ...) {
 #' @examples
 #' # TODO
 
-plot_evidence <- function(proj, ...) {
+plot_posterior_K <- function(proj, ...) {
   
   # get input arguments
   args <- list(...)
@@ -545,28 +532,22 @@ plot_evidence <- function(proj, ...) {
     stop("no active parameter set")
   }
   
-  # get evidence over all K
-  GTI_evidence <- mapply(function(x) {
-    GTI_evidence <- x$summary$GTI_evidence
-    if (is.null(GTI_evidence)) {
-      return(rep(NA,3))
-    } else {
-      return(GTI_evidence)
-    }
-  }, proj$output[[s]])
+  # get posterior over all K
+  GTI_posterior <- proj$output$single_set[[s]]$all_K$GTI_posterior
+  K <- GTI_posterior$K
   
   # set defaults
   if (! "xlab" %in% arg_names) {
     args$xlab <- "K"
   }
   if (! "ylab" %in% arg_names) {
-    args$ylab <- "evidence"
+    args$ylab <- "posterior probability"
   }
   if (! "ylim" %in% arg_names) {
     args$ylim <- c(0,1)
   }
   if (! "names.arg" %in% arg_names) {
-    args$names.arg <- 1:ncol(GTI_evidence)
+    args$names.arg <- K
   }
   if (! "lwd" %in% arg_names) {
     args$lwd <- 1
@@ -577,11 +558,18 @@ plot_evidence <- function(proj, ...) {
   args$space <- 0
   
   # get confidence intervals
-  q_min <- unlist(GTI_evidence[1,])
-  q_mid <- unlist(GTI_evidence[2,])
-  q_max <- unlist(GTI_evidence[3,])
+  q_min <- unlist(GTI_posterior[,2])
+  q_mid <- unlist(GTI_posterior[,3])
+  q_max <- unlist(GTI_posterior[,4])
   
   # produce plot
   do.call(barplot, c(list(height = q_mid), args))
-  segments(x0=1:length(q_mid)-0.5, y0=q_min, x1=1:length(q_mid)-0.5, y1=q_max, lwd=args$lwd)  # add vertical lines
+  segments(x0 = K-0.5, y0 = q_min, x1 = K-0.5, y1 = q_max, lwd = args$lwd)  # add vertical lines
+  
+  # add question mark to represent NA estimates
+  if (any(is.na(GTI_posterior[,3]))) {
+    w <- which(is.na(GTI_posterior[,3])) 
+    text(w-0.5, 0.5, "?", cex=2)
+  }
+  
 }

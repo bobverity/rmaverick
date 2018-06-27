@@ -136,3 +136,60 @@ update_progress <- function(pb_list, name, i, max_i) {
 is.cluster <- function(x) {
   inherits(x, "cluster")
 }
+
+################################################################
+# MISC CLASSES
+
+#------------------------------------------------
+# function for determining if object is of class maverick_GTI_path
+# (not exported)
+#' @noRd
+is.maverick_GTI_path <- function(x) {
+  inherits(x, "maverick_GTI_path")
+}
+
+#------------------------------------------------
+# overload print() function for class maverick_GTI_path
+# (not exported)
+#' @noRd
+print.maverick_GTI_path <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
+
+#------------------------------------------------
+# function for determining if object is of class maverick_qmatrix_ind
+# (not exported)
+#' @noRd
+is.maverick_qmatrix_ind <- function(x) {
+  inherits(x, "maverick_qmatrix_ind")
+}
+
+#------------------------------------------------
+# overload print() function for class maverick_qmatrix_ind
+# (not exported)
+#' @noRd
+print.maverick_qmatrix_ind <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
+
+#------------------------------------------------
+# function for determining if object is of class maverick_loglike_quantiles
+# (not exported)
+#' @noRd
+is.maverick_loglike_quantiles <- function(x) {
+  inherits(x, "maverick_loglike_quantiles")
+}
+
+#------------------------------------------------
+# overload print() function for class maverick_loglike_quantiles
+# (not exported)
+#' @noRd
+print.maverick_loglike_quantiles <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
+
+
+

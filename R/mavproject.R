@@ -10,7 +10,8 @@ mavproject <- function() {
               data_processed = NULL,
               parameter_sets = NULL,
               active_set = 0,
-              output = list()
+              output = list(single_set = list(),
+                            all_sets = list())
               )
   
   # create class and return
@@ -103,7 +104,7 @@ summary.mavproject <- function(x, ...) {
 }
 
 #------------------------------------------------
-# function for determining if object is of class mavProject
+# function for determining if object is of class mavproject
 # (not exported)
 #' @noRd
 is.mavproject <- function(x) {
