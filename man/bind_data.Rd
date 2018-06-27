@@ -5,32 +5,47 @@
 \title{Bind data to project}
 \usage{
 bind_data(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL,
-  data_cols = NULL, ploidy = 1, missing_data = -9, name = NULL,
-  check_delete_output = TRUE)
+  data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL,
+  missing_data = -9, name = NULL, check_delete_output = TRUE)
 }
 \arguments{
-\item{project}{TODO}
+\item{project}{an rmaverick project, as produced by the function
+\code{mavproject()}}
 
-\item{df}{TODO}
+\item{df}{a dataframe containing genetic information and optional meta-data}
 
-\item{ID_col}{TODO}
+\item{ID_col}{which column of the input data contains the sample IDs. If NULL
+then IDs must be defined seperately through the \code{ID} argument}
 
-\item{pop_col}{TODO}
+\item{pop_col}{which column of the input data contains the ostensible
+population of the samples. If NULL then populations must be defined
+seperately through the \code{pop} argument}
 
-\item{ploidy_col}{TODO}
+\item{ploidy_col}{which column of the input data contains the ploidy of the
+samples. If NULL then ploidy must be defined seperately through the
+\code{ploidy} argument}
 
-\item{data_cols}{TODO}
+\item{data_cols}{which columns of the input data contain genetic information.
+Defaults to all remaining columns of the data once special columns have
+been accounted for}
 
-\item{ploidy}{TODO}
+\item{ID}{sample IDs, if not using the \code{ID_col} option}
 
-\item{missing_data}{TODO}
+\item{pop}{ostensible populations, if not using the \code{pop_col} option}
 
-\item{name}{TODO}
+\item{ploidy}{sample ploidy, if not using the \code{ploidy_col} option. Can
+be a scalar, in which case the same value is used for all samples, or a
+vector specifying the ploidy seperately for each sample.}
 
-\item{check_delete_output}{TODO}
+\item{missing_data}{which value represents missing data}
+
+\item{name}{optional name of the data set, to aid in record keeping}
+
+\item{check_delete_output}{whether to prompt the user before overwriting 
+existing data}
 }
 \description{
-Bind data to project
+Load data into a \code{mavproject} prior to analysis. Data must be formatted as a dataframe with samples in rows and loci in columns. If individuals are polyploid then multiple rows can be used per sample. Ploidy is allowed to vary between samples, and can be specified in multiple ways (see details below).
 }
 \details{
 TODO

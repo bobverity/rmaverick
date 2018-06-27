@@ -242,3 +242,14 @@ assert_mavproject <- function(x, name = deparse(substitute(x))) {
   }
   return(TRUE)
 }
+
+#------------------------------------------------
+# is class cluster
+assert_cluster <- function(x, name = deparse(substitute(x))) {
+  if (!is.cluster(x)) {
+    stop(sprintf("%s must be of class 'cluster'", name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+

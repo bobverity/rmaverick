@@ -4,19 +4,22 @@
 \alias{new_set}
 \title{Create new parameter set}
 \usage{
-new_set(project, name = "(no name)", admix_on = FALSE, K = 1:3,
-  rungs = 11)
+new_set(project, name = "(no name)", lambda = 1, admix_on = FALSE,
+  alpha = 0.1, estimate_alpha = TRUE)
 }
 \arguments{
-\item{project}{TODO}
+\item{project}{an rmaverick project, as produced by the function
+\code{mavproject()}}
 
 \item{name}{TODO}
 
+\item{lambda}{TODO}
+
 \item{admix_on}{TODO}
 
-\item{K}{TODO}
+\item{alpha}{TODO}
 
-\item{rungs}{TODO}
+\item{estimate_alpha}{TODO}
 }
 \description{
 Create new parameter set

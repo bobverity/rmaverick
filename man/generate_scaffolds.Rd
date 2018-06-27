@@ -5,10 +5,11 @@
 \title{Generate scaffolds}
 \usage{
 generate_scaffolds(project, n = 10, coupling_on = TRUE,
-  splitmerge_on = TRUE, cluster = NULL, output_console = is.null(cluster))
+  splitmerge_on = TRUE, cluster = NULL, silent = !is.null(cluster))
 }
 \arguments{
-\item{project}{TODO}
+\item{project}{an rmaverick project, as produced by the function
+\code{mavproject()}}
 
 \item{n}{TODO}
 
@@ -18,7 +19,7 @@ generate_scaffolds(project, n = 10, coupling_on = TRUE,
 
 \item{cluster}{TODO}
 
-\item{output_console}{TODO}
+\item{silent}{TODO}
 }
 \description{
 Generate scaffolds

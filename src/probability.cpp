@@ -77,8 +77,8 @@ double rnorm1_interval(double mean, double sd, double a, double b) {
 
 //------------------------------------------------
 // sample single value from given probability vector (that sums to pSum)
-int sample1(vector<double> &p, double pSum) {
-  double rand = pSum*runif_0_1();
+int sample1(vector<double> &p, double p_sum) {
+  double rand = p_sum*runif_0_1();
   double z = 0;
   for (int i=0; i<int(p.size()); i++) {
     z += p[i];
@@ -102,9 +102,9 @@ int sample2(int a, int b) {
 }
 
 //------------------------------------------------
-// sample a given number of values from a vector without replacement (templated
-// for different data types). Note, this function re-arranges the original
-// vector (passed in by reference), and the result is stored in the first n
+// sample a given number of values from a vector without replacement (templated 
+// for different data types). Note, this function re-arranges the original 
+// vector (passed in by reference), and the result is stored in the first n 
 // elements.
 // sample3
 // DEFINED IN HEADER
@@ -112,16 +112,7 @@ int sample2(int a, int b) {
 //------------------------------------------------
 // draw from gamma(shape,rate) distribution
 double rgamma1(double shape, double rate) {
-  double x = R::rgamma(shape, rate);
-  
-  // check for zero or infinite values (catches bug present in Visual Studio 2010)
-  if (x<UNDERFLO) {
-    x = UNDERFLO;
-  }
-  if (x>OVERFLO) {
-    x = OVERFLO;
-  }
-  return x;
+  return R::rgamma(shape, 1.0/rate);
 }
 
 //------------------------------------------------
@@ -135,47 +126,48 @@ double rbeta1(double shape1, double shape2) {
 
 //------------------------------------------------
 // probability density of beta(shape1,shape2) distribution
-double dbeta1(double x, double shape1, double shape2, bool returnLog) {
-  return R::dbeta(x, shape1, shape2, returnLog);
+double dbeta1(double x, double shape1, double shape2, bool log_on) {
+  return R::dbeta(x, shape1, shape2, log_on);
 }
 
 //------------------------------------------------
-// draw from dirichlet distribution using vector of shape parameters. Return vector of values.
-vector<double> rdirichlet1(vector<double> &shapeVec) {
+// draw from dirichlet distribution using vector of shape parameters. Return 
+// vector of values.
+vector<double> rdirichlet1(vector<double> &shape_vec) {
   // draw a series of gamma random variables
-  int n = shapeVec.size();
+  int n = shape_vec.size();
   vector<double> ret(n);
-  double retSum = 0;
+  double ret_sum = 0;
   for (int i=0; i<n; i++) {
-    ret[i] = rgamma1(shapeVec[i], 1.0);
-    retSum += ret[i];
+    ret[i] = rgamma1(shape_vec[i], 1.0);
+    ret_sum += ret[i];
   }
   // divide all by the sum
-  double retSumInv = 1.0/retSum;
+  double ret_sum_inv = 1.0/ret_sum;
   for (int i=0; i<n; i++) {
-    ret[i] *= retSumInv;
+    ret[i] *= ret_sum_inv;
   }
   return(ret);
 }
 
 //------------------------------------------------
-// draw from dirichlet distribution using bespoke inputs. Outputs are stored in
-// x, passed by reference for speed. Shape parameters are equal to alpha+beta,
-// where alpha is an integer vector, and beta is a single double.
-void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta) {
-  
+// draw from dirichlet distribution using bespoke inputs. Outputs are stored in 
+// x, which is passed by reference for speed. Shape parameters are equal to 
+// alpha*beta + gamma, where alpha is an integer vector, and beta and gamma are
+// scalar doubles. Return in log space.
+void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, double gamma) {
   int n = x.size();
-  double xSum = 0;
+  double x_sum = 0;
   for (int i=0; i<n; i++) {
-    x[i] = rgamma1(alpha[i]+beta, 1.0);
-    xSum += x[i];
-  }
-  double xSumInv = 1.0/xSum;
-  for (int i=0; i<n; i++) {
-    x[i] *= xSumInv;
-    if (x[i] <= UNDERFLO) {
+    x[i] = rgamma1(alpha[i]*beta+gamma, 1.0);
+    if (x[i]<UNDERFLO) {
       x[i] = UNDERFLO;
     }
+    x_sum += x[i];
+  }
+  double log_x_sum = log(x_sum);
+  for (int i=0; i<n; i++) {
+    x[i] = log(x[i]) - log_x_sum;
   }
 }
 
@@ -187,20 +179,37 @@ int rpois1(double rate) {
 
 //------------------------------------------------
 // probability mass of Poisson(rate) distribution
-double dpois1(int n, double rate, bool returnLog) {
-  return R::dpois(n,rate,returnLog);
+double dpois1(int n, double rate, bool log_on) {
+  return R::dpois(n, rate, log_on);
 }
 
 //------------------------------------------------
-// draw from negative binomial distribution with mean lambda and variance gamma*lambda (gamma must be >1)
+// draw from negative binomial distribution with mean lambda and variance
+// gamma*lambda (gamma must be >1)
 int rnbinom1(double lambda, double gamma) {
   return R::rnbinom(lambda/(gamma-1), 1/gamma);
 }
 
 //------------------------------------------------
-// probability mass of negative binomial distribution with mean lambda and
+// probability mass of negative binomial distribution with mean lambda and 
 // variance gamma*lambda (gamma must be >1)
-double dnbinom1(int n, double lambda, double gamma, bool returnLog) {
-  return R::dnbinom(n, lambda/(gamma-1), 1/gamma, returnLog);
+double dnbinom1(int n, double lambda, double gamma, bool log_on) {
+  return R::dnbinom(n, lambda/(gamma-1), 1/gamma, log_on);
 }
 
+//------------------------------------------------
+// draw number of unique groups under Chinese restaurant process
+int rCRPgroups(int n, double alpha) {
+  if (n<=1) {
+    return(n);
+  }
+  double p;
+  int ngroups = 1;
+  for (int i=1; i<n; i++) {
+    p = alpha/double(i+alpha);
+    if (rbernoulli1(p)) {
+      ngroups++;
+    }
+  }
+  return(ngroups);
+}

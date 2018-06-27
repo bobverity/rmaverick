@@ -85,33 +85,6 @@ rcpp_to_mat <- function(x) {
 }
 
 #------------------------------------------------
-# define default colours for barplots
-# (not exported)
-#' @noRd
-default_colours <- function(K) {
-  
-  # generate palette and colours
-  raw_cols <- c("#D73027", "#FC8D59", "#FEE090", "#E0F3F8", "#91BFDB", "#4575B4")
-  my_palette <- colorRampPalette(raw_cols)
-  ret <- my_palette(max(K,6))
-  
-  # if fewer than 6 colours then choose manually
-  if (K==5) {
-    ret = ret[c(1,2,3,5,6)]
-  } else if (K==4) {
-    ret = ret[c(1,2,3,5)]
-  } else if (K==3) {
-    ret = ret[c(1,3,5)]
-  } else if (K==2) {
-    ret = ret[c(1,5)]
-  } else if (K==1) {
-    ret = ret[1]
-  }
-  
-  return(ret)
-}
-
-#------------------------------------------------
 # return 95% quantile
 # (not exported)
 #' @noRd
@@ -149,23 +122,17 @@ test_convergence <- function(x, n) {
 # update progress bar
 # (not exported)
 #' @noRd
-update_progress <- function(args, type, i, max_i) {
-  
-  # split by type
-  if (type==1) { # scaffold progress bar
-    setTxtProgressBar(args$pb_scaf, i)
-    if (i==max_i) {
-      close(args$pb_scaf)
-    }
-  } else if (type==2) { # burn-in iterations progress bar
-    setTxtProgressBar(args$pb_burnin, i)
-    if (i==max_i) {
-      close(args$pb_burnin)
-    }
-  } else if (type==3) { # sampling iterations progress bar
-    setTxtProgressBar(args$pb_samples, i)
-    if (i==max_i) {
-      close(args$pb_samples)
-    }
+update_progress <- function(pb_list, name, i, max_i) {
+  setTxtProgressBar(pb_list[[name]], i)
+  if (i==max_i) {
+    close(pb_list[[name]])
   }
+}
+
+#------------------------------------------------
+# function for determining if object is of class cluster
+# (not exported)
+#' @noRd
+is.cluster <- function(x) {
+  inherits(x, "cluster")
 }

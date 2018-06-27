@@ -10,7 +10,7 @@ mavproject <- function() {
               data_processed = NULL,
               parameter_sets = NULL,
               active_set = 0,
-              output = NULL
+              output = list()
               )
   
   # create class and return

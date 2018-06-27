@@ -5,8 +5,12 @@ generate_scaffolds_cpp <- function(args) {
     .Call('_rmaverick_generate_scaffolds_cpp', PACKAGE = 'rmaverick', args)
 }
 
-example_mcmc_cpp <- function(args) {
-    .Call('_rmaverick_example_mcmc_cpp', PACKAGE = 'rmaverick', args)
+run_mcmc_cpp <- function(args) {
+    .Call('_rmaverick_run_mcmc_cpp', PACKAGE = 'rmaverick', args)
+}
+
+GTI_evidence_sim_cpp <- function(args) {
+    .Call('_rmaverick_GTI_evidence_sim_cpp', PACKAGE = 'rmaverick', args)
 }
 
 log_sum <- function(logA, logB) {

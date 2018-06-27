@@ -46,8 +46,9 @@ sim_data <- function(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1.0
     
   } else {  # independent admixture for each sample
     admix_freqs = t(replicate(n, rdirichlet(alpha)))
-    group <- order(apply(admix_freqs, 1, which.max))
-    admix_freqs <- admix_freqs[group,]
+    group <- apply(admix_freqs, 1, which.max)
+    admix_freqs <- admix_freqs[order(group),]
+    group <- sort(group)
   }
   colnames(admix_freqs) <- pop_names
   row.names(admix_freqs) <- ind_names

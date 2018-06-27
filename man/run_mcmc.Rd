@@ -4,22 +4,16 @@
 \alias{run_mcmc}
 \title{Run main MCMC}
 \usage{
-run_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000, sigma = 1,
-  burnin = 100, samples = 1000, rungs = 10,
-  solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE,
-  scaffold_n = 10, splitmerge_on = TRUE, parallel_on = TRUE,
-  num_cores = NULL)
+run_mcmc(project, K = 3, burnin = 100, samples = 1000, rungs = 10,
+  GTI_pow = 3, auto_converge = TRUE, solve_label_switching_on = TRUE,
+  coupling_on = TRUE, scaffold_on = TRUE, splitmerge_on = TRUE,
+  cluster = NULL, silent = !is.null(cluster))
 }
 \arguments{
-\item{x}{the raw data (vector)}
+\item{project}{an rmaverick project, as produced by the function
+\code{mavproject()}}
 
-\item{K}{the number of mixture components}
-
-\item{mu_prior_mean}{the mean of the (normal) prior on mixture component locations}
-
-\item{mu_prior_var}{the variance of the (normal) prior on mixture component locations}
-
-\item{sigma}{the standard deviation of mixture components}
+\item{K}{the values of K to run the MCMC on}
 
 \item{burnin}{the number of burn-in iterations}
 
@@ -27,19 +21,21 @@ run_mcmc(x, K = 3, mu_prior_mean = 0, mu_prior_var = 1000, sigma = 1,
 
 \item{rungs}{the number of temperature rungs}
 
+\item{GTI_pow}{the power used in generalised thermodynamic integration}
+
+\item{auto_converge}{whether convergence should be assessed automatically, in which case burn-in iterations are terminated as soon as convergence is reached. Otherwise the full \code{burnin} iterations are used}
+
 \item{solve_label_switching_on}{whether to implement the Stevens' solution to the label-switching problem}
 
 \item{coupling_on}{whether to implement Metropolis-coupling over temperature rungs}
 
 \item{scaffold_on}{whether to use scaffolds to improve mixing}
 
-\item{scaffold_n}{the number of scaffolds to use}
-
 \item{splitmerge_on}{whether to implement a split-merge proposal}
 
-\item{parallel_on}{whether to run each value of K in parallel}
+\item{cluster}{pass in a cluster environment}
 
-\item{num_cores}{number of cores to use in parallelisation}
+\item{silent}{whether to suppress all console output}
 }
 \description{
 Run main MCMC

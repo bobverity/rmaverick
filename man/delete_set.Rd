@@ -7,7 +7,8 @@
 delete_set(project, index = NULL, check_delete_output = TRUE)
 }
 \arguments{
-\item{project}{TODO}
+\item{project}{an rmaverick project, as produced by the function
+\code{mavproject()}}
 
 \item{index}{TODO}
 
