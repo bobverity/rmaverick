@@ -7,3 +7,5 @@ R_ignore/
 ^codecov\.yml$
 ^_pkgdown\.yml$
 ^docs$
+^README\.Rmd$
+^README-.*\.png$
