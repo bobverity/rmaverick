@@ -7,7 +7,7 @@ Authors@R: person("Robert", "Verity", email = "r.verity@imperial.ac.uk",
                   role = c("aut", "cre"))
 Maintainer: Robert Verity <maverick.help@bobverity.com>
 Description: Carries out analysis of genetic population structure with thermodynamic integration.
-License: GPL (>= 2)
+License: MIT + file LICENSE
 Imports:
     Rcpp (>= 0.12.14),
     assertthat,

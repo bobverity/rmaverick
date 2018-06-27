@@ -29,7 +29,7 @@ double rnorm1_interval(double mean, double sd, double a, double b);
 
 //------------------------------------------------
 // sample single value from given probability vector (that sums to pSum)
-int sample1(std::vector<double> &p, double pSum=1.0);
+int sample1(std::vector<double> &p, double p_sum=1.0);
 
 //------------------------------------------------
 // sample single value x that lies between a and b (inclusive) with equal 
@@ -63,17 +63,15 @@ double rbeta1(double shape1, double shape2);
 
 //------------------------------------------------
 // probability density of beta(shape1,shape2) distribution
-double dbeta1(double x, double shape1, double shape2, bool returnLog=true);
+double dbeta1(double x, double shape1, double shape2, bool log_on=true);
 
 //------------------------------------------------
 // draw from dirichlet distribution using vector of shape parameters
-std::vector<double> rdirichlet1(std::vector<double> &shapeVec);
+std::vector<double> rdirichlet1(std::vector<double> &shape_vec);
 
 //------------------------------------------------
-// draw from dirichlet distribution using bespoke inputs. Outputs are given in x
-// (passed by reference for speed). Shape parameters are equal to alpha+beta,
-// where alpha is an integer vector, and beta is a single double.
-void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta);
+// draw from dirichlet distribution using bespoke inputs
+void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, double gamma);
 
 //------------------------------------------------
 // draw from Poisson(rate) distribution
@@ -81,7 +79,7 @@ int rpois1(double rate);
 
 //------------------------------------------------
 // probability mass of Poisson(rate) distribution
-double dpois1(int n, double rate, bool returnLog=true);
+double dpois1(int n, double rate, bool log_on=true);
 
 //------------------------------------------------
 // draw from negative binomial distribution with mean lambda and variance
@@ -91,5 +89,8 @@ int rnbinom1(double lambda, double gamma);
 //------------------------------------------------
 // probability mass of negative binomial distribution with mean lambda and
 // variance gamma*lambda (gamma must be >1)
-double dnbinom1(int n, double lambda, double gamma, bool returnLog=true);
+double dnbinom1(int n, double lambda, double gamma, bool log_on=true);
 
+//------------------------------------------------
+// draw number of unique groups under Chinese restaurant process
+int rCRPgroups(int n, double alpha);
