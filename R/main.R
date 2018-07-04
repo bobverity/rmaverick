@@ -336,13 +336,18 @@ generate_scaffolds <- function(project, n = 10, coupling_on = TRUE, splitmerge_o
 #' @param scaffold_on whether to use scaffolds to improve mixing
 #' @param splitmerge_on whether to implement a split-merge proposal
 #' @param cluster pass in a cluster environment
+#' @param pb_markdown whether to run progress bars in markdown mode, in which
+#'   case they are updated once at the end to avoid large amounts of output.
 #' @param silent whether to suppress all console output
 #' 
 #' @export
 #' @examples
 #' # TODO
 
-run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 3, auto_converge = TRUE, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, splitmerge_on = TRUE, cluster = NULL, silent = !is.null(cluster)) {
+run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 3, auto_converge = TRUE, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, splitmerge_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
+  
+  # start timer
+  t0 <- Sys.time()
   
   # check inputs
   assert_mavproject(project)
@@ -359,6 +364,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   if (!is.null(cluster)) {
     assert_cluster(cluster)
   }
+  assert_scalar_logical(pb_markdown)
   assert_scalar_logical(silent)
   
   # get active set
@@ -388,6 +394,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                       coupling_on = coupling_on,
                       scaffold_on = scaffold_on,
                       splitmerge_on = splitmerge_on,
+                      pb_markdown = pb_markdown,
                       silent = silent)
   
   # combine model parameters list with input arguments
@@ -616,6 +623,10 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
     # load GTI_posterior into project
     project$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
   }
+  
+  # end timer
+  tdiff <- round(Sys.time() - t0, 2)
+  message(sprintf("Total run-time: %s seconds", tdiff))
   
   # return invisibly
   invisible(project)

@@ -24,6 +24,7 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
   solve_label_switching_on = rcpp_to_bool(args_model["solve_label_switching_on"]);
   coupling_on = rcpp_to_bool(args_model["coupling_on"]);
   splitmerge_on = rcpp_to_bool(args_model["splitmerge_on"]);
+  pb_markdown = rcpp_to_bool(args_model["pb_markdown"]);
   silent = rcpp_to_bool(args_model["silent"]);
   
   // thermodynamic parameters. The object beta_raised stores values of beta (the
@@ -126,9 +127,13 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // update progress bars
     if (!silent) {
-      int remainder = rep % int(ceil(double(burnin)/100));
-      if (remainder==0 || (rep+1)==burnin) {
+      if ((rep+1)==burnin) {
         update_progress(args_progress, "pb_burnin", rep+1, burnin);
+      } else {
+        int remainder = rep % int(ceil(double(burnin)/100));
+        if (remainder==0 && !pb_markdown) {
+          update_progress(args_progress, "pb_burnin", rep+1, burnin);
+        }
       }
     }
     
@@ -232,9 +237,13 @@ void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_pr
     
     // update progress bars
     if (!silent) {
-      int remainder = rep % int(ceil(double(samples)/100));
-      if (remainder==0 || (rep+1)==samples) {
+      if ((rep+1)==samples) {
         update_progress(args_progress, "pb_samples", rep+1, samples);
+      } else {
+        int remainder = rep % int(ceil(double(samples)/100));
+        if (remainder==0 && !pb_markdown) {
+          update_progress(args_progress, "pb_samples", rep+1, samples);
+        }
       }
     }
     

@@ -1,8 +1,15 @@
 
 #------------------------------------------------
-# define empty mavproject object
-# (not exported)
-#' @noRd
+#' @title Create a new rmaverick project
+#'
+#' @description Create a new rmaverick project.
+#'
+#' @details TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+#' 
 mavproject <- function() {
   
   # initialise project with default values
