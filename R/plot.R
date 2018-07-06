@@ -30,7 +30,7 @@ default_colours <- function(K) {
 # whisker plot of quantiles
 # (not exported)
 #' @noRd
-plot_quantiles <- function(q_min, q_mid, q_max, q_x = 1:length(q_min), width = 0.2, connect_points = FALSE, ...) {
+plot_quantiles <- function(q_min, q_mid, q_max, q_x = 1:length(q_min), q_names = q_x, width = 0.2, connect_points = FALSE, ...) {
   
   # get input arguments
   args <- list(...)
@@ -460,6 +460,45 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
 }
 
 #------------------------------------------------
+#' @title Default plot for class maverick_GTI_logevidence
+#'
+#' @description TODO
+#'
+#' @details TODO
+#'
+#' @param x TODO
+#' @param y TODO
+#' @param ... TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot.maverick_GTI_logevidence <- function(x, y, ...) {
+  
+  # get input arguments
+  args <- list(...)
+  arg_names <- names(args)
+  
+  # set defaults
+  if (! "xlab" %in% arg_names) {
+    args$xlab <- "K"
+  }
+  if (! "ylab" %in% arg_names) {
+    args$ylab <- "log-evidence"
+  }
+  
+  # get credible intervals
+  q_mid <- unlist(x$mean)
+  q_min <- q_mid - 1.96*unlist(x$SE)
+  q_max <- q_mid + 1.96*unlist(x$SE)
+  K <- x$K
+  
+  # plot with finalised list of parameters
+  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max, q_x=K), args))
+}
+
+#------------------------------------------------
 #' @title Plot log-evidence estimates over K
 #'
 #' @description Plot log-evidence estimates over K
@@ -485,25 +524,67 @@ plot_logevidence_K <- function(proj, ...) {
     stop("no active parameter set")
   }
   
-  # get posterior over all K
-  GTI_logevidence <- proj$output$single_set[[s]]$all_K$GTI_logevidence
-  K <- GTI_logevidence$K
+  # produce quantile plot with finalised list of parameters
+  do.call(plot, c(list(proj$output$single_set[[s]]$all_K$GTI_logevidence), args))
+}
+
+#------------------------------------------------
+#' @title Default plot for class maverick_GTI_posterior
+#'
+#' @description TODO
+#'
+#' @details TODO
+#'
+#' @param x TODO
+#' @param y TODO
+#' @param ... TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot.maverick_GTI_posterior <- function(x, y, ...) {
+  
+  # get input arguments
+  args <- list(...)
+  arg_names <- names(args)
   
   # set defaults
   if (! "xlab" %in% arg_names) {
     args$xlab <- "K"
   }
   if (! "ylab" %in% arg_names) {
-    args$ylab <- "log-evidence"
+    args$ylab <- "posterior probability"
   }
+  if (! "ylim" %in% arg_names) {
+    args$ylim <- c(0,1)
+  }
+  if (! "names.arg" %in% arg_names) {
+    args$names.arg <- x$K
+  }
+  if (! "lwd" %in% arg_names) {
+    args$lwd <- 1
+  }
+  if (! "col" %in% arg_names) {
+    args$col <- "#4575B4"
+  }
+  args$space <- 0
   
   # get confidence intervals
-  q_mid <- unlist(GTI_logevidence$mean)
-  q_min <- q_mid - 1.96*unlist(GTI_logevidence$SE)
-  q_max <- q_mid + 1.96*unlist(GTI_logevidence$SE)
+  q_min <- x$Q2.5
+  q_mid <- x$Q50
+  q_max <- x$Q97.5
+  K <- x$K
   
-  # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min = q_min, q_mid = q_mid, q_max = q_max, q_x = K), args))
+  # produce plot
+  do.call(barplot, c(list(height = q_mid), args))
+  segments(x0 = K-0.5, y0 = q_min, x1 = K-0.5, y1 = q_max, lwd = args$lwd)  # add vertical lines
+  
+  # add question mark to represent NA estimates
+  if (any(is.na(q_mid))) {
+    w <- which(is.na(q_mid)) 
+    text(w-0.5, 0.5, "?", cex=2)
+  }
 }
 
 #------------------------------------------------
@@ -532,13 +613,110 @@ plot_posterior_K <- function(proj, ...) {
     stop("no active parameter set")
   }
   
-  # get posterior over all K
-  GTI_posterior <- proj$output$single_set[[s]]$all_K$GTI_posterior
-  K <- GTI_posterior$K
+  # produce barplot with finalised list of parameters
+  do.call(plot, c(list(proj$output$single_set[[s]]$all_K$GTI_posterior), args))
+}
+
+#------------------------------------------------
+#' @title Default plot for class maverick_GTI_logevidence_model
+#'
+#' @description TODO
+#'
+#' @details TODO
+#'
+#' @param x TODO
+#' @param y TODO
+#' @param ... TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
+  
+  # get input arguments
+  args <- list(...)
+  arg_names <- names(args)
   
   # set defaults
   if (! "xlab" %in% arg_names) {
-    args$xlab <- "K"
+    args$xlab <- "model"
+  }
+  if (! "ylab" %in% arg_names) {
+    args$ylab <- "log-evidence"
+  }
+  if (! "width" %in% arg_names) {
+    args$width <- 0.1
+  }
+  args$axes <- FALSE
+  
+  # get credible intervals
+  q_mid <- unlist(x$mean)
+  q_min <- q_mid - 1.96*unlist(x$SE)
+  q_max <- q_mid + 1.96*unlist(x$SE)
+  name <- x$name
+  
+  # plot with finalised list of parameters
+  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max), args))
+  axis(1, at = 1:length(q_mid), labels = name)
+  axis(2)
+  box()
+}
+
+#------------------------------------------------
+#' @title Plot log-evidence estimates over parameter sets
+#'
+#' @description Plot log-evidence estimates over parameter sets
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param ... TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot_logevidence_model <- function(proj, ...) {
+  
+  # get input arguments
+  args <- list(...)
+  arg_names <- names(args)
+  
+  # check for null input
+  GTI_logevidence_model <- proj$output$all_sets$GTI_logevidence_model
+  if (is.null(GTI_logevidence_model)) {
+    stop("no GTI_logevidence_model output")
+  }
+  
+  # produce quantile plot with finalised list of parameters
+  do.call(plot, c(list(GTI_logevidence_model), args))
+}
+
+#------------------------------------------------
+#' @title Default plot for class maverick_GTI_posterior_model
+#'
+#' @description TODO
+#'
+#' @details TODO
+#'
+#' @param x TODO
+#' @param y TODO
+#' @param ... TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot.maverick_GTI_posterior_model <- function(x, y, ...) {
+  
+  # get input arguments
+  args <- list(...)
+  arg_names <- names(args)
+  
+  # set defaults
+  if (! "xlab" %in% arg_names) {
+    args$xlab <- "model"
   }
   if (! "ylab" %in% arg_names) {
     args$ylab <- "posterior probability"
@@ -547,7 +725,7 @@ plot_posterior_K <- function(proj, ...) {
     args$ylim <- c(0,1)
   }
   if (! "names.arg" %in% arg_names) {
-    args$names.arg <- K
+    args$names.arg <- x$name
   }
   if (! "lwd" %in% arg_names) {
     args$lwd <- 1
@@ -558,18 +736,48 @@ plot_posterior_K <- function(proj, ...) {
   args$space <- 0
   
   # get confidence intervals
-  q_min <- unlist(GTI_posterior[,2])
-  q_mid <- unlist(GTI_posterior[,3])
-  q_max <- unlist(GTI_posterior[,4])
+  q_min <- x$Q2.5
+  q_mid <- x$Q50
+  q_max <- x$Q97.5
+  set <- x$set
   
   # produce plot
   do.call(barplot, c(list(height = q_mid), args))
-  segments(x0 = K-0.5, y0 = q_min, x1 = K-0.5, y1 = q_max, lwd = args$lwd)  # add vertical lines
+  segments(x0 = set-0.5, y0 = q_min, x1 = set-0.5, y1 = q_max, lwd = args$lwd)  # add vertical lines
   
   # add question mark to represent NA estimates
-  if (any(is.na(GTI_posterior[,3]))) {
-    w <- which(is.na(GTI_posterior[,3])) 
+  if (any(is.na(q_mid))) {
+    w <- which(is.na(q_mid)) 
     text(w-0.5, 0.5, "?", cex=2)
   }
+}
+
+#------------------------------------------------
+#' @title Plot posterior model
+#'
+#' @description Plot posterior model
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param ... TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot_posterior_model <- function(proj, ...) {
   
+  # get input arguments
+  args <- list(...)
+  arg_names <- names(args)
+  
+  # check for null input
+  GTI_posterior_model <- proj$output$all_sets$GTI_posterior_model
+  if (is.null(GTI_posterior_model)) {
+    stop("no GTI_posterior_model output")
+  }
+  
+  # produce barplot with finalised list of parameters
+  do.call(plot, c(list(GTI_posterior_model), args))
 }

@@ -52,7 +52,8 @@ test_that("C++ Hungarian algorithm working correctly", {
 test_that("log_sum working correctly", {
   
   # test finite and infinite inputs
-  expect_equal(log_sum(3,4), log(exp(3)+exp(4)))  # both finite
-  expect_equal(log_sum(-Inf,4), log(exp(-Inf)+exp(4)))  # first value infinite
-  expect_equal(log_sum(3,-Inf), log(exp(3)+exp(-Inf)))  # second value infinite
+  expect_equal(log_sum(c(3,4)), log(exp(3)+exp(4)))  # both finite
+  expect_equal(log_sum(c(-Inf,4)), log(exp(-Inf)+exp(4)))  # first value infinite
+  expect_equal(log_sum(c(3,-Inf)), log(exp(3)+exp(-Inf)))  # second value infinite
+  expect_equal(log_sum(1:10), log(sum(exp(1:10))))  # more than two values
 })

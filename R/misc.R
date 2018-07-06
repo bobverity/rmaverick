@@ -93,6 +93,19 @@ quantile_95 <- function(x) {
 }
 
 #------------------------------------------------
+# sum logged values without underflow, i.e. do log(sum(exp(x)))
+# (not exported)
+#' @noRd
+log_sum <- function(x) {
+  if (all(is.na(x))) {
+    return(rep(NA, length(x)))
+  }
+  x_max <- max(x, na.rm = TRUE)
+  ret <- x_max + log(sum(exp(x-x_max)))
+  return(ret)
+}
+
+#------------------------------------------------
 # geweke_pvalue
 # return p-value of Geweke's diagnostic convergence statistic, estimated from package coda
 # (not exported)
@@ -191,5 +204,39 @@ print.maverick_loglike_quantiles <- function(x, ...) {
   invisible(x)
 }
 
+#------------------------------------------------
+# overload print() function for class maverick_GTI_logevidence
+# (not exported)
+#' @noRd
+print.maverick_GTI_logevidence <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
 
+#------------------------------------------------
+# overload print() function for class maverick_GTI_posterior
+# (not exported)
+#' @noRd
+print.maverick_GTI_posterior <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
+
+#------------------------------------------------
+# overload print() function for class maverick_GTI_logevidence_model
+# (not exported)
+#' @noRd
+print.maverick_GTI_logevidence_model <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
+
+#------------------------------------------------
+# overload print() function for class maverick_GTI_posterior_model
+# (not exported)
+#' @noRd
+print.maverick_GTI_posterior_model <- function(x, ...) {
+  print(as.data.frame(unclass(x)))
+  invisible(x)
+}
 

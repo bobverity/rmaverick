@@ -7,7 +7,7 @@
 run_mcmc(project, K = 3, burnin = 100, samples = 1000, rungs = 10,
   GTI_pow = 3, auto_converge = TRUE, solve_label_switching_on = TRUE,
   coupling_on = TRUE, scaffold_on = TRUE, splitmerge_on = TRUE,
-  cluster = NULL, silent = !is.null(cluster))
+  cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster))
 }
 \arguments{
 \item{project}{an rmaverick project, as produced by the function
@@ -34,6 +34,9 @@ run_mcmc(project, K = 3, burnin = 100, samples = 1000, rungs = 10,
 \item{splitmerge_on}{whether to implement a split-merge proposal}
 
 \item{cluster}{pass in a cluster environment}
+
+\item{pb_markdown}{whether to run progress bars in markdown mode, in which
+case they are updated once at the end to avoid large amounts of output.}
 
 \item{silent}{whether to suppress all console output}
 }

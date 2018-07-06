@@ -13,6 +13,10 @@ GTI_posterior_K_sim_cpp <- function(args) {
     .Call('_rmaverick_GTI_posterior_K_sim_cpp', PACKAGE = 'rmaverick', args)
 }
 
+GTI_integrated_K_sim_cpp <- function(args) {
+    .Call('_rmaverick_GTI_integrated_K_sim_cpp', PACKAGE = 'rmaverick', args)
+}
+
 log_sum <- function(logA, logB) {
     .Call('_rmaverick_log_sum', PACKAGE = 'rmaverick', logA, logB)
 }

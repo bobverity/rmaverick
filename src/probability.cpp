@@ -159,7 +159,7 @@ void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, d
   int n = x.size();
   double x_sum = 0;
   for (int i=0; i<n; i++) {
-    x[i] = rgamma1(alpha[i]*beta+gamma, 1.0);
+    x[i] = rgamma1(double(alpha[i])*beta+gamma, 1.0);
     if (x[i]<UNDERFLO) {
       x[i] = UNDERFLO;
     }

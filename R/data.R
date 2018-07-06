@@ -1,6 +1,26 @@
 
 #------------------------------------------------
-# simulate data
+#' @title Simulate data
+#'
+#' @description Simulate data.
+#'
+#' @details TODO
+#' 
+#' @param n number of samples
+#' @param ploidy ploidy of every sample. If scalar then the same value applies
+#'   to all samples
+#' @param loci number of loci
+#' @param allele_num number of alleles per locus
+#' @param lambda prior parameter on allele frequency distribution
+#' @param admix_on whether to simulate from the admixture model
+#' @param alpha the admixture parameter
+#' @param K the number of subpopulations
+#' @param pop_col_on whether to simulate data with a population column
+#' @param ploidy_col_on whether to simulate data with a ploidy column
+#'
+#' @export
+#' @examples
+#' # TODO
 
 sim_data <- function(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1.0, admix_on = FALSE, alpha = 1, K = 3, pop_col_on = TRUE, ploidy_col_on = TRUE) {
   

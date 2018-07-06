@@ -47,4 +47,5 @@ std::vector<double> get_alpha_store(TYPE x) {
 // estimate evidence quantiles by simulation
 Rcpp::List GTI_evidence_sim_cpp(Rcpp::List args);
 
-
+// integrate log-evidence over K by simulation
+Rcpp::List GTI_integrated_K_sim_cpp(Rcpp::List args);

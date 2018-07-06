@@ -2,6 +2,7 @@
 #include "mcmc_noadmix.h"
 #include "misc.h"
 #include "probability.h"
+#include "Hungarian.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
   solve_label_switching_on = rcpp_to_bool(args_model["solve_label_switching_on"]);
   coupling_on = rcpp_to_bool(args_model["coupling_on"]);
   splitmerge_on = rcpp_to_bool(args_model["splitmerge_on"]);
+  pb_markdown = rcpp_to_bool(args_model["pb_markdown"]);
   silent = rcpp_to_bool(args_model["silent"]);
   
   // thermodynamic parameters. The object beta_raised stores values of beta (the
@@ -44,6 +46,18 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
   // Q-matrices
   log_qmatrix_ind_running = vector<vector<double>>(n, vector<double>(K));
   qmatrix_ind = vector<vector<double>>(n, vector<double>(K));
+  
+  // initialise ordering of labels
+  label_order = seq_int(0,K-1);
+  
+  // objects for solving label switching problem
+  cost_mat = vector<vector<double>>(K, vector<double>(K));
+  best_perm = vector<int>(K);
+  best_perm_order = vector<int>(K);
+  edges_left = vector<int>(K);
+  edges_right = vector<int>(K);
+  blocked_left = vector<int>(K);
+  blocked_right = vector<int>(K);
   
   // objects for storing results
   loglike_burnin = vector<vector<double>>(rungs, vector<double>(burnin));
@@ -112,7 +126,8 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // fix labels
     if (solve_label_switching_on) {
-      particle_vec[cold_rung].solve_label_switching(log_qmatrix_ind_running);
+      solve_label_switching();
+      //particle_vec[cold_rung].solve_label_switching(log_qmatrix_ind_running);
     }
     
     // add particle log_qmatrix_ind to log_qmatrix_ind_running
@@ -126,9 +141,13 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // update progress bars
     if (!silent) {
-      int remainder = rep % int(ceil(double(burnin)/100));
-      if (remainder==0 || (rep+1)==burnin) {
+      if ((rep+1)==burnin) {
         update_progress(args_progress, "pb_burnin", rep+1, burnin);
+      } else {
+        int remainder = rep % int(ceil(double(burnin)/100));
+        if (remainder==0 && !pb_markdown) {
+          update_progress(args_progress, "pb_burnin", rep+1, burnin);
+        }
       }
     }
     
@@ -215,7 +234,8 @@ void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_pr
     
     // fix labels
     if (solve_label_switching_on) {
-      particle_vec[cold_rung].solve_label_switching(log_qmatrix_ind_running);
+      solve_label_switching();
+      //particle_vec[cold_rung].solve_label_switching(log_qmatrix_ind_running);
     }
     
     // add particle log_qmatrix to log_qmatrix_running
@@ -232,9 +252,13 @@ void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_pr
     
     // update progress bars
     if (!silent) {
-      int remainder = rep % int(ceil(double(samples)/100));
-      if (remainder==0 || (rep+1)==samples) {
+      if ((rep+1)==samples) {
         update_progress(args_progress, "pb_samples", rep+1, samples);
+      } else {
+        int remainder = rep % int(ceil(double(samples)/100));
+        if (remainder==0 && !pb_markdown) {
+          update_progress(args_progress, "pb_samples", rep+1, samples);
+        }
       }
     }
     
@@ -255,7 +279,8 @@ void mcmc_noadmix::update_log_qmatrix_ind_running() {
   
   for (int i=0; i<n; i++) {
     for (int k=0; k<K; k++) {
-      int this_k = particle_vec[cold_rung].label_order[k];
+      //int this_k = particle_vec[cold_rung].label_order[k];
+      int this_k = label_order[k];
       log_qmatrix_ind_running[i][k] = log_sum(log_qmatrix_ind_running[i][k], particle_vec[cold_rung].log_qmatrix_ind[i][this_k]);
     }
   }
@@ -268,7 +293,9 @@ void mcmc_noadmix::update_qmatrix_ind() {
   
   for (int i=0; i<n; i++) {
     for (int k=0; k<K; k++) {
-      qmatrix_ind[i][k] += particle_vec[cold_rung].qmatrix_ind[i][particle_vec[cold_rung].label_order[k]];
+      //int this_k = particle_vec[cold_rung].label_order[k];
+      int this_k = label_order[k];
+      qmatrix_ind[i][k] += particle_vec[cold_rung].qmatrix_ind[i][this_k];
     }
   }
   
@@ -310,6 +337,30 @@ void mcmc_noadmix::metropolis_coupling() {
       // update acceptance rates
       coupling_accept[i]++;
     }
+  }
+  
+}
+
+//------------------------------------------------
+// fix label switching problem
+void mcmc_noadmix::solve_label_switching() {
+  
+  // fill in cost matrix
+  for (int k1=0; k1<K; k1++) {
+    fill(cost_mat[k1].begin(), cost_mat[k1].end(), 0);
+    for (int k2=0; k2<K; k2++) {
+      for (int i=0; i<n; i++) {
+        cost_mat[k1][k2] += particle_vec[cold_rung].qmatrix_ind[i][k1]*(particle_vec[cold_rung].log_qmatrix_ind[i][k1] - log_qmatrix_ind_running[i][k2]);
+      }
+    }
+  }
+  
+  // find best permutation of current labels using Hungarian algorithm
+  best_perm = hungarian(cost_mat, edges_left, edges_right, blocked_left, blocked_right);
+  
+  // define best_perm_order
+  for (int k=0; k<K; k++) {
+    label_order[best_perm[k]] = k;
   }
   
 }
