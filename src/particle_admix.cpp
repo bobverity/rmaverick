@@ -131,7 +131,7 @@ void particle_admix::update_group() {
         
         // calculate log likelihood and proposal probability
         log_prop_old += log_qmatrix_gene[this_first_row+j][l][new_group];
-        loglike_old += log_admix_freqs[i][new_group] + log_allele_freqs[new_group][l][this_data-1];
+        loglike_old += log_admix_freqs[i][new_group] + beta_raised*log_allele_freqs[new_group][l][this_data-1];
         
       } // end j loop
     } // end l loop
@@ -162,7 +162,6 @@ void particle_admix::update_group() {
           qmatrix_prop[j][l][k] = exp(log_qmatrix_prop[j][l][k]);
           qmatrix_sum += qmatrix_prop[j][l][k];
         }
-        
         double log_inv_qmatrix_sum = -log(qmatrix_sum);
         double inv_qmatrix_sum = 1/qmatrix_sum;
         for (int k=0; k<K; k++) {
@@ -174,7 +173,7 @@ void particle_admix::update_group() {
         int new_group = sample1(qmatrix_prop[j][l]) - 1;
         group_prop[j][l] = new_group;
         log_prop_new += log_qmatrix_prop[j][l][new_group];
-        loglike_new += log_admix_freqs_prop[new_group] + log_allele_freqs[new_group][l][this_data-1];
+        loglike_new += log_admix_freqs_prop[new_group] + beta_raised*log_allele_freqs[new_group][l][this_data-1];
         
       } // end j loop
     } // end l loop
@@ -248,32 +247,6 @@ void particle_admix::update_allele_admix_freqs() {
 
 //------------------------------------------------
 // update admixture parameter alpha
-void particle_admix::update_alpha2() {
-  
-  double alpha_prop = rnorm1(alpha, 0.5);
-  if (alpha_prop<0) {
-    alpha_prop = -alpha_prop;
-  }
-  
-  double ll_old = 0;
-  double ll_new = 0;
-  for (int i=0; i<n; i++) {
-    ll_old += lgamma(K*alpha);
-    ll_new += lgamma(K*alpha_prop);
-    for (int k=0; k<K; k++) {
-      ll_old += (alpha-1)*log_admix_freqs[i][k] - lgamma(alpha);
-      ll_new += (alpha_prop-1)*log_admix_freqs[i][k] - lgamma(alpha_prop);
-    }
-  }
-  
-  if (log(runif_0_1()) < (ll_new-ll_old)) {
-    alpha = alpha_prop;
-  }
-  
-}
-
-//------------------------------------------------
-// update admixture parameter alpha
 void particle_admix::update_alpha() {
   
   // prior parameters on alpha (shape and rate of gamma prior)
@@ -307,8 +280,6 @@ void particle_admix::update_alpha() {
 //------------------------------------------------
 // fix label switching problem
 void particle_admix::solve_label_switching(const vector<vector<vector<double>>> &log_qmatrix_gene_running) {
-  
-  //log_qmatrix_gene = vector<vector<vector<double>>>(sum(ploidy), vector<vector<double>>(L, vector<double>(K)));
   
   // fill in cost matrix
   for (int k1=0; k1<K; k1++) {

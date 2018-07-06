@@ -42,6 +42,18 @@ public:
   std::vector<std::vector<double>> log_qmatrix_ind_running;
   std::vector<std::vector<double>> qmatrix_ind;
   
+  // ordering of labels
+  std::vector<int> label_order;
+  
+  // objects for solving label switching problem
+  std::vector<std::vector<double>> cost_mat;
+  std::vector<int> best_perm;
+  std::vector<int> best_perm_order;
+  std::vector<int> edges_left;
+  std::vector<int> edges_right;
+  std::vector<int> blocked_left;
+  std::vector<int> blocked_right;
+  
   // objects for storing results
   std::vector<std::vector<double>> loglike_burnin;
   std::vector<std::vector<double>> loglike_sampling;
@@ -61,5 +73,6 @@ public:
   void update_log_qmatrix_ind_running();
   void update_qmatrix_ind();
   void metropolis_coupling();
+  void solve_label_switching();
   
 };

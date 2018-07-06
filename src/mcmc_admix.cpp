@@ -2,6 +2,7 @@
 #include "mcmc_admix.h"
 #include "misc.h"
 #include "probability.h"
+#include "Hungarian.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ mcmc_admix::mcmc_admix(Rcpp::List &args_data, Rcpp::List &args_model) {
   solve_label_switching_on = rcpp_to_bool(args_model["solve_label_switching_on"]);
   coupling_on = rcpp_to_bool(args_model["coupling_on"]);
   splitmerge_on = rcpp_to_bool(args_model["splitmerge_on"]);
+  pb_markdown = rcpp_to_bool(args_model["pb_markdown"]);
   silent = rcpp_to_bool(args_model["silent"]);
   estimate_alpha = rcpp_to_bool(args_model["estimate_alpha"]);
   
@@ -47,6 +49,18 @@ mcmc_admix::mcmc_admix(Rcpp::List &args_data, Rcpp::List &args_model) {
   log_qmatrix_gene_running = vector<vector<vector<double>>>(sum(ploidy), vector<vector<double>>(L, vector<double>(K)));
   qmatrix_gene = log_qmatrix_gene_running;
   qmatrix_ind = vector<vector<double>>(n, vector<double>(K));
+  
+  // initialise ordering of labels
+  label_order = seq_int(0,K-1);
+  
+  // objects for solving label switching problem
+  cost_mat = vector<vector<double>>(K, vector<double>(K));
+  best_perm = vector<int>(K);
+  best_perm_order = vector<int>(K);
+  edges_left = vector<int>(K);
+  edges_right = vector<int>(K);
+  blocked_left = vector<int>(K);
+  blocked_right = vector<int>(K);
   
   // objects for storing results
   loglike_burnin = vector<vector<double>>(rungs, vector<double>(burnin));
@@ -121,7 +135,8 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
     
     // fix labels
     if (solve_label_switching_on) {
-      particle_vec[cold_rung].solve_label_switching(log_qmatrix_gene_running);
+      //particle_vec[cold_rung].solve_label_switching(log_qmatrix_gene_running);
+      solve_label_switching();
     }
     
     // add particle log_qmatrix to log_qmatrix_running
@@ -135,9 +150,13 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
     
     // update progress bars
     if (!silent) {
-      int remainder = rep % int(ceil(double(burnin)/100));
-      if (remainder==0 || (rep+1)==burnin) {
+      if ((rep+1)==burnin) {
         update_progress(args_progress, "pb_burnin", rep+1, burnin);
+      } else {
+        int remainder = rep % int(ceil(double(burnin)/100));
+        if (remainder==0 && !pb_markdown) {
+          update_progress(args_progress, "pb_burnin", rep+1, burnin);
+        }
       }
     }
     
@@ -167,6 +186,8 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
     }
     
   } // end burn-in iterations
+  
+  //print_array(log_qmatrix_gene_running);
   
   // warning if still not converged
   if (!convergence_reached && !silent) {
@@ -229,7 +250,8 @@ void mcmc_admix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // fix labels
     if (solve_label_switching_on) {
-      particle_vec[cold_rung].solve_label_switching(log_qmatrix_gene_running);
+      //particle_vec[cold_rung].solve_label_switching(log_qmatrix_gene_running);
+      solve_label_switching();
     }
     
     // add particle log_qmatrix_gene to log_qmatrix_gene_running
@@ -249,9 +271,13 @@ void mcmc_admix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // update progress bars
     if (!silent) {
-      int remainder = rep % int(ceil(double(samples)/100));
-      if (remainder==0 || (rep+1)==samples) {
+      if ((rep+1)==samples) {
         update_progress(args_progress, "pb_samples", rep+1, samples);
+      } else {
+        int remainder = rep % int(ceil(double(samples)/100));
+        if (remainder==0 && !pb_markdown) {
+          update_progress(args_progress, "pb_samples", rep+1, samples);
+        }
       }
     }
     
@@ -288,8 +314,9 @@ void mcmc_admix::update_log_qmatrix_gene_running() {
     for (int l=0; l<L; l++) {
       for (int j=0; j<this_ploidy; j++) {
         for (int k=0; k<K; k++) {
-          int tmp = particle_vec[cold_rung].log_qmatrix_gene[this_first_row+j][l][k];
-          log_qmatrix_gene_running[this_first_row+j][l][k] = log_sum(log_qmatrix_gene_running[this_first_row+j][l][k], tmp);
+          //int tmp = particle_vec[cold_rung].log_qmatrix_gene[this_first_row+j][l][k];
+          int this_k = label_order[k];
+          log_qmatrix_gene_running[this_first_row+j][l][k] = log_sum(log_qmatrix_gene_running[this_first_row+j][l][k], particle_vec[cold_rung].log_qmatrix_gene[this_first_row+j][l][this_k]);
         }
       }
     }
@@ -308,7 +335,8 @@ void mcmc_admix::update_qmatrix_gene() {
     for (int l=0; l<L; l++) {
       for (int j=0; j<this_ploidy; j++) {
         for (int k=0; k<K; k++) {
-          qmatrix_gene[this_first_row+j][l][k] += particle_vec[cold_rung].qmatrix_gene[this_first_row+j][l][particle_vec[cold_rung].label_order[k]];
+          int this_k = label_order[k];
+          qmatrix_gene[this_first_row+j][l][k] += particle_vec[cold_rung].qmatrix_gene[this_first_row+j][l][this_k];
         }
       }
     }
@@ -353,6 +381,38 @@ void mcmc_admix::metropolis_coupling() {
       // update acceptance rates
       coupling_accept[i]++;
     }
+  }
+  
+}
+
+//------------------------------------------------
+// fix label switching problem
+void mcmc_admix::solve_label_switching() {
+  
+  // fill in cost matrix
+  for (int k1=0; k1<K; k1++) {
+    fill(cost_mat[k1].begin(), cost_mat[k1].end(), 0);
+    for (int k2=0; k2<K; k2++) {
+      int this_first_row = 0;
+      for (int i=0; i<n; i++) {
+        int this_ploidy = ploidy[i];
+        for (int l=0; l<L; l++) {
+          for (int j=0; j<this_ploidy; j++) {
+            cost_mat[k1][k2] += particle_vec[cold_rung].qmatrix_gene[this_first_row+j][l][k1]*(particle_vec[cold_rung].log_qmatrix_gene[this_first_row+j][l][k1] - log_qmatrix_gene_running[this_first_row+j][l][k2]);
+            //cost_mat[k1][k2] += particle_vec[cold_rung].qmatrix_gene[this_first_row+j][l][label_order[k1]]*(particle_vec[cold_rung].log_qmatrix_gene[this_first_row+j][l][label_order[k1]] - log_qmatrix_gene_running[this_first_row+j][l][k2]);
+          }
+        }
+        this_first_row += this_ploidy;
+      }
+    }
+  }
+  
+  // find best permutation of current labels using Hungarian algorithm
+  best_perm = hungarian(cost_mat, edges_left, edges_right, blocked_left, blocked_right);
+  
+  // define best_perm_order
+  for (int k=0; k<K; k++) {
+    label_order[best_perm[k]] = k;
   }
   
 }

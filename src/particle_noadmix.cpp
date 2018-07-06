@@ -77,7 +77,7 @@ void particle_noadmix::update_group() {
         for (int j=0; j<this_ploidy; j++) {
           int this_data = (*data_ptr)[this_first_row+j][l];
           if (this_data!=0) {
-            log_qmatrix_ind[i][k] += log_allele_freqs[k][l][this_data-1];
+            log_qmatrix_ind[i][k] += beta_raised*log_allele_freqs[k][l][this_data-1];
           }
         }
       }
@@ -87,11 +87,14 @@ void particle_noadmix::update_group() {
     double max_log_qmatrix_ind = max(log_qmatrix_ind[i]);
     double qmatrix_ind_sum = 0;
     for (int k=0; k<K; k++) {
-      qmatrix_ind[i][k] = exp(beta_raised*(log_qmatrix_ind[i][k] - max_log_qmatrix_ind));
+      log_qmatrix_ind[i][k] -= max_log_qmatrix_ind;
+      qmatrix_ind[i][k] = exp(log_qmatrix_ind[i][k]);
       qmatrix_ind_sum += qmatrix_ind[i][k];
     }
+    double log_inv_qmatrix_sum = -log(qmatrix_ind_sum);
     double inv_qmatrix_ind_sum = 1/qmatrix_ind_sum;
     for (int k=0; k<K; k++) {
+      log_qmatrix_ind[i][k] += log_inv_qmatrix_sum;
       qmatrix_ind[i][k] *= inv_qmatrix_ind_sum;
     }
     
@@ -145,12 +148,15 @@ void particle_noadmix::update_allele_freqs() {
 // fix label switching problem
 void particle_noadmix::solve_label_switching(const vector<vector<double>> &log_qmatrix_ind_running) {
   
+  foo();
+  
   // fill in cost matrix
   for (int k1=0; k1<K; k1++) {
     fill(cost_mat[k1].begin(), cost_mat[k1].end(), 0);
     for (int k2=0; k2<K; k2++) {
       for (int i=0; i<n; i++) {
-        cost_mat[k1][k2] += qmatrix_ind[i][label_order[k1]]*(log_qmatrix_ind[i][label_order[k1]] - log_qmatrix_ind_running[i][k2]);
+        //cost_mat[k1][k2] += qmatrix_ind[i][label_order[k1]]*(log_qmatrix_ind[i][label_order[k1]] - log_qmatrix_ind_running[i][k2]);
+        cost_mat[k1][k2] += qmatrix_ind[i][k1]*(log_qmatrix_ind[i][k1] - log_qmatrix_ind_running[i][k2]);
       }
     }
   }

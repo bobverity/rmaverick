@@ -144,3 +144,44 @@ Rcpp::List GTI_posterior_K_sim_cpp(Rcpp::List args) {
   // return as Rcpp object
   return Rcpp::List::create(Rcpp::Named("ret")=ret);
 }
+
+//------------------------------------------------
+// integrate log-evidence over K by simulation
+// [[Rcpp::export]]
+Rcpp::List GTI_integrated_K_sim_cpp(Rcpp::List args) {
+  
+  // extract arguments
+  vector<double> m = rcpp_to_vector_double(args["mean"]);
+  vector<double> s = rcpp_to_vector_double(args["SE"]);
+  int reps = rcpp_to_int(args["reps"]);
+  int K = m.size();
+  
+  // obtain integrated draws
+  vector<double> y(K);
+  double y_max = 0;
+  double y_trans_sum = 0;
+  double x = 0;
+  double x_sum = 0;
+  double x_sum_squared = 0;
+  for (int i=0; i<reps; i++) {
+    for (int k=0; k<K; k++) {
+      y[k] = rnorm1(m[k], s[k]);
+      if (k==0 || y[k]>y_max) {
+        y_max = y[k];
+      }
+    }
+    y_trans_sum = 0;
+    for (int k=0; k<K; k++) {
+      y_trans_sum += exp(y[k]-y_max);
+    }
+    x = y_max + log(y_trans_sum) - log(K);
+    x_sum += x;
+    x_sum_squared += x*x;
+  }
+  double x_mean = x_sum/double(reps);
+  double x_var = x_sum_squared/double(reps) - x_mean*x_mean;
+  
+  // return as Rcpp object
+  return Rcpp::List::create(Rcpp::Named("mean")=x_mean,
+                            Rcpp::Named("SE")=x_var);
+}

@@ -14,5 +14,4 @@ TODO
 }
 \examples{
 # TODO
-
 }

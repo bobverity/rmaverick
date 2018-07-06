@@ -48,7 +48,7 @@ public:
   std::vector<std::vector<std::vector<double>>> log_qmatrix_gene;
   std::vector<std::vector<std::vector<double>>> qmatrix_gene;
   
-  // initialise ordering of labels
+  // ordering of labels
   std::vector<int> label_order;
   std::vector<int> label_order_new;
   
@@ -72,7 +72,6 @@ public:
   void update_group();
   void update_allele_admix_freqs();
   void update_alpha();
-  void update_alpha2();
   void solve_label_switching(const std::vector<std::vector<std::vector<double>>> &log_qmatrix_gene_running);
   void calculate_loglike();
   

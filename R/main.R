@@ -64,6 +64,7 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
   
   # process and perform checks on data
   dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data)
+  dat_proc$name <- name
   
   # add data to project
   project$data <- df
@@ -85,7 +86,6 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
   # get ploidy in final form
   if (is.null(ploidy_col)) {
     if (is.null(ploidy)) {
-      ploidy <- 1
       message("using default value of ploidy = 1")
     }
     if (length(ploidy)==1) {
@@ -98,7 +98,7 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
     ploidy_raw <- df[,ploidy_col]
     ploidy <- NULL
     i <- 1
-    while (i<nrow(df)) {
+    while (i<=nrow(df)) {
       ploidy <- c(ploidy, ploidy_raw[i])
       i <- i + ploidy_raw[i]
     }
@@ -159,6 +159,7 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
               ind_first_row = ind_first_row,
               pop = pop,
               ploidy = ploidy)
+  
   return(ret)
 }
 
@@ -198,10 +199,21 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
                                       alpha = alpha,
                                       estimate_alpha = estimate_alpha)
   
+  names(project$parameter_sets)[s] <- paste0("set", s)
+  
   # create new output corresponding to this set
   project$output$single_set[[s]] <- list(single_K = list(),
                                          all_K = list())
   names(project$output$single_set) <- paste0("set", 1:length(project$output$single_set))
+  
+  # expand summary output over all parameter sets
+  GTI_logevidence_model <- rbind(project$output$all_sets$GTI_logevidence_model, data.frame(set = s, name = name, mean = NA, SE = NA, stringsAsFactors = FALSE))
+  class(GTI_logevidence_model) <- "maverick_GTI_logevidence_model"
+  project$output$all_sets$GTI_logevidence_model <- GTI_logevidence_model
+  
+  GTI_posterior_model <- rbind(project$output$all_sets$GTI_posterior_model, data.frame(set = s, name = name, Q2.5 = NA, Q50 = NA, Q97.5 = NA, stringsAsFactors = FALSE))
+  class(GTI_posterior_model) <- "maverick_GTI_posterior_model"
+  project$output$all_sets$GTI_posterior_model <- GTI_posterior_model
   
   # return
   return(project)
@@ -356,7 +368,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   assert_scalar_pos_int(samples, zero_allowed = FALSE)
   assert_scalar_pos_int(rungs, zero_allowed = FALSE)
   assert_scalar_pos(GTI_pow)
-  assert_bounded(GTI_pow, 1.5, 10)
+  #assert_bounded(GTI_pow, 1.5, 10)
   assert_scalar_logical(solve_label_switching_on)
   assert_scalar_logical(coupling_on)
   assert_scalar_logical(scaffold_on)
@@ -501,7 +513,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       
       # get ESS
       ESS <- effectiveSize(loglike_sampling)
-      ESS[ESS==0] <- samples # if no variation then assume perfect mixing
+      ESS[ESS==0] <- samples # if no variation then assume zero autocorrelation
       names(ESS) <- rung_names
       
       # weight likelihood according to GTI_pow
@@ -584,51 +596,108 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   K_all <- length(project$output$single_set[[s]]$single_K)
   names(project$output$single_set[[s]]$single_K) <- paste0("K", 1:K_all)
   
-  # ---------- recalculate evidence ----------
+  # ---------- recalculate evidence over K ----------
   
-  # get logevidence over all K
-  GTI_logevidence_raw <- mapply(function(x) {
-    GTI_logevidence <- x$summary$GTI_logevidence
+  # get log-evidence over all K and load into project
+  GTI_logevidence <- get_GTI_logevidence(project$output$single_set[[s]]$single_K)
+  class(GTI_logevidence) <- "maverick_GTI_logevidence"
+  project$output$single_set[[s]]$all_K$GTI_logevidence <- GTI_logevidence
+  
+  # produce posterior estimates by simulation and load GTI_posterior into project
+  GTI_posterior <- get_GTI_posterior(GTI_logevidence)
+  GTI_posterior <- cbind(K = 1:K_all, GTI_posterior)
+  class(GTI_posterior) <- "maverick_GTI_posterior"
+  project$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
+  
+  # get log-evidence over all parameter sets
+  integrated_raw <- integrate_GTI_logevidence(GTI_logevidence)
+  if (!is.null(integrated_raw)) {
+    project$output$all_sets$GTI_logevidence_model$mean[s] <- integrated_raw$mean
+    project$output$all_sets$GTI_logevidence_model$SE[s] <- integrated_raw$SE
+  }
+  
+  # get posterior over all parameter sets
+  GTI_posterior_model_raw <- get_GTI_posterior(project$output$all_sets$GTI_logevidence_model)
+  project$output$all_sets$GTI_posterior_model$Q2.5 <- GTI_posterior_model_raw$Q2.5
+  project$output$all_sets$GTI_posterior_model$Q50 <- GTI_posterior_model_raw$Q50
+  project$output$all_sets$GTI_posterior_model$Q97.5 <- GTI_posterior_model_raw$Q97.5
+  
+  # end timer
+  tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+  if (tdiff<60) {
+    message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
+  } else {
+    message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+  }
+  
+  # return invisibly
+  invisible(project)
+}
+
+#------------------------------------------------
+# extract GTI_logevidence from all K within a given parameter set
+# (not exported)
+#' @noRd
+get_GTI_logevidence <- function(x) {
+  
+  # get log-evidence over all K
+  GTI_logevidence_raw <- mapply(function(y) {
+    GTI_logevidence <- y$summary$GTI_logevidence
     if (is.null(GTI_logevidence)) {
       return(rep(NA,2))
     } else {
       return(unlist(GTI_logevidence))
     }
-  }, project$output$single_set[[s]]$single_K)
+  }, x)
   GTI_logevidence <- as.data.frame(t(GTI_logevidence_raw))
   names(GTI_logevidence) <- c("mean", "SE")
   rownames(GTI_logevidence) <- NULL
   GTI_logevidence <- cbind(K = 1:nrow(GTI_logevidence), GTI_logevidence)
   
-  # load GTI_logevidence into project
-  project$output$single_set[[s]]$all_K$GTI_logevidence <- GTI_logevidence
+  return(GTI_logevidence)
+}
+
+#------------------------------------------------
+# compute posterior over several log-evidence estimates
+# (not exported)
+#' @noRd
+get_GTI_posterior <- function(x) {
   
-  # obtain posterior K estimates
-  if (any(!is.na(GTI_logevidence$mean))) {
-    
-    # produce posterior estimates by simulation
-    w <- which(!is.na(GTI_logevidence$mean))
-    GTI_posterior_raw <- GTI_posterior_K_sim_cpp(list(mean = GTI_logevidence$mean[w],
-                                                      SE = GTI_logevidence$SE[w],
-                                                      reps = 1e6))$ret
-    
-    # get posterior quantiles in dataframe
-    GTI_posterior_quantiles <- t(mapply(quantile_95, GTI_posterior_raw))
-    GTI_posterior <- data.frame(K = 1:nrow(GTI_logevidence),
-                                Q2.5 = NA,
-                                Q50 = NA,
-                                Q97.5 = NA)
-    GTI_posterior[w,-1] <- GTI_posterior_quantiles
-    
-    # load GTI_posterior into project
-    project$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
+  # return NULL if all NA
+  if (all(is.na(x$mean))) {
+    return(NULL)
   }
   
-  # end timer
-  tdiff <- round(Sys.time() - t0, 2)
-  message(sprintf("Total run-time: %s seconds", tdiff))
+  # produce posterior estimates by simulation
+  w <- which(!is.na(x$mean))
+  GTI_posterior_raw <- GTI_posterior_K_sim_cpp(list(mean = x$mean[w],
+                                                    SE = x$SE[w],
+                                                    reps = 1e6))$ret
   
-  # return invisibly
-  invisible(project)
+  # get posterior quantiles in dataframe
+  GTI_posterior_quantiles <- t(mapply(quantile_95, GTI_posterior_raw))
+  GTI_posterior <- data.frame(Q2.5 = NA, Q50 = NA, Q97.5 = NA)
+  GTI_posterior[w,] <- GTI_posterior_quantiles
+  
+  return(GTI_posterior)
+}
+
+#------------------------------------------------
+# get log-evidence integrated over all K
+# (not exported)
+#' @noRd
+integrate_GTI_logevidence <- function(x) {
+  
+  # return NULL if all NA
+  if (all(is.na(x$mean))) {
+    return(NULL)
+  }
+  
+  # produce integrated estimates by simulation
+  w <- which(!is.na(x$mean))
+  GTI_integrated_raw <- GTI_integrated_K_sim_cpp(list(mean = x$mean[w],
+                                                      SE = x$SE[w],
+                                                      reps = 1e6))
+  return(GTI_integrated_raw)
 }
 
