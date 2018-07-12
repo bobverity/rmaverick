@@ -153,6 +153,7 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
     Jl[j] <- length(u)
     dat[,j] <- match(dat[,j], u)
   }
+  dat[is.na(dat)] <- 0
   
   # return list
   ret <- list(dat = dat,

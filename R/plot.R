@@ -77,8 +77,8 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_segment(aes(x = x_vec, y = Q2.5, xend = x_vec, yend = Q97.5))
-  plot1 <- plot1 + geom_point(aes(x = x_vec, y = Q50))
+  plot1 <- plot1 + geom_segment(aes_(x = ~x_vec, y = ~Q2.5, xend = ~x_vec, yend = ~Q97.5))
+  plot1 <- plot1 + geom_point(aes_(x = ~x_vec, y = ~Q50))
   plot1 <- plot1 + xlab("rung") + ylab("log-likelihood")
   
   # return plot object
@@ -196,7 +196,7 @@ plot.maverick_qmatrix_ind <- function(x, y = NULL, ...) {
   
   # produce basic plot
   plot1 <- ggplot(df) + theme_empty()
-  plot1 <- plot1 + geom_bar(aes(x = ind, y = val, fill = k), width = 1, stat = "identity")
+  plot1 <- plot1 + geom_bar(aes_(x = ~ind, y = ~val, fill = ~k), width = 1, stat = "identity")
   plot1 <- plot1 + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0))
   plot1 <- plot1 + xlab("sample") + ylab("probability")
   
@@ -296,20 +296,20 @@ plot.maverick_GTI_path <- function(x, y, ...) {
   if (y==1) {
     q_x <- 1:(n+1)
     width <- 0.1
-    plot1 <- plot1 + geom_line(aes(x = as.factor(0:n), y = q_mid, group = 1))
+    plot1 <- plot1 + geom_line(aes_(x = ~as.factor(0:n), y = ~q_mid, group = 1))
     plot1 <- plot1 + xlab("rung")
   } else {
     q_x <- seq(0,1,l=n+1)
     width <- 0.01
-    plot1 <- plot1 + geom_line(aes(x = q_x, y = q_mid))
+    plot1 <- plot1 + geom_line(aes_(x = ~q_x, y = ~q_mid))
     plot1 <- plot1 + xlab(parse(text = "beta"))
   }
   
   # continue building plot
-  plot1 <- plot1 + geom_area(aes(x = q_x, y = q_mid, fill = "col1", colour = "col1", alpha = 0.5))
-  plot1 <- plot1 + geom_segment(aes(x = q_x, y = q_min, xend = q_x, yend = q_max))
-  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_min, xend = q_x+width, yend = q_min))
-  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_max, xend = q_x+width, yend = q_max))
+  plot1 <- plot1 + geom_area(aes_(x = ~q_x, y = ~q_mid, fill = "col1", colour = "col1", alpha = 0.5))
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max))
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min))
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max))
   
   plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
   plot1 <- plot1 + scale_colour_manual(values = "black")
@@ -403,10 +403,10 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
   width <- 0.1
-  plot1 <- plot1 + geom_point(aes(x = as.factor(K), y = q_mid), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = q_x, y = q_min, xend = q_x, yend = q_max), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_min, xend = q_x+width, yend = q_min), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_max, xend = q_x+width, yend = q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_point(aes_(x = ~as.factor(K), y = ~q_mid), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max), na.rm = TRUE)
   plot1 <- plot1 + xlab("K") + ylab("log-evidence")
   
   # return plot object
@@ -474,10 +474,10 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_bar(aes(x = K, y = Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = K, y = Q2.5, xend = K, yend = Q97.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = K-width, y = Q2.5, xend = K+width, yend = Q2.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = K-width, y = Q97.5, xend = K+width, yend = Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_bar(aes_(x = ~K, y = ~Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~K, y = ~Q2.5, xend = ~K, yend = ~Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~K-width, y = ~Q2.5, xend = ~K+width, yend = ~Q2.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~K-width, y = ~Q97.5, xend = ~K+width, yend = ~Q97.5), na.rm = TRUE)
   
   # add legends
   plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
@@ -559,10 +559,10 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
   width <- 0.1
-  plot1 <- plot1 + geom_point(aes(x = as.factor(set), y = q_mid), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = q_x, y = q_min, xend = q_x, yend = q_max), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_min, xend = q_x+width, yend = q_min), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_max, xend = q_x+width, yend = q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_point(aes_(x = ~as.factor(set), y = ~q_mid), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max), na.rm = TRUE)
   plot1 <- plot1 + scale_x_discrete(labels = df$name, breaks = 1:n)
   plot1 <- plot1 + xlab("model") + ylab("log-evidence")
   
@@ -625,10 +625,10 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_bar(aes(x = as.factor(set), y = Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = set, y = Q2.5, xend = set, yend = Q97.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = set-width, y = Q2.5, xend = set+width, yend = Q2.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes(x = set-width, y = Q97.5, xend = set+width, yend = Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_bar(aes_(x = ~as.factor(set), y = ~Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~set, y = ~Q2.5, xend = ~set, yend = ~Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~set-width, y = ~Q2.5, xend = ~set+width, yend = ~Q2.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~set-width, y = ~Q97.5, xend = ~set+width, yend = ~Q97.5), na.rm = TRUE)
   
   # add legends
   plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
@@ -766,7 +766,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
   }
   
   # complete plot
-  plot1 <- plot1 + geom_line(aes(x = x, y = y, colour = "col1"))
+  plot1 <- plot1 + geom_line(aes_(x = ~x, y = ~y, colour = "col1"))
   plot1 <- plot1 + coord_cartesian(xlim = c(0,nrow(df)))
   plot1 <- plot1 + scale_x_continuous(expand = c(0,0))
   plot1 <- plot1 + scale_colour_manual(values = col)
@@ -872,7 +872,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_segment(aes(x = lag, y = 0, xend = lag, yend = ACF, colour = "col1"))
+  plot1 <- plot1 + geom_segment(aes_(x = ~lag, y = 0, xend = ~lag, yend = ~ACF, colour = "col1"))
   plot1 <- plot1 + scale_colour_manual(values = col)
   plot1 <- plot1 + guides(colour = FALSE)
   plot1 <- plot1 + xlab("lag") + ylab("ACF")
@@ -973,7 +973,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
   
   # produce plot
   #plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_histogram(aes(x = v, y = ..density.., fill = "col1"), bins = 50)
+  plot1 <- plot1 + geom_histogram(aes_(x = ~v, y = ~..density.., fill = "col1"), bins = 50)
   plot1 <- plot1 + scale_fill_manual(values = col)
   plot1 <- plot1 + guides(fill = FALSE)
   plot1 <- plot1 + ylab("density")

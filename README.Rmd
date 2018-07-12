@@ -170,7 +170,7 @@ for (i in 2:5) {
 ```
 
 
-We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at `mysim$group`. When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, but ideally this should be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - that **the model used by rmaverick and similar programs is just a cartoon of reality, and that there is no strict K in the real world**. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that capture the data well, it is just a guide and should be taken alongside other biological considerations.
+We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at `mysim$group`. When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, but ideally this should be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - **the model used by rmaverick and similar programs is just a cartoon of reality, and that there is no strict K in the real world**. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that capture the data well, it is just a guide and should be taken alongside other biological considerations.
 
 
 ### Admixture model
@@ -229,9 +229,3 @@ plot_posterior_model(myproj)
 ```
 
 It is clear that there is far greater support for the no-admixture model, with a posterior probability of >0.99. Therefore we would be justified in ignoring the output from the admixture model, and only reporting results of the no-admixture model.
-
-### Final notes
-
-* If we are not interested in estimating K or comparing models then there is technically no need to use multiple temperature rungs, and so the MCMC can be made to run faster by setting `rungs=1`.
-
-* Can be run on a cluster (notes to follow soon)
