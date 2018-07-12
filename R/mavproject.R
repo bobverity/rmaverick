@@ -133,7 +133,7 @@ summary.mavproject <- function(object, ...) {
       cat(sprintf("   pops = %s\n", length(unique(pop))))
     }
     
-    n1 <- sum(is.na(object$data_processed$dat))
+    n1 <- sum(object$data_processed$dat==0)
     n2 <- length(object$data_processed$dat)
     cat(sprintf("   missing data = %s of %s gene copies (%s%%)\n", n1, n2, round(n1/n2*100)))
   }

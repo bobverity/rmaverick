@@ -4,12 +4,14 @@
 \alias{plot_qmatrix}
 \title{Plot Q-matrix of current active set}
 \usage{
-plot_qmatrix(proj, K = NULL)
+plot_qmatrix(proj, K = NULL, divide_ind_on = FALSE)
 }
 \arguments{
 \item{proj}{TODO}
 
 \item{K}{TODO}
+
+\item{divide_ind_on}{whether to add dividing lines between bars}
 }
 \description{
 Plot Q-matrix of current active set

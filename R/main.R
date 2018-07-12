@@ -434,7 +434,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   args_functions <- list(test_convergence = test_convergence,
                          update_progress = update_progress)
   
-  # define final argument list over all K>1
+  # define final argument list over all K
   parallel_args <- list()
   for (i in 1:length(K)) {
     
@@ -614,45 +614,19 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
     project$output$single_set[[s]]$single_K[[K[i]]]$function_call <- list(args = output_args,
                                                                           call = match.call())
     
-  }
+  } # end loop over K
   
   # name output over K
   K_all <- length(project$output$single_set[[s]]$single_K)
   names(project$output$single_set[[s]]$single_K) <- paste0("K", 1:K_all)
   
-  # ---------- reorder qmatrices ----------
+  # ---------- tidy up and end ----------
   
-  qmatrix_aligned <- align_qmatrix(project$output$single_set[[s]]$single_K)
-  #return(qmatrix_aligned)
-  for (i in 1:length(K)) {
-    project$output$single_set[[s]]$single_K[[K[i]]]$summary$qmatrix_ind <- qmatrix_aligned[[K[i]]]
-  }
+  # reorder qmatrices
+  project <- align_qmatrix(project)
   
-  # ---------- recalculate evidence over K ----------
-  
-  # get log-evidence over all K and load into project
-  GTI_logevidence <- get_GTI_logevidence(project$output$single_set[[s]]$single_K)
-  class(GTI_logevidence) <- "maverick_GTI_logevidence"
-  project$output$single_set[[s]]$all_K$GTI_logevidence <- GTI_logevidence
-  
-  # produce posterior estimates by simulation and load GTI_posterior into project
-  GTI_posterior <- get_GTI_posterior(GTI_logevidence)
-  GTI_posterior <- cbind(K = 1:K_all, GTI_posterior)
-  class(GTI_posterior) <- "maverick_GTI_posterior"
-  project$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
-  
-  # get log-evidence over all parameter sets
-  integrated_raw <- integrate_GTI_logevidence(GTI_logevidence)
-  if (!is.null(integrated_raw)) {
-    project$output$all_sets$GTI_logevidence_model$mean[s] <- integrated_raw$mean
-    project$output$all_sets$GTI_logevidence_model$SE[s] <- integrated_raw$SE
-  }
-  
-  # get posterior over all parameter sets
-  GTI_posterior_model_raw <- get_GTI_posterior(project$output$all_sets$GTI_logevidence_model)
-  project$output$all_sets$GTI_posterior_model$Q2.5 <- GTI_posterior_model_raw$Q2.5
-  project$output$all_sets$GTI_posterior_model$Q50 <- GTI_posterior_model_raw$Q50
-  project$output$all_sets$GTI_posterior_model$Q97.5 <- GTI_posterior_model_raw$Q97.5
+  # recalculate evidence over K
+  project <- recalculate_evidence(project)
   
   # end timer
   tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
@@ -670,7 +644,10 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
 # extract GTI_logevidence from all K within a given parameter set
 # (not exported)
 #' @noRd
-get_GTI_logevidence <- function(x) {
+get_GTI_logevidence_K <- function(proj, s) {
+  
+  # extract objects of interest
+  x <- proj$output$single_set[[s]]$single_K
   
   # get log-evidence over all K
   GTI_logevidence_raw <- mapply(function(y) {
@@ -685,8 +662,13 @@ get_GTI_logevidence <- function(x) {
   names(GTI_logevidence) <- c("mean", "SE")
   rownames(GTI_logevidence) <- NULL
   GTI_logevidence <- cbind(K = 1:nrow(GTI_logevidence), GTI_logevidence)
+  class(GTI_logevidence) <- "maverick_GTI_logevidence"
   
-  return(GTI_logevidence)
+  # save result in project
+  proj$output$single_set[[s]]$all_K$GTI_logevidence <- GTI_logevidence
+  
+  # return modified project
+  return(proj)
 }
 
 #------------------------------------------------
@@ -707,14 +689,46 @@ get_GTI_posterior <- function(x) {
                                                     reps = 1e6))$ret
   # get posterior quantiles in dataframe
   GTI_posterior_quantiles <- t(mapply(quantile_95, GTI_posterior_raw))
-  GTI_posterior <- data.frame(Q2.5 = NA, Q50 = NA, Q97.5 = NA)
+  GTI_posterior <- data.frame(Q2.5 = rep(NA, nrow(GTI_posterior_quantiles)), Q50 = NA, Q97.5 = NA)
   GTI_posterior[w,] <- GTI_posterior_quantiles
   
   return(GTI_posterior)
 }
 
 #------------------------------------------------
-# get log-evidence integrated over all K
+# call get_GTI_posterior over values of K
+# (not exported)
+#' @noRd
+get_GTI_posterior_K <- function(proj, s) {
+  
+  # calculate posterior K
+  GTI_posterior <- get_GTI_posterior(proj$output$single_set[[s]]$all_K$GTI_logevidence)
+  GTI_posterior <- cbind(K = 1:nrow(GTI_posterior), GTI_posterior)
+  class(GTI_posterior) <- "maverick_GTI_posterior"
+  proj$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
+  
+  # return modified project
+  return(proj)
+}
+
+#------------------------------------------------
+# call get_GTI_posterior over models
+# (not exported)
+#' @noRd
+get_GTI_posterior_model <- function(proj) {
+  
+  # calculate posterior model
+  GTI_posterior_model_raw <- get_GTI_posterior(proj$output$all_sets$GTI_logevidence_model)
+  proj$output$all_sets$GTI_posterior_model$Q2.5 <- GTI_posterior_model_raw$Q2.5
+  proj$output$all_sets$GTI_posterior_model$Q50 <- GTI_posterior_model_raw$Q50
+  proj$output$all_sets$GTI_posterior_model$Q97.5 <- GTI_posterior_model_raw$Q97.5
+  
+  # return modified project
+  return(proj)
+}
+
+#------------------------------------------------
+# integrate multiple log-evidence estimates by simulation
 # (not exported)
 #' @noRd
 integrate_GTI_logevidence <- function(x) {
@@ -733,6 +747,23 @@ integrate_GTI_logevidence <- function(x) {
   }
   
   return(ret)
+}
+
+#------------------------------------------------
+# log-evidence estimates over K
+# (not exported)
+#' @noRd
+integrate_GTI_logevidence_K <- function(proj, s) {
+  
+  # integrate over K
+  integrated_raw <- integrate_GTI_logevidence(proj$output$single_set[[s]]$all_K$GTI_logevidence)
+  if (!is.null(integrated_raw)) {
+    proj$output$all_sets$GTI_logevidence_model$mean[s] <- integrated_raw$mean
+    proj$output$all_sets$GTI_logevidence_model$SE[s] <- integrated_raw$SE
+  }
+  
+  # return modified project
+  return(proj)
 }
 
 #------------------------------------------------
@@ -784,19 +815,24 @@ get_ESS <- function(proj, K = NULL) {
 # align qmatrices
 # (not exported)
 #' @noRd
-align_qmatrix <- function(x) {
+align_qmatrix <- function(proj) {
+  
+  # get active set
+  s <- proj$active_set
+  
+  # extract objects of interest
+  x <- proj$output$single_set[[s]]$single_K
   
   # find values with output
   null_output <- mapply(function(y) {is.null(y$summary$qmatrix_ind)}, x)
   w <- which(!null_output)
   
-  # set template qmatrix to first qmatrix
+  # set template to first qmatrix
   template_qmatrix <- x[[w[1]]]$summary$qmatrix_ind
   n <- nrow(template_qmatrix)
   c <- ncol(template_qmatrix)
   
   # loop through output
-  ret <- list()
   best_perm <- NULL
   for (i in w) {
     
@@ -817,14 +853,48 @@ align_qmatrix <- function(x) {
     best_perm_order <- order(best_perm)
     qmatrix_ind <- qmatrix_ind[, best_perm_order, drop = FALSE]
     
-    # store result
-    ret[[i]] <- qmatrix_ind
-    class(ret[[i]]) <- "maverick_qmatrix_ind"
-    
     # qmatrix becomes template for next level up
     template_qmatrix <- qmatrix_ind
+    
+    # store result
+    class(qmatrix_ind) <- "maverick_qmatrix_ind"
+    proj$output$single_set[[s]]$single_K[[i]]$summary$qmatrix_ind <- qmatrix_ind
   }
   
-  return(ret)
+  # return modified project
+  return(proj)
 }
 
+#------------------------------------------------
+#' @title Recalculate evidence and posterior estimates
+#'
+#' @description Recalculate evidence and posterior estimates of active set
+#'
+#' @details TODO
+#'
+#' @param project TODO
+#' 
+#' @export
+#' @examples
+#' # TODO
+
+recalculate_evidence <- function(project) {
+  
+  # get active set
+  s <- project$active_set
+  
+  # get log-evidence over all K and load into project
+  project <- get_GTI_logevidence_K(project, s)
+  
+  # produce posterior estimates of K by simulation and load into project
+  project <- get_GTI_posterior_K(project, s)
+  
+  # get log-evidence over all parameter sets
+  project <- integrate_GTI_logevidence_K(project, s)
+  
+  # get posterior over all parameter sets
+  project <- get_GTI_posterior_model(project)
+  
+  # return modified project
+  return(project)
+}

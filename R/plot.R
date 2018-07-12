@@ -205,9 +205,8 @@ plot.maverick_qmatrix_ind <- function(x, y = NULL, ...) {
   plot1 <- plot1 + scale_colour_manual(values = "white")
   plot1 <- plot1 + guides(colour = FALSE)
   
-  # add borders and dividing lines
+  # add border
   plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
-  plot1 <- plot1 + geom_segment(aes(x = x, y = y, xend = x, yend = y+1, col = "white"), size = 0.3, data = data.frame(x = 1:n-0.5, y = rep(0,n)))
   
   # return plot object
   return(plot1)
@@ -222,18 +221,20 @@ plot.maverick_qmatrix_ind <- function(x, y = NULL, ...) {
 #'
 #' @param proj TODO
 #' @param K TODO
+#' @param divide_ind_on whether to add dividing lines between bars
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_qmatrix <- function(proj, K = NULL) {
+plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
     assert_scalar_pos_int(K)
   }
+  assert_scalar_logical(divide_ind_on)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -258,7 +259,15 @@ plot_qmatrix <- function(proj, K = NULL) {
   }
   
   # produce Q-matrix plot
-  plot(qmatrix_ind)
+  plot1 <- plot(qmatrix_ind)
+  
+  # optionally add dividing lines
+  if (divide_ind_on) {
+    n <- nrow(qmatrix_ind)
+    plot1 <- plot1 + geom_segment(aes_(x = ~x, y = ~y, xend = ~x, yend = ~y+1, col = "white"), size = 0.3, data = data.frame(x = 1:n-0.5, y = rep(0,n)))
+  }
+  
+  return(plot1)
 }
 
 #------------------------------------------------
