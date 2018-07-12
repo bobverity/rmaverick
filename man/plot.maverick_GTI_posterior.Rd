@@ -14,7 +14,7 @@
 \item{...}{TODO}
 }
 \description{
-TODO
+Default plot for class maverick_GTI_posterior
 }
 \details{
 TODO

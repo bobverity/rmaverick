@@ -4,12 +4,10 @@
 \alias{plot_logevidence_K}
 \title{Plot log-evidence estimates over K}
 \usage{
-plot_logevidence_K(proj, ...)
+plot_logevidence_K(proj)
 }
 \arguments{
 \item{proj}{TODO}
-
-\item{...}{TODO}
 }
 \description{
 Plot log-evidence estimates over K

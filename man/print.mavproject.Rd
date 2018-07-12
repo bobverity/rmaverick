@@ -2,20 +2,17 @@
 % Please edit documentation in R/mavproject.R
 \name{print.mavproject}
 \alias{print.mavproject}
-\title{Print function for class mavproject}
+\title{Custom print function for class mavproject}
 \usage{
 \method{print}{mavproject}(x, ...)
 }
 \arguments{
 \item{x}{object of class \code{mavproject}}
 
-\item{...}{other parameters to pass to print function}
+\item{...}{other arguments (ignored)}
 }
 \description{
-Overload print function for class mavproject
-}
-\details{
-TODO
+Custom print function for class mavproject, printing a summary of the key elements (also equivalent to \code{summary(x)}). To do an ordinary \code{print()} of all elements of the project, use the \code{print_full()} function.
 }
 \examples{
 # TODO

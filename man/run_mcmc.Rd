@@ -5,15 +5,15 @@
 \title{Run main MCMC}
 \usage{
 run_mcmc(project, K = 3, burnin = 100, samples = 1000, rungs = 10,
-  GTI_pow = 3, auto_converge = TRUE, solve_label_switching_on = TRUE,
-  coupling_on = TRUE, scaffold_on = TRUE, splitmerge_on = TRUE,
-  cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster))
+  GTI_pow = 2, auto_converge = TRUE, converge_test = burnin/10,
+  solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL,
+  pb_markdown = FALSE, silent = !is.null(cluster))
 }
 \arguments{
-\item{project}{an rmaverick project, as produced by the function
+\item{project}{an rmaverick project, as produced by the function 
 \code{mavproject()}}
 
-\item{K}{the values of K to run the MCMC on}
+\item{K}{the values of K that the MCMC will explore}
 
 \item{burnin}{the number of burn-in iterations}
 
@@ -21,21 +21,28 @@ run_mcmc(project, K = 3, burnin = 100, samples = 1000, rungs = 10,
 
 \item{rungs}{the number of temperature rungs}
 
-\item{GTI_pow}{the power used in generalised thermodynamic integration}
+\item{GTI_pow}{the power used in the generalised thermodynamic integration
+method. Must be greater than 1.1}
 
-\item{auto_converge}{whether convergence should be assessed automatically, in which case burn-in iterations are terminated as soon as convergence is reached. Otherwise the full \code{burnin} iterations are used}
+\item{auto_converge}{whether convergence should be assessed automatically
+every \code{converge_test} iterations, leading to termination of the
+burn-in phase. If \code{FALSE} then the full \code{burnin} iterations are
+used}
 
-\item{solve_label_switching_on}{whether to implement the Stevens' solution to the label-switching problem}
+\item{converge_test}{test for convergence every \code{convergence_test} 
+iterations if \code{auto_converge} is being used}
 
-\item{coupling_on}{whether to implement Metropolis-coupling over temperature rungs}
+\item{solve_label_switching_on}{whether to implement the Stevens' solution to
+the label-switching problem. If turned off then Q-matrix output will no 
+longer be correct, although evidence estimates will be unaffected.}
 
-\item{scaffold_on}{whether to use scaffolds to improve mixing}
+\item{coupling_on}{whether to implement Metropolis-coupling over temperature
+rungs}
 
-\item{splitmerge_on}{whether to implement a split-merge proposal}
+\item{cluster}{option to pass in a cluster environment (see package
+"parallel")}
 
-\item{cluster}{pass in a cluster environment}
-
-\item{pb_markdown}{whether to run progress bars in markdown mode, in which
+\item{pb_markdown}{whether to run progress bars in markdown mode, in which 
 case they are updated once at the end to avoid large amounts of output.}
 
 \item{silent}{whether to suppress all console output}

@@ -6,6 +6,8 @@
 #' @import assertthat
 #' @import parallel
 #' @import coda
+#' @import ggplot2
+#' @import gridExtra
 #' @importFrom Rcpp evalCpp
 #' @import graphics
 #' @import stats
@@ -184,7 +186,13 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
 
 new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE, alpha = 0.1, estimate_alpha = TRUE) {
   
-  # TODO - check inputs
+  # check inputs
+  assert_mavproject(project)
+  assert_character(name)
+  assert_scalar_pos(lambda)
+  assert_scalar_logical(admix_on)
+  assert_scalar_pos(alpha)
+  assert_scalar_logical(estimate_alpha)
   
   # count current parameter sets and add one
   s <- length(project$parameter_sets) + 1
@@ -207,12 +215,14 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
   names(project$output$single_set) <- paste0("set", 1:length(project$output$single_set))
   
   # expand summary output over all parameter sets
+  save_class <- class(project$output$all_sets$GTI_logevidence_model)
   GTI_logevidence_model <- rbind(project$output$all_sets$GTI_logevidence_model, data.frame(set = s, name = name, mean = NA, SE = NA, stringsAsFactors = FALSE))
-  class(GTI_logevidence_model) <- "maverick_GTI_logevidence_model"
+  class(GTI_logevidence_model) <- save_class
   project$output$all_sets$GTI_logevidence_model <- GTI_logevidence_model
   
+  save_class <- class(project$output$all_sets$GTI_posterior_model)
   GTI_posterior_model <- rbind(project$output$all_sets$GTI_posterior_model, data.frame(set = s, name = name, Q2.5 = NA, Q50 = NA, Q97.5 = NA, stringsAsFactors = FALSE))
-  class(GTI_posterior_model) <- "maverick_GTI_posterior_model"
+  class(GTI_posterior_model) <- save_class
   project$output$all_sets$GTI_posterior_model <- GTI_posterior_model
   
   # return
@@ -228,40 +238,40 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
 #' 
 #' @param project an rmaverick project, as produced by the function
 #'   \code{mavproject()}
-#' @param index TODO
+#' @param set TODO
 #' @param check_delete_output TODO
 #' 
 #' @export
 #' @examples
 #' # TODO
 
-delete_set <- function(project, index = NULL, check_delete_output = TRUE) {
+delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # check inputs
   assert_mavproject(project)
+  assert_scalar_logical(check_delete_output)
   
-  # set index to activeSet by default
-  index <- define_default(index, project$active_set)
+  # set index to active_set by default
+  set <- define_default(set, project$active_set)
   
   # further checks
-  assert_scalar_pos_int(index)
-  assert_leq(index, length(project$parameter_sets))
-  assert_scalar_logical(check_delete_output)
+  assert_scalar_pos_int(set)
+  assert_leq(set, length(project$parameter_sets))
   
   # check before overwriting existing output
   if (project$active_set>0 & check_delete_output) {
     
     # ask before overwriting. On abort, return original project
-    if (!user_yes_no(sprintf("Output for set %s will be deleted. Continue? (Y/N): ", index))) {
+    if (!user_yes_no(sprintf("Output for set %s will be deleted. Continue? (Y/N): ", set))) {
       return(project)
     }
   }
   
   # drop chosen parameter set
-  project$parameter_sets[[index]] <- NULL
+  project$parameter_sets[[set]] <- NULL
   
   # drop chosen output
-  project$output$single_set[[index]] <- NULL
+  project$output$single_set[[set]] <- NULL
   
   # TODO - recalculate evidence over sets
   
@@ -335,20 +345,28 @@ generate_scaffolds <- function(project, n = 10, coupling_on = TRUE, splitmerge_o
 #'
 #' @details TODO
 #' 
-#' @param project an rmaverick project, as produced by the function
+#' @param project an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
-#' @param K the values of K to run the MCMC on
+#' @param K the values of K that the MCMC will explore
 #' @param burnin the number of burn-in iterations
 #' @param samples the number of sampling iterations
 #' @param rungs the number of temperature rungs
-#' @param GTI_pow the power used in generalised thermodynamic integration
-#' @param auto_converge whether convergence should be assessed automatically, in which case burn-in iterations are terminated as soon as convergence is reached. Otherwise the full \code{burnin} iterations are used
-#' @param solve_label_switching_on whether to implement the Stevens' solution to the label-switching problem
-#' @param coupling_on whether to implement Metropolis-coupling over temperature rungs
-#' @param scaffold_on whether to use scaffolds to improve mixing
-#' @param splitmerge_on whether to implement a split-merge proposal
-#' @param cluster pass in a cluster environment
-#' @param pb_markdown whether to run progress bars in markdown mode, in which
+#' @param GTI_pow the power used in the generalised thermodynamic integration
+#'   method. Must be greater than 1.1
+#' @param auto_converge whether convergence should be assessed automatically
+#'   every \code{converge_test} iterations, leading to termination of the
+#'   burn-in phase. If \code{FALSE} then the full \code{burnin} iterations are
+#'   used
+#' @param converge_test test for convergence every \code{convergence_test} 
+#'   iterations if \code{auto_converge} is being used
+#' @param solve_label_switching_on whether to implement the Stevens' solution to
+#'   the label-switching problem. If turned off then Q-matrix output will no 
+#'   longer be correct, although evidence estimates will be unaffected.
+#' @param coupling_on whether to implement Metropolis-coupling over temperature
+#'   rungs
+#' @param cluster option to pass in a cluster environment (see package
+#'   "parallel")
+#' @param pb_markdown whether to run progress bars in markdown mode, in which 
 #'   case they are updated once at the end to avoid large amounts of output.
 #' @param silent whether to suppress all console output
 #' 
@@ -356,7 +374,7 @@ generate_scaffolds <- function(project, n = 10, coupling_on = TRUE, splitmerge_o
 #' @examples
 #' # TODO
 
-run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 3, auto_converge = TRUE, solve_label_switching_on = TRUE, coupling_on = TRUE, scaffold_on = TRUE, splitmerge_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
+run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = burnin/10, solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
   
   # start timer
   t0 <- Sys.time()
@@ -368,11 +386,11 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   assert_scalar_pos_int(samples, zero_allowed = FALSE)
   assert_scalar_pos_int(rungs, zero_allowed = FALSE)
   assert_scalar_pos(GTI_pow)
-  #assert_bounded(GTI_pow, 1.5, 10)
+  assert_gr(GTI_pow, 1.1)
+  assert_scalar_logical(auto_converge)
+  assert_scalar_pos_int(converge_test, zero_allowed = FALSE)
   assert_scalar_logical(solve_label_switching_on)
   assert_scalar_logical(coupling_on)
-  assert_scalar_logical(scaffold_on)
-  assert_scalar_logical(splitmerge_on)
   if (!is.null(cluster)) {
     assert_cluster(cluster)
   }
@@ -402,10 +420,9 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                       rungs = rungs,
                       GTI_pow = GTI_pow,
                       auto_converge = auto_converge,
+                      converge_test = converge_test,
                       solve_label_switching_on = solve_label_switching_on,
                       coupling_on = coupling_on,
-                      scaffold_on = scaffold_on,
-                      splitmerge_on = splitmerge_on,
                       pb_markdown = pb_markdown,
                       silent = silent)
   
@@ -446,6 +463,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
     output_raw <- lapply(parallel_args, run_mcmc_cpp)
   }
   
+  
   #------------------------
   
   # begin processing results
@@ -466,6 +484,9 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
     # define output manually if K==1
     if (K[i]==1) {
       
+      # get exact log-likelihood
+      exact_loglike <- output_raw[[i]]$loglike_sampling[[1]][1]
+      
       # create qmatrix_ind
       qmatrix_ind <- matrix(1,n,1)
       colnames(qmatrix_ind) <- deme_names
@@ -479,7 +500,8 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       alpha <- NULL
       ESS <- NULL
       GTI_path <- NULL
-      GTI_logevidence <- NULL
+      GTI_logevidence <- data.frame(estimate = exact_loglike,
+                                    SE = 0)
       coupling_accept <- NULL
       
     } else { # extract output if K>1
@@ -514,6 +536,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       # get ESS
       ESS <- effectiveSize(loglike_sampling)
       ESS[ESS==0] <- samples # if no variation then assume zero autocorrelation
+      ESS[ESS>samples] <- samples # ESS cannot exceed actual number of samples taken
       names(ESS) <- rung_names
       
       # weight likelihood according to GTI_pow
@@ -565,10 +588,10 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                         rungs = rungs,
                         GTI_pow = GTI_pow,
                         auto_converge = auto_converge,
-                        coupling_on = coupling_on,
-                        scaffold_on = scaffold_on,
-                        splitmerge_on = splitmerge_on,
+                        converge_test = converge_test,
                         solve_label_switching_on = solve_label_switching_on,
+                        coupling_on = coupling_on,
+                        pb_markdown = pb_markdown,
                         silent = silent)
     
     # ---------- save results ----------
@@ -595,6 +618,14 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   # name output over K
   K_all <- length(project$output$single_set[[s]]$single_K)
   names(project$output$single_set[[s]]$single_K) <- paste0("K", 1:K_all)
+  
+  # ---------- reorder qmatrices ----------
+  
+  qmatrix_aligned <- align_qmatrix(project$output$single_set[[s]]$single_K)
+  #return(qmatrix_aligned)
+  for (i in 1:length(K)) {
+    project$output$single_set[[s]]$single_K[[K[i]]]$summary$qmatrix_ind <- qmatrix_aligned[[K[i]]]
+  }
   
   # ---------- recalculate evidence over K ----------
   
@@ -673,7 +704,6 @@ get_GTI_posterior <- function(x) {
   GTI_posterior_raw <- GTI_posterior_K_sim_cpp(list(mean = x$mean[w],
                                                     SE = x$SE[w],
                                                     reps = 1e6))$ret
-  
   # get posterior quantiles in dataframe
   GTI_posterior_quantiles <- t(mapply(quantile_95, GTI_posterior_raw))
   GTI_posterior <- data.frame(Q2.5 = NA, Q50 = NA, Q97.5 = NA)
@@ -695,9 +725,105 @@ integrate_GTI_logevidence <- function(x) {
   
   # produce integrated estimates by simulation
   w <- which(!is.na(x$mean))
-  GTI_integrated_raw <- GTI_integrated_K_sim_cpp(list(mean = x$mean[w],
-                                                      SE = x$SE[w],
-                                                      reps = 1e6))
-  return(GTI_integrated_raw)
+  if (length(w)==1) {
+    ret <- list(mean = x$mean[w], SE = x$SE[w])
+  } else {
+    ret <- GTI_integrated_K_sim_cpp(list(mean = x$mean[w], SE = x$SE[w], reps = 1e6))
+  }
+  
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Get effective sample size (ESS) over all K
+#'
+#' @description Get effective sample size (ESS) over all K
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param K TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+get_ESS <- function(proj, K = NULL) {
+  
+  # check inputs
+  assert_mavproject(proj)
+  if (!is.null(K)) {
+    assert_scalar_pos_int(K)
+  }
+  
+  # get active set and check non-zero
+  s <- proj$active_set
+  if (s==0) {
+    stop("no active parameter set")
+  }
+  
+  # get ESS over all K and check not null
+  ESS_raw <- mapply(function(x) {x$summary$ESS}, proj$output$single_set[[s]]$single_K[-1], SIMPLIFY = FALSE)
+  if (is.null(ESS_raw) | length(ESS_raw)==0) {
+    stop("no ESS output for active set")
+  }
+  
+  # force equal length by introducing NAs as needed
+  max_rungs <- max(mapply(length, ESS_raw))
+  ESS <- mapply(function(x) {
+    ret <- x$summary$ESS
+    c(ret, rep(NA, max_rungs-length(ret)))
+  }, proj$output$single_set[[s]]$single_K[-1])
+  ESS <- round(ESS)
+  
+  return(ESS)
+}
+
+#------------------------------------------------
+# align qmatrices
+# (not exported)
+#' @noRd
+align_qmatrix <- function(x) {
+  
+  # find values with output
+  null_output <- mapply(function(y) {is.null(y$summary$qmatrix_ind)}, x)
+  w <- which(!null_output)
+  
+  # set template qmatrix to first qmatrix
+  template_qmatrix <- x[[w[1]]]$summary$qmatrix_ind
+  n <- nrow(template_qmatrix)
+  c <- ncol(template_qmatrix)
+  
+  # loop through output
+  ret <- list()
+  best_perm <- NULL
+  for (i in w) {
+    
+    # expand template
+    qmatrix_ind <- unclass(x[[i]]$summary$qmatrix_ind)
+    template_qmatrix <- cbind(template_qmatrix, matrix(0, n, i-c))
+    
+    # calculate cost matrix
+    cost_mat <- matrix(0,i,i)
+    for (k1 in 1:i) {
+        for (k2 in 1:i) {
+          cost_mat[k1,k2] <- sum(qmatrix_ind[,k1] * (log(qmatrix_ind[,k1]+1e-100) - log(template_qmatrix[,k2]+1e-100)))
+        }
+    }
+    
+    # reorder qmatrix
+    best_perm <- call_hungarian(cost_mat)$best_matching
+    best_perm_order <- order(best_perm)
+    qmatrix_ind <- qmatrix_ind[, best_perm_order, drop = FALSE]
+    
+    # store result
+    ret[[i]] <- qmatrix_ind
+    class(ret[[i]]) <- "maverick_qmatrix_ind"
+    
+    # qmatrix becomes template for next level up
+    template_qmatrix <- qmatrix_ind
+  }
+  
+  return(ret)
 }
 

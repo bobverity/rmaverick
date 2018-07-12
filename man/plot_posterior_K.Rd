@@ -4,12 +4,10 @@
 \alias{plot_posterior_K}
 \title{Plot posterior K}
 \usage{
-plot_posterior_K(proj, ...)
+plot_posterior_K(proj)
 }
 \arguments{
 \item{proj}{TODO}
-
-\item{...}{TODO}
 }
 \description{
 Plot posterior K

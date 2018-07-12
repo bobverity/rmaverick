@@ -12,7 +12,9 @@ License: MIT + file LICENSE
 Imports:
     Rcpp (>= 0.12.14),
     assertthat,
-    coda
+    coda,
+    ggplot2,
+    gridExtra
 LinkingTo:
     Rcpp
 RoxygenNote: 6.0.1

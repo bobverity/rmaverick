@@ -1,6 +1,6 @@
 
 #------------------------------------------------
-# default MavericK colours
+# default rmaverick colours
 # (not exported)
 #' @noRd
 default_colours <- function(K) {
@@ -8,87 +8,49 @@ default_colours <- function(K) {
   # generate palette and colours
   raw_cols <- c("#D73027", "#FC8D59", "#FEE090", "#E0F3F8", "#91BFDB", "#4575B4")
   my_palette <- colorRampPalette(raw_cols)
-  bar_col <- my_palette(max(K,6))
   
-  # if fewer than 6 colours then choose manually
-  if (K==5) {
-    bar_col = bar_col[c(1,2,3,5,6)]
-  } else if (K==4) {
-    bar_col = bar_col[c(1,2,3,5)]
-  } else if (K==3) {
-    bar_col = bar_col[c(1,3,5)]
-  } else if (K==2) {
-    bar_col = bar_col[c(1,5)]
-  } else if (K==1) {
-    bar_col = bar_col[1]
+  # simple case if small K
+  if (K<=2) {
+    return(my_palette(K))
   }
   
-  return(bar_col)
+  # some logic to choose a palette size and sequence of colours that is
+  # consistent across different values of K
+  ncol <- 3
+  while(ncol<K) {
+    ncol <- ncol+(ncol-1)
+  }
+  dist_mat <- matrix(1:ncol, ncol, ncol)
+  dist_mat <- abs(t(dist_mat)-dist_mat)
+  x <- rep(FALSE, ncol)
+  
+  col_index <- 1
+  for (i in 2:K) {
+    x[col_index] <- TRUE
+    s <- apply(dist_mat[which(x),,drop=FALSE], 2, min)
+    next_index <- which.max(s)
+    col_index <- c(col_index, next_index)
+  }
+  col_index
+  ret <- my_palette(ncol)[col_index]
+  
+  return(ret)
 }
 
 #------------------------------------------------
-# whisker plot of quantiles
+# ggplot theme with minimal objects
 # (not exported)
 #' @noRd
-plot_quantiles <- function(q_min, q_mid, q_max, q_x = 1:length(q_min), q_names = q_x, width = 0.2, connect_points = FALSE, ...) {
-  
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
-  
-  # check inputs
-  n <- length(q_min)
-  stopifnot(length(q_mid)==n && length(q_max)==n)
-  stopifnot(all(q_min<=q_mid, na.rm=TRUE) && all(q_mid<=q_max, na.rm=TRUE))
-  
-  # get basic data properties
-  min_val <- min(q_min, na.rm=TRUE)
-  max_val <- max(q_max, na.rm=TRUE)
-  
-  # stick properties
-  stick_left <- 1:n - 0.5
-  stick_right <- 1:n + 0.5
-  
-  # set defaults on undefined arguments
-  if (! "xlim" %in% arg_names) {
-    args$xlim <- range(q_x)
-  }
-  if (! "ylim" %in% arg_names) {
-    y_mid <- 0.5*(max_val + min_val)
-    y_diff <- 0.5*(max_val - min_val)
-    args$ylim <- c(y_mid - 1.2*y_diff, y_mid + 1.2*y_diff)
-  }
-  if (! "lwd" %in% arg_names) {
-    args$lwd <- 1
-  }
-  if (! "col" %in% arg_names) {
-    args$col <- 1
-  }
-  if (! "yaxs" %in% arg_names) {
-    args$yaxs <- "i"
-  }
-  
-  # fixed arguments, or arguments that have special meaning
-  args$type <- "n"
-  axes <- TRUE
-  if ("axes" %in% arg_names) {
-    axes <- args$axes
-  }
-  args$axes <- FALSE
-  
-  # plot with finalised list of parameters
-  do.call(plot, c(list(x=0), args))    # create empty plot
-  segments(x0=q_x-width, y0=q_mid, x1=q_x+width, y1=q_mid, lwd=args$lwd, col=args$col)  # add horizontal lines
-  segments(x0=q_x, y0=q_min, x1=q_x, y1=q_max, lwd=args$lwd, col=args$col)  # add vertical lines
-  if (axes) {
-    axis(1)
-    axis(2)
-    box()
-  }
-  if (connect_points) {
-    lines(q_x, q_mid, lwd=args$lwd[1], col=args$col[1])
-  }
-  
+theme_empty <- function() {
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        plot.background=element_blank())
 }
 
 #------------------------------------------------
@@ -108,36 +70,19 @@ plot_quantiles <- function(q_min, q_mid, q_max, q_x = 1:length(q_min), q_names =
 
 plot.maverick_loglike_quantiles <- function(x, y, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # get data into ggplot format
+  df <- as.data.frame(unclass(x))
+  n <- nrow(df)
+  x_vec <- y
   
-  # unclass x
-  x <- unclass(x)
-  n <- nrow(x)
+  # produce plot
+  plot1 <- ggplot(df) + theme_bw()
+  plot1 <- plot1 + geom_segment(aes(x = x_vec, y = Q2.5, xend = x_vec, yend = Q97.5))
+  plot1 <- plot1 + geom_point(aes(x = x_vec, y = Q50))
+  plot1 <- plot1 + xlab("rung") + ylab("log-likelihood")
   
-  # get basic data properties
-  q_min <- as.vector(x[,1])
-  q_mid <- as.vector(x[,2])
-  q_max <- as.vector(x[,3])
-  
-  # set defaults on undefined arguments
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "rung"
-  }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- "log-likelihood"
-  }
-  
-  # fixed arguments, or arguments that have special meaning
-  if ("q_x" %in% arg_names) {
-    q_min <- c(NA, q_min)
-    q_mid <- c(NA, q_mid)
-    q_max <- c(NA, q_max)
-  }
-  
-  # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min = q_min, q_mid = q_mid, q_max = q_max), args))
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -151,17 +96,22 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
 #' @param K TODO
 #' @param axis_type TODO
 #' @param connect_points TODO
-#' @param ... TODO
+#' @param connect_whiskers TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 3, connect_points = FALSE, ...) {
+plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points = FALSE, connect_whiskers = FALSE) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_mavproject(proj)
+  if (!is.null(K)) {
+    assert_scalar_pos_int(K)
+  }
+  assert_in(axis_type, 1:3)
+  assert_scalar_logical(connect_points)
+  assert_scalar_logical(connect_whiskers)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -170,43 +120,55 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 3, connect_points
   }
   
   # set default K to first value with output
-  null_output <- mapply(is.null, proj$output$single_set[[s]]$single_K)
+  null_output <- mapply(function(x) {is.null(x$summary$loglike_quantiles)}, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
-    stop("no output for active parameter set")
+    stop("no loglike_quantiles output for active parameter set")
   }
-  K <- define_default(K, which(!null_output)[1])
-  
-  # check output exists for this K
-  if (is.null(proj$output$single_set[[s]]$single_K[[K]])) {
-    stop(sprintf("no output for K = %s of active set", K))
+  if (is.null(K)) {
+    K <- which(!null_output)[1]
+    message(sprintf("using K = %s by default", K))
   }
   
-  # x axis options
-  if (axis_type %in% c(2,3)) {
-    rungs <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$rungs
-    if (! "width" %in% arg_names) {
-      args$width <- 0.02
-    }
-    if (! "xlim" %in% arg_names) {
-      args$xlim <- c(0,1)
-    }
-    if (axis_type==2) {
-      args$q_x <- (0:rungs)/rungs
-      if (! "xlab" %in% arg_names) {
-        args$xlab <- parse(text="beta")
-      }
-    }
-    if (axis_type==3) {
-      GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
-      args$q_x <- ((0:rungs)/rungs)^GTI_pow
-      if (! "xlab" %in% arg_names) {
-        args$xlab <- parse(text="beta^gamma")
-      }
-    }
+  # check output exists for chosen K
+  loglike_quantiles <- proj$output$single_set[[s]]$single_K[[K]]$summary$loglike_quantiles
+  if (is.null(loglike_quantiles)) {
+    stop(sprintf("no loglike_quantiles output for K = %s of active set", K))
   }
   
-  # produce quantile plot with finalised list of parameters
-  do.call(plot, c(list(proj$output$single_set[[s]]$single_K[[K]]$summary$loglike_quantiles), args))
+  # produce plot with different axis options
+  rungs <- nrow(loglike_quantiles)
+  if (axis_type==1) {
+    x_vec <- 1:rungs
+    plot1 <- plot(loglike_quantiles, as.factor(x_vec))
+    
+  } else if (axis_type==2) {
+    x_vec <- (1:rungs)/rungs
+    plot1 <- plot(loglike_quantiles, x_vec)
+    plot1 <- plot1 + xlab(parse(text = "beta"))
+    plot1 <- plot1 + coord_cartesian(xlim = c(0,1))
+    
+  } else {
+    GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
+    x_vec <- ((1:rungs)/rungs)^GTI_pow
+    plot1 <- plot(loglike_quantiles, x_vec)
+    plot1 <- plot1 + xlab(parse(text = "beta^gamma"))
+    plot1 <- plot1 + coord_cartesian(xlim = c(0,1))
+  }
+  
+  # optionally add central line
+  if (connect_points) {
+    df <- as.data.frame(unclass(loglike_quantiles))
+    plot1 <- plot1 + geom_line(aes(x = x_vec, y = df$Q50))
+  }
+  
+  # optionally connect whiskers
+  if (connect_whiskers) {
+    df <- as.data.frame(unclass(loglike_quantiles))
+    plot1 <- plot1 + geom_line(aes(x = x_vec, y = df$Q2.5), linetype = "dotted") + geom_line(aes(x = x_vec, y = df$Q97.5), linetype = "dotted")
+  }
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -226,89 +188,46 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 3, connect_points
 
 plot.maverick_qmatrix_ind <- function(x, y = NULL, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # get data into ggplot format
+  m <- unclass(x)
+  n <- nrow(m)
+  K <- ncol(m)
+  df <- data.frame(ind = rep(1:n,each=K), k = as.factor(rep(1:K,times=n)), val = as.vector(t(m)))
   
-  # unclass x
-  x <- t(unclass(x))
+  # produce basic plot
+  plot1 <- ggplot(df) + theme_empty()
+  plot1 <- plot1 + geom_bar(aes(x = ind, y = val, fill = k), width = 1, stat = "identity")
+  plot1 <- plot1 + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0))
+  plot1 <- plot1 + xlab("sample") + ylab("probability")
   
-  # get basic data properties
-  n <- ncol(x)
-  K <- nrow(x)
+  # add legends
+  plot1 <- plot1 + scale_fill_manual(values = default_colours(K), name = "group")
+  plot1 <- plot1 + scale_colour_manual(values = "white")
+  plot1 <- plot1 + guides(colour = FALSE)
   
-  # set defaults on undefined arguments
-  if (! "ylim" %in% arg_names) {
-    args$ylim <- c(0, 1)
-  }
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "sample"
-  }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- ""
-  }
-  if (! "xaxs" %in% arg_names) {
-    args$xaxs <- "i"
-  }
-  if (! "yaxs" %in% arg_names) {
-    args$yaxs <- "i"
-  }
-  if (! "space" %in% arg_names) {
-    args$space <- 0
-  }
-  if (! "names" %in% arg_names) {
-    args$names <- rep(NA,n)
-  }
-  if (! "col" %in% arg_names) {
-    args$col <- default_colours(K)
-  }
-  if (! "border" %in% arg_names) {
-    args$border <- NA
-  }
+  # add borders and dividing lines
+  plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
+  plot1 <- plot1 + geom_segment(aes(x = x, y = y, xend = x, yend = y+1, col = "white"), size = 0.3, data = data.frame(x = 1:n-0.5, y = rep(0,n)))
   
-  # plot with finalised list of parameters
-  do.call(barplot, c(list(height=x), args))
-  box()
-  
-  # if y data used, add points above barplot
-  # NOTE - RELEGATED UNTIL MOVE TO GGPLOT
-  # TODO - replace this code
-  if (!is.null(y)) {
-    
-    # TODO - checks on y data
-    
-    # variation of above arguments
-    args2 <- args
-    args2$axes <- FALSE
-    args2$ylim <- c(-50,-1)
-    args2$col <- args$col[y]
-    
-    # allow plot outside plotting region
-    par_store <- par(xpd = NA, new = TRUE)
-    on.exit(par(par_store))
-    
-    # add secondary barplot
-    do.call(barplot, c(list(height=rep(1,length(y))), args2))
-  }
-  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
-#' @title Plot individual-level Q-matrix of current active set
+#' @title Plot Q-matrix of current active set
 #'
-#' @description Plot individual-level Q-matrix of current active set
+#' @description Plot Q-matrix of current active set
 #'
 #' @details TODO
 #'
 #' @param proj TODO
 #' @param K TODO
-#' @param ... TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_qmatrix_ind <- function(proj, K = NULL, ...) {
+plot_qmatrix <- function(proj, K = NULL) {
   
   # check inputs
   assert_mavproject(proj)
@@ -323,19 +242,23 @@ plot_qmatrix_ind <- function(proj, K = NULL, ...) {
   }
   
   # set default K to first value with output
-  null_output <- mapply(is.null, proj$output$single_set[[s]]$single_K)
+  null_output <- mapply(function(x) {is.null(x$summary$qmatrix_ind)}, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
     stop("no output for active parameter set")
   }
-  K <- define_default(K, which(!null_output)[1])
+  if (is.null(K)) {
+    K <- which(!null_output)[1]
+    message(sprintf("using K = %s by default", K))
+  }
   
-  # check output exists for this K
-  if (is.null(proj$output$single_set[[s]]$single_K[[K]])) {
-    stop(sprintf("no output for K = %s of active set", K))
+  # check output exists for chosen K
+  qmatrix_ind <- proj$output$single_set[[s]]$single_K[[K]]$summary$qmatrix_ind
+  if (is.null(qmatrix_ind)) {
+    stop(sprintf("no qmatrix_ind output for K = %s of active set", K))
   }
   
   # produce Q-matrix plot
-  plot(proj$output$single_set[[s]]$single_K[[K]]$summary$qmatrix_ind, ...)
+  plot(qmatrix_ind)
 }
 
 #------------------------------------------------
@@ -355,36 +278,46 @@ plot_qmatrix_ind <- function(proj, K = NULL, ...) {
 
 plot.maverick_GTI_path <- function(x, y, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_in(y, 1:2)
   
-  # unclass x
-  n <- nrow(x)
-  x <- unclass(x)
+  # get data into ggplot format
+  df <- as.data.frame(unclass(x))
+  n <- nrow(df)
+  df <- rbind(data.frame(mean = 0, SE = 0), df)
   
-  # get basic data properties
-  q_mid <- x$mean
-  q_min <- x$mean - 1.96*x$SE
-  q_max <- x$mean + 1.96*x$SE
+  # get quantiles
+  df$q_min <- df$mean - 1.96*df$SE
+  df$q_mid <- df$mean
+  df$q_max <- df$mean + 1.96*df$SE
   
-  # set defaults on undefined arguments
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "rung"
+  # produce plot
+  plot1 <- ggplot(df) + theme_bw()
+  if (y==1) {
+    q_x <- 1:(n+1)
+    width <- 0.1
+    plot1 <- plot1 + geom_line(aes(x = as.factor(0:n), y = q_mid, group = 1))
+    plot1 <- plot1 + xlab("rung")
+  } else {
+    q_x <- seq(0,1,l=n+1)
+    width <- 0.01
+    plot1 <- plot1 + geom_line(aes(x = q_x, y = q_mid))
+    plot1 <- plot1 + xlab(parse(text = "beta"))
   }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- "GTI path"
-  }
   
-  # fixed arguments, or arguments that have special meaning
-  if ("q_x" %in% arg_names) {
-    q_min <- c(0, q_min)
-    q_mid <- c(0, q_mid)
-    q_max <- c(0, q_max)
-  }
+  # continue building plot
+  plot1 <- plot1 + geom_area(aes(x = q_x, y = q_mid, fill = "col1", colour = "col1", alpha = 0.5))
+  plot1 <- plot1 + geom_segment(aes(x = q_x, y = q_min, xend = q_x, yend = q_max))
+  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_min, xend = q_x+width, yend = q_min))
+  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_max, xend = q_x+width, yend = q_max))
   
-  # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max), args))
+  plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
+  plot1 <- plot1 + scale_colour_manual(values = "black")
+  plot1 <- plot1 + guides(fill = FALSE, colour = FALSE, alpha = FALSE)
+  plot1 <- plot1 + ylab("weighted log-likelihood")
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -397,18 +330,19 @@ plot.maverick_GTI_path <- function(x, y, ...) {
 #' @param proj TODO
 #' @param K TODO
 #' @param axis_type TODO
-#' @param connect_points TODO
-#' @param ... TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, ...) {
+plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_mavproject(proj)
+  if (!is.null(K)) {
+    assert_scalar_pos_int(K)
+  }
+  assert_in(axis_type, 1:2)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -417,52 +351,32 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
   }
   
   # set default K to first value with output
-  null_output <- mapply(is.null, proj$output$single_set[[s]]$single_K)
+  null_output <- mapply(function(x) {is.null(x$summary$GTI_path)}, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
     stop("no output for active parameter set")
   }
-  K <- define_default(K, which(!null_output)[1])
-  
-  # check output exists for this K
-  if (is.null(proj$output$single_set[[s]]$single_K[[K]])) {
-    stop(sprintf("no output for K = %s of active set", K))
+  if (is.null(K)) {
+    K <- which(!null_output)[1]
+    message(sprintf("using K = %s by default", K))
   }
   
-  # x axis options
-  if (axis_type %in% c(2,3)) {
-    rungs <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$rungs
-    if (! "width" %in% arg_names) {
-      args$width <- 0.02
-    }
-    if (! "xlim" %in% arg_names) {
-      args$xlim <- c(0,1)
-    }
-    if (axis_type==2) {
-      args$q_x <- (0:rungs)/rungs
-      if (! "xlab" %in% arg_names) {
-        args$xlab <- parse(text="beta")
-      }
-    }
-    if (axis_type==3) {
-      GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
-      args$q_x <- ((0:rungs)/rungs)^GTI_pow
-      if (! "xlab" %in% arg_names) {
-        args$xlab <- parse(text="beta^gamma")
-      }
-    }
+  # check output exists for chosen K
+  GTI_path <- proj$output$single_set[[s]]$single_K[[K]]$summary$GTI_path
+  if (is.null(GTI_path)) {
+    stop(sprintf("no GTI_path output for K = %s of active set", K))
   }
   
-  # default args
-  args$connect_points <- connect_points
+  # produce plot with different axis options
+  plot1 <- plot(GTI_path, axis_type)
   
-  # produce quantile plot with finalised list of parameters
-  do.call(plot, c(list(proj$output$single_set[[s]]$single_K[[K]]$summary$GTI_path), args))
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
 #' @title Default plot for class maverick_GTI_logevidence
 #'
-#' @description TODO
+#' @description Default plot for class maverick_GTI_logevidence
 #'
 #' @details TODO
 #'
@@ -476,26 +390,27 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 2, connect_points = TRUE, 
 
 plot.maverick_GTI_logevidence <- function(x, y, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # get data into ggplot format
+  df <- as.data.frame(unclass(x))
+  n <- nrow(df)
   
-  # set defaults
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "K"
-  }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- "log-evidence"
-  }
+  # get quantiles
+  df$q_min <- df$mean - 1.96*df$SE
+  df$q_mid <- df$mean
+  df$q_max <- df$mean + 1.96*df$SE
+  q_x <- 1:n
   
-  # get credible intervals
-  q_mid <- unlist(x$mean)
-  q_min <- q_mid - 1.96*unlist(x$SE)
-  q_max <- q_mid + 1.96*unlist(x$SE)
-  K <- x$K
+  # produce plot
+  plot1 <- ggplot(df) + theme_bw()
+  width <- 0.1
+  plot1 <- plot1 + geom_point(aes(x = as.factor(K), y = q_mid), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = q_x, y = q_min, xend = q_x, yend = q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_min, xend = q_x+width, yend = q_min), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_max, xend = q_x+width, yend = q_max), na.rm = TRUE)
+  plot1 <- plot1 + xlab("K") + ylab("log-evidence")
   
-  # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max, q_x=K), args))
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -506,17 +421,15 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
 #' @details TODO
 #'
 #' @param proj TODO
-#' @param ... TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_logevidence_K <- function(proj, ...) {
+plot_logevidence_K <- function(proj) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_mavproject(proj)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -524,14 +437,23 @@ plot_logevidence_K <- function(proj, ...) {
     stop("no active parameter set")
   }
   
-  # produce quantile plot with finalised list of parameters
-  do.call(plot, c(list(proj$output$single_set[[s]]$all_K$GTI_logevidence), args))
+  # check output exists for chosen K
+  GTI_logevidence <- proj$output$single_set[[s]]$all_K$GTI_logevidence
+  if (is.null(GTI_logevidence)) {
+    stop("no GTI_logevidence output for active set")
+  }
+  
+  # produce plot
+  plot1 <- plot(GTI_logevidence)
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
 #' @title Default plot for class maverick_GTI_posterior
 #'
-#' @description TODO
+#' @description Default plot for class maverick_GTI_posterior
 #'
 #' @details TODO
 #'
@@ -545,46 +467,29 @@ plot_logevidence_K <- function(proj, ...) {
 
 plot.maverick_GTI_posterior <- function(x, y, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
-  
-  # set defaults
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "K"
-  }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- "posterior probability"
-  }
-  if (! "ylim" %in% arg_names) {
-    args$ylim <- c(0,1)
-  }
-  if (! "names.arg" %in% arg_names) {
-    args$names.arg <- x$K
-  }
-  if (! "lwd" %in% arg_names) {
-    args$lwd <- 1
-  }
-  if (! "col" %in% arg_names) {
-    args$col <- "#4575B4"
-  }
-  args$space <- 0
-  
-  # get confidence intervals
-  q_min <- x$Q2.5
-  q_mid <- x$Q50
-  q_max <- x$Q97.5
-  K <- x$K
+  # get data into ggplot format
+  df <- as.data.frame(unclass(x))
+  n <- nrow(df)
+  width <- 0.1
   
   # produce plot
-  do.call(barplot, c(list(height = q_mid), args))
-  segments(x0 = K-0.5, y0 = q_min, x1 = K-0.5, y1 = q_max, lwd = args$lwd)  # add vertical lines
+  plot1 <- ggplot(df) + theme_bw()
+  plot1 <- plot1 + geom_bar(aes(x = K, y = Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = K, y = Q2.5, xend = K, yend = Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = K-width, y = Q2.5, xend = K+width, yend = Q2.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = K-width, y = Q97.5, xend = K+width, yend = Q97.5), na.rm = TRUE)
   
-  # add question mark to represent NA estimates
-  if (any(is.na(q_mid))) {
-    w <- which(is.na(q_mid)) 
-    text(w-0.5, 0.5, "?", cex=2)
-  }
+  # add legends
+  plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
+  plot1 <- plot1 + guides(fill = FALSE)
+  
+  # modify scales etc.
+  plot1 <- plot1 + coord_cartesian(ylim = c(-0.05,1.05))
+  plot1 <- plot1 + scale_y_continuous(expand = c(0,0))
+  plot1 <- plot1 + xlab("K") + ylab("probability")
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -595,17 +500,15 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
 #' @details TODO
 #'
 #' @param proj TODO
-#' @param ... TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_posterior_K <- function(proj, ...) {
+plot_posterior_K <- function(proj) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_mavproject(proj)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -613,8 +516,17 @@ plot_posterior_K <- function(proj, ...) {
     stop("no active parameter set")
   }
   
-  # produce barplot with finalised list of parameters
-  do.call(plot, c(list(proj$output$single_set[[s]]$all_K$GTI_posterior), args))
+  # check output exists for chosen K
+  GTI_posterior <- proj$output$single_set[[s]]$all_K$GTI_posterior
+  if (is.null(GTI_posterior)) {
+    stop("no GTI_posterior output for active set")
+  }
+  
+  # produce plot
+  plot1 <- plot(GTI_posterior)
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -634,33 +546,28 @@ plot_posterior_K <- function(proj, ...) {
 
 plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # get data into ggplot format
+  df <- as.data.frame(unclass(x))
+  n <- nrow(df)
   
-  # set defaults
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "model"
-  }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- "log-evidence"
-  }
-  if (! "width" %in% arg_names) {
-    args$width <- 0.1
-  }
-  args$axes <- FALSE
+  # get quantiles
+  df$q_min <- df$mean - 1.96*df$SE
+  df$q_mid <- df$mean
+  df$q_max <- df$mean + 1.96*df$SE
+  q_x <- 1:n
   
-  # get credible intervals
-  q_mid <- unlist(x$mean)
-  q_min <- q_mid - 1.96*unlist(x$SE)
-  q_max <- q_mid + 1.96*unlist(x$SE)
-  name <- x$name
+  # produce plot
+  plot1 <- ggplot(df) + theme_bw()
+  width <- 0.1
+  plot1 <- plot1 + geom_point(aes(x = as.factor(set), y = q_mid), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = q_x, y = q_min, xend = q_x, yend = q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_min, xend = q_x+width, yend = q_min), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = q_x-width, y = q_max, xend = q_x+width, yend = q_max), na.rm = TRUE)
+  plot1 <- plot1 + scale_x_discrete(labels = df$name, breaks = 1:n)
+  plot1 <- plot1 + xlab("model") + ylab("log-evidence")
   
-  # plot with finalised list of parameters
-  do.call(plot_quantiles, c(list(q_min=q_min, q_mid=q_mid, q_max=q_max), args))
-  axis(1, at = 1:length(q_mid), labels = name)
-  axis(2)
-  box()
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -671,26 +578,27 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
 #' @details TODO
 #'
 #' @param proj TODO
-#' @param ... TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_logevidence_model <- function(proj, ...) {
+plot_logevidence_model <- function(proj) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_mavproject(proj)
   
-  # check for null input
+  # check output exists
   GTI_logevidence_model <- proj$output$all_sets$GTI_logevidence_model
   if (is.null(GTI_logevidence_model)) {
     stop("no GTI_logevidence_model output")
   }
   
-  # produce quantile plot with finalised list of parameters
-  do.call(plot, c(list(GTI_logevidence_model), args))
+  # produce plot
+  plot1 <- plot(GTI_logevidence_model)
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -710,46 +618,30 @@ plot_logevidence_model <- function(proj, ...) {
 
 plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
-  
-  # set defaults
-  if (! "xlab" %in% arg_names) {
-    args$xlab <- "model"
-  }
-  if (! "ylab" %in% arg_names) {
-    args$ylab <- "posterior probability"
-  }
-  if (! "ylim" %in% arg_names) {
-    args$ylim <- c(0,1)
-  }
-  if (! "names.arg" %in% arg_names) {
-    args$names.arg <- x$name
-  }
-  if (! "lwd" %in% arg_names) {
-    args$lwd <- 1
-  }
-  if (! "col" %in% arg_names) {
-    args$col <- "#4575B4"
-  }
-  args$space <- 0
-  
-  # get confidence intervals
-  q_min <- x$Q2.5
-  q_mid <- x$Q50
-  q_max <- x$Q97.5
-  set <- x$set
+  # get data into ggplot format
+  df <- as.data.frame(unclass(x))
+  n <- nrow(df)
+  width <- 0.1
   
   # produce plot
-  do.call(barplot, c(list(height = q_mid), args))
-  segments(x0 = set-0.5, y0 = q_min, x1 = set-0.5, y1 = q_max, lwd = args$lwd)  # add vertical lines
+  plot1 <- ggplot(df) + theme_bw()
+  plot1 <- plot1 + geom_bar(aes(x = as.factor(set), y = Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = set, y = Q2.5, xend = set, yend = Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = set-width, y = Q2.5, xend = set+width, yend = Q2.5), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes(x = set-width, y = Q97.5, xend = set+width, yend = Q97.5), na.rm = TRUE)
   
-  # add question mark to represent NA estimates
-  if (any(is.na(q_mid))) {
-    w <- which(is.na(q_mid)) 
-    text(w-0.5, 0.5, "?", cex=2)
-  }
+  # add legends
+  plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
+  plot1 <- plot1 + guides(fill = FALSE)
+  
+  # modify scales etc.
+  plot1 <- plot1 + scale_x_discrete(labels = df$name, breaks = 1:n)
+  plot1 <- plot1 + coord_cartesian(ylim = c(-0.05,1.05))
+  plot1 <- plot1 + scale_y_continuous(expand = c(0,0))
+  plot1 <- plot1 + xlab("model") + ylab("probability")
+  
+  # return plot object
+  return(plot1)
 }
 
 #------------------------------------------------
@@ -760,24 +652,363 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
 #' @details TODO
 #'
 #' @param proj TODO
-#' @param ... TODO
 #'
 #' @export
 #' @examples
 #' # TODO
 
-plot_posterior_model <- function(proj, ...) {
+plot_posterior_model <- function(proj) {
   
-  # get input arguments
-  args <- list(...)
-  arg_names <- names(args)
+  # check inputs
+  assert_mavproject(proj)
   
-  # check for null input
+  # check output exists
   GTI_posterior_model <- proj$output$all_sets$GTI_posterior_model
   if (is.null(GTI_posterior_model)) {
     stop("no GTI_posterior_model output")
   }
   
-  # produce barplot with finalised list of parameters
-  do.call(plot, c(list(GTI_posterior_model), args))
+  # produce plot
+  plot1 <- plot(GTI_posterior_model)
+  
+  # return plot object
+  return(plot1)
+}
+
+#------------------------------------------------
+#' @title Produce MCMC trace plot
+#'
+#' @description Produce MCMC trace plot of alpha or log-likelihood
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param K TODO
+#' @param rung TODO
+#' @param param TODO
+#' @param col TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
+  
+  # check inputs
+  assert_mavproject(proj)
+  if (!is.null(K)) {
+    assert_scalar_pos_int(K)
+  }
+  if (!is.null(rung)) {
+    assert_scalar_pos_int(rung)
+  }
+  assert_in(param, c("alpha", "loglike"))
+  
+  # get active set and check non-zero
+  s <- proj$active_set
+  if (s==0) {
+    stop("no active parameter set")
+  }
+  
+  # split analysis between alpha and loglikelihood
+  if (param=="alpha") {
+    
+    # set default K to first value with output
+    null_output <- mapply(function(x) {is.null(x$raw$alpha)}, proj$output$single_set[[s]]$single_K)
+    if (all(null_output)) {
+      stop("no alpha output for active parameter set")
+    }
+    if (is.null(K)) {
+      K <- which(!null_output)[1]
+      message(sprintf("using K = %s by default", K))
+    }
+    
+    # check output exists for chosen K
+    alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
+    if (is.null(alpha)) {
+      stop(sprintf("no alpha output for K = %s of active set", K))
+    }
+    
+    # get into ggplot format
+    df <- data.frame(x = 1:length(alpha), y = alpha)
+    
+    # produce plot
+    plot1 <- ggplot(df) + theme_bw() + ylab("alpha")
+    
+  } else {
+    
+    # set default K to first value with output
+    null_output <- mapply(function(x) {is.null(x$raw$loglike_sampling)}, proj$output$single_set[[s]]$single_K)
+    if (all(null_output)) {
+      stop("no loglike_sampling output for active parameter set")
+    }
+    if (is.null(K)) {
+      K <- which(!null_output)[1]
+      message(sprintf("using K = %s by default", K))
+    }
+    
+    # check output exists for chosen K
+    loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
+    if (is.null(loglike_sampling)) {
+      stop(sprintf("no loglike_sampling output for K = %s of active set", K))
+    }
+    
+    # use cold rung by default
+    rung <- define_default(rung, ncol(loglike_sampling))
+    assert_leq(rung, ncol(loglike_sampling))
+    loglike <- as.vector(loglike_sampling[,rung])
+    
+    # get into ggplot format
+    df <- data.frame(x = 1:length(loglike), y = loglike)
+    
+    # produce plot
+    plot1 <- ggplot(df) + theme_bw() + ylab("log-likelihood")
+  }
+  
+  # complete plot
+  plot1 <- plot1 + geom_line(aes(x = x, y = y, colour = "col1"))
+  plot1 <- plot1 + coord_cartesian(xlim = c(0,nrow(df)))
+  plot1 <- plot1 + scale_x_continuous(expand = c(0,0))
+  plot1 <- plot1 + scale_colour_manual(values = col)
+  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + xlab("iteration")
+  
+  # return plot object
+  return(plot1)
+}
+
+#------------------------------------------------
+#' @title Produce MCMC autocorrelation plot
+#'
+#' @description Produce MCMC autocorrelation plot of alpha or log-likelihood
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param K TODO
+#' @param rung TODO
+#' @param param TODO
+#' @param col TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
+  
+  # check inputs
+  assert_mavproject(proj)
+  if (!is.null(K)) {
+    assert_scalar_pos_int(K)
+  }
+  if (!is.null(rung)) {
+    assert_scalar_pos_int(rung)
+  }
+  assert_in(param, c("alpha", "loglike"))
+  
+  # get active set and check non-zero
+  s <- proj$active_set
+  if (s==0) {
+    stop("no active parameter set")
+  }
+  
+  # split analysis between alpha and loglikelihood
+  if (param=="alpha") {
+    
+    # set default K to first value with output
+    null_output <- mapply(function(x) {is.null(x$raw$alpha)}, proj$output$single_set[[s]]$single_K)
+    if (all(null_output)) {
+      stop("no alpha output for active parameter set")
+    }
+    if (is.null(K)) {
+      K <- which(!null_output)[1]
+      message(sprintf("using K = %s by default", K))
+    }
+    
+    # check output exists for chosen K
+    alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
+    if (is.null(alpha)) {
+      stop(sprintf("no alpha output for K = %s of active set", K))
+    }
+    
+    # store variable to plot
+    v <- alpha
+    
+  } else {
+    
+    # set default K to first value with output
+    null_output <- mapply(function(x) {is.null(x$raw$loglike_sampling)}, proj$output$single_set[[s]]$single_K)
+    if (all(null_output)) {
+      stop("no loglike_sampling output for active parameter set")
+    }
+    if (is.null(K)) {
+      K <- which(!null_output)[1]
+      message(sprintf("using K = %s by default", K))
+    }
+    
+    # check output exists for chosen K
+    loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
+    if (is.null(loglike_sampling)) {
+      stop(sprintf("no loglike_sampling output for K = %s of active set", K))
+    }
+    
+    # use cold rung by default
+    rung <- define_default(rung, ncol(loglike_sampling))
+    assert_leq(rung, ncol(loglike_sampling))
+    loglike <- as.vector(loglike_sampling[,rung])
+    
+    # store variable to plot
+    v <- loglike
+  }
+  
+  # get autocorrelation
+  lag_max <- round(3*length(v)/effectiveSize(v))
+  lag_max <- max(lag_max, 20)
+  lag_max <- min(lag_max, length(v))
+  
+  # get into ggplot format
+  a <- acf(v, lag.max = lag_max, plot = FALSE)
+  df <- data.frame(lag = 0:lag_max, ACF = as.vector(a$acf))
+  
+  # produce plot
+  plot1 <- ggplot(df) + theme_bw()
+  plot1 <- plot1 + geom_segment(aes(x = lag, y = 0, xend = lag, yend = ACF, colour = "col1"))
+  plot1 <- plot1 + scale_colour_manual(values = col)
+  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + xlab("lag") + ylab("ACF")
+  
+  # return plot object
+  return(plot1)
+}
+
+#------------------------------------------------
+#' @title Produce MCMC density plot
+#'
+#' @description Produce MCMC density plot of alpha or log-likelihood
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param K TODO
+#' @param rung TODO
+#' @param param TODO
+#' @param col TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
+  
+  # check inputs
+  assert_mavproject(proj)
+  if (!is.null(K)) {
+    assert_scalar_pos_int(K)
+  }
+  if (!is.null(rung)) {
+    assert_scalar_pos_int(rung)
+  }
+  assert_in(param, c("alpha", "loglike"))
+  
+  # get active set and check non-zero
+  s <- proj$active_set
+  if (s==0) {
+    stop("no active parameter set")
+  }
+  
+  # split analysis between alpha and loglikelihood
+  if (param=="alpha") {
+    
+    # set default K to first value with output
+    null_output <- mapply(function(x) {is.null(x$raw$alpha)}, proj$output$single_set[[s]]$single_K)
+    if (all(null_output)) {
+      stop("no alpha output for active parameter set")
+    }
+    if (is.null(K)) {
+      K <- which(!null_output)[1]
+      message(sprintf("using K = %s by default", K))
+    }
+    
+    # check output exists for chosen K
+    alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
+    if (is.null(alpha)) {
+      stop(sprintf("no alpha output for K = %s of active set", K))
+    }
+    
+    # get into ggplot format
+    df <- data.frame(v = alpha)
+    
+    # produce plot
+    plot1 <- ggplot(df) + theme_bw() + xlab("alpha")
+    
+  } else {
+    
+    # set default K to first value with output
+    null_output <- mapply(function(x) {is.null(x$raw$loglike_sampling)}, proj$output$single_set[[s]]$single_K)
+    if (all(null_output)) {
+      stop("no loglike_sampling output for active parameter set")
+    }
+    if (is.null(K)) {
+      K <- which(!null_output)[1]
+      message(sprintf("using K = %s by default", K))
+    }
+    
+    # check output exists for chosen K
+    loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
+    if (is.null(loglike_sampling)) {
+      stop(sprintf("no loglike_sampling output for K = %s of active set", K))
+    }
+    
+    # use cold rung by default
+    rung <- define_default(rung, ncol(loglike_sampling))
+    assert_leq(rung, ncol(loglike_sampling))
+    loglike <- as.vector(loglike_sampling[,rung])
+    
+    # get into ggplot format
+    df <- data.frame(v = loglike)
+    
+    # produce plot
+    plot1 <- ggplot(df) + theme_bw() + xlab("log-likelihood")
+  }
+  
+  # produce plot
+  #plot1 <- ggplot(df) + theme_bw()
+  plot1 <- plot1 + geom_histogram(aes(x = v, y = ..density.., fill = "col1"), bins = 50)
+  plot1 <- plot1 + scale_fill_manual(values = col)
+  plot1 <- plot1 + guides(fill = FALSE)
+  plot1 <- plot1 + ylab("density")
+  
+  # return plot object
+  return(plot1)
+}
+
+#------------------------------------------------
+#' @title Produce diagnostic plots of parameter alpha
+#'
+#' @description Produce diagnostic plots of parameter alpha
+#'
+#' @details TODO
+#'
+#' @param proj TODO
+#' @param K TODO
+#' @param col TODO
+#'
+#' @export
+#' @examples
+#' # TODO
+
+plot_alpha <- function(proj, K = NULL, col = "black") {
+  
+  # produce individual diagnostic plots and add features
+  plot1 <- plot_trace(proj, K = K, col = col)
+  plot1 <- plot1 + ggtitle("MCMC trace")
+  
+  plot2 <- plot_acf(proj, K = K, col = col)
+  plot2 <- plot2 + ggtitle("autocorrelation")
+  
+  plot3 <- plot_density(proj, K = K, col = col)
+  plot3 <- plot3 + ggtitle("density")
+  
+  # produce grid of plots
+  ret <- grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
 }

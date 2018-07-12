@@ -180,6 +180,9 @@ Rcpp::List GTI_integrated_K_sim_cpp(Rcpp::List args) {
   }
   double x_mean = x_sum/double(reps);
   double x_var = x_sum_squared/double(reps) - x_mean*x_mean;
+  if (x_var<0) {
+    x_var = 0;
+  }
   
   // return as Rcpp object
   return Rcpp::List::create(Rcpp::Named("mean")=x_mean,
