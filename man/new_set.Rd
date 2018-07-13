@@ -8,25 +8,27 @@ new_set(project, name = "(no name)", lambda = 1, admix_on = FALSE,
   alpha = 0.1, estimate_alpha = TRUE)
 }
 \arguments{
-\item{project}{an rmaverick project, as produced by the function
+\item{project}{an rmaverick project, as produced by the function 
 \code{mavproject()}}
 
-\item{name}{TODO}
+\item{name}{the name of the parameter set}
 
-\item{lambda}{TODO}
+\item{lambda}{shape parameter of the dirichlet prior on allele frequencies in
+each subpopulation}
 
-\item{admix_on}{TODO}
+\item{admix_on}{whether to allow admixture between subpopulations, in which
+case each gene copy can be assigned to a different subpopulation}
 
-\item{alpha}{TODO}
+\item{alpha}{parameter governing the strength of admixture. Higher values
+give greater probability of a gene copy being assigned to different
+subpopulations, while as alpha tends to zero we converge back at the
+no-admixture model in which all gene copies within an individual are
+constrained to have originated from the same subpopulation}
 
-\item{estimate_alpha}{TODO}
+\item{estimate_alpha}{whether the value of alpha should be estimated as part
+of the MCMC, in which case the value \code{alpha} is ignored}
 }
 \description{
-Create new parameter set
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Create a new parameter set within an rmaverick project. The new 
+  parameter set becomes the active set once created.
 }

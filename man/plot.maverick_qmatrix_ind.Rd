@@ -4,21 +4,15 @@
 \alias{plot.maverick_qmatrix_ind}
 \title{Default plot for class maverick_qmatrix_ind}
 \usage{
-\method{plot}{maverick_qmatrix_ind}(x, y = NULL, ...)
+\method{plot}{maverick_qmatrix_ind}(x, y, ...)
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{an object of class \code{maverick_qmatrix_ind}}
 
-\item{y}{TODO}
+\item{y}{(ignored)}
 
-\item{...}{TODO}
+\item{...}{other arguments (ignored)}
 }
 \description{
-TODO
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Default plot for class maverick_qmatrix_ind
 }

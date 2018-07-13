@@ -12,9 +12,3 @@ is.maverick_GTI_logevidence_model(x)
 \description{
 Determine if object is of class maverick_GTI_logevidence_model
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

@@ -12,9 +12,3 @@ is.maverick_GTI_posterior_model(x)
 \description{
 Determine if object is of class maverick_GTI_posterior_model
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

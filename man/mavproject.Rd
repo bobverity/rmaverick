@@ -9,9 +9,3 @@ mavproject()
 \description{
 Create a new rmaverick project.
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

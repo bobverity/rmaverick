@@ -30,7 +30,8 @@
 
 <meta property="og:title" content="Create new parameter set — new_set" />
 
-<meta property="og:description" content="Create new parameter set" />
+<meta property="og:description" content="Create a new parameter set within an rmaverick project. The new 
+  parameter set becomes the active set once created." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +97,8 @@
 
     <div class="ref-description">
     
-    <p>Create new parameter set</p>
+    <p>Create a new parameter set within an rmaverick project. The new 
+  parameter set becomes the active set once created.</p>
     
     </div>
 
@@ -108,49 +110,45 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>project</th>
-      <td><p>an rmaverick project, as produced by the function
+      <td><p>an rmaverick project, as produced by the function 
 <code><a href='mavproject.html'>mavproject()</a></code></p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>TODO</p></td>
+      <td><p>the name of the parameter set</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>TODO</p></td>
+      <td><p>shape parameter of the dirichlet prior on allele frequencies in
+each subpopulation</p></td>
     </tr>
     <tr>
       <th>admix_on</th>
-      <td><p>TODO</p></td>
+      <td><p>whether to allow admixture between subpopulations, in which
+case each gene copy can be assigned to a different subpopulation</p></td>
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p>TODO</p></td>
+      <td><p>parameter governing the strength of admixture. Higher values
+give greater probability of a gene copy being assigned to different
+subpopulations, while as alpha tends to zero we converge back at the
+no-admixture model in which all gene copies within an individual are
+constrained to have originated from the same subpopulation</p></td>
     </tr>
     <tr>
       <th>estimate_alpha</th>
-      <td><p>TODO</p></td>
+      <td><p>whether the value of alpha should be estimated as part
+of the MCMC, in which case the value <code>alpha</code> is ignored</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>TODO</p>
-    
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'># TODO
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#details">Details</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+                </ul>
 
   </div>
 </div>

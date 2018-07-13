@@ -7,18 +7,13 @@
 \method{plot}{maverick_loglike_quantiles}(x, y, ...)
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{an object of class \code{maverick_loglike_quantiles}}
 
-\item{y}{TODO}
+\item{y}{a vector of x-axis values corresponding to each loglikelihood
+quantile}
 
-\item{...}{TODO}
+\item{...}{other arguments (ignored)}
 }
 \description{
-TODO
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Default plot for class maverick_loglike_quantiles
 }

@@ -17,29 +17,30 @@ NULL
 
 #------------------------------------------------
 #' @title Bind data to project
-#'
-#' @description Load data into a \code{mavproject} prior to analysis. Data must be formatted as a dataframe with samples in rows and loci in columns. If individuals are polyploid then multiple rows can be used per sample. Ploidy is allowed to vary between samples, and can be specified in multiple ways (see details below).
-#'
-#' @details TODO
-#' 
-#' @param project an rmaverick project, as produced by the function
+#'   
+#' @description Load data into a \code{mavproject} prior to analysis. Data must 
+#'   be formatted as a dataframe with samples in rows and loci in columns. If 
+#'   individuals are polyploid then multiple rows can be used per sample. Ploidy
+#'   is allowed to vary between samples, and can be specified in multiple ways.
+#'   
+#' @param project an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' @param df a dataframe containing genetic information and optional meta-data
 #' @param ID_col which column of the input data contains the sample IDs. If NULL
 #'   then IDs must be defined seperately through the \code{ID} argument
-#' @param pop_col which column of the input data contains the ostensible
-#'   population of the samples. If NULL then populations must be defined
+#' @param pop_col which column of the input data contains the ostensible 
+#'   population of the samples. If NULL then populations must be defined 
 #'   seperately through the \code{pop} argument
-#' @param ploidy_col which column of the input data contains the ploidy of the
-#'   samples. If NULL then ploidy must be defined seperately through the
+#' @param ploidy_col which column of the input data contains the ploidy of the 
+#'   samples. If NULL then ploidy must be defined seperately through the 
 #'   \code{ploidy} argument
 #' @param data_cols which columns of the input data contain genetic information.
-#'   Defaults to all remaining columns of the data once special columns have
+#'   Defaults to all remaining columns of the data once special columns have 
 #'   been accounted for
 #' @param ID sample IDs, if not using the \code{ID_col} option
 #' @param pop ostensible populations, if not using the \code{pop_col} option
-#' @param ploidy sample ploidy, if not using the \code{ploidy_col} option. Can
-#'   be a scalar, in which case the same value is used for all samples, or a
+#' @param ploidy sample ploidy, if not using the \code{ploidy_col} option. Can 
+#'   be a scalar, in which case the same value is used for all samples, or a 
 #'   vector specifying the ploidy seperately for each sample.
 #' @param missing_data which value represents missing data
 #' @param name optional name of the data set, to aid in record keeping
@@ -47,8 +48,6 @@ NULL
 #'   existing data
 #'
 #' @export
-#' @examples
-#' # TODO
 
 bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, name = NULL, check_delete_output = TRUE) {
   
@@ -168,22 +167,26 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
 
 #------------------------------------------------
 #' @title Create new parameter set
-#'
-#' @description Create new parameter set
-#'
-#' @details TODO
-#' 
-#' @param project an rmaverick project, as produced by the function
+#'   
+#' @description Create a new parameter set within an rmaverick project. The new 
+#'   parameter set becomes the active set once created.
+#'   
+#' @param project an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
-#' @param name TODO
-#' @param lambda TODO
-#' @param admix_on TODO
-#' @param alpha TODO
-#' @param estimate_alpha TODO
+#' @param name the name of the parameter set
+#' @param lambda shape parameter of the dirichlet prior on allele frequencies in
+#'   each subpopulation
+#' @param admix_on whether to allow admixture between subpopulations, in which
+#'   case each gene copy can be assigned to a different subpopulation
+#' @param alpha parameter governing the strength of admixture. Higher values
+#'   give greater probability of a gene copy being assigned to different
+#'   subpopulations, while as alpha tends to zero we converge back at the
+#'   no-admixture model in which all gene copies within an individual are
+#'   constrained to have originated from the same subpopulation
+#' @param estimate_alpha whether the value of alpha should be estimated as part
+#'   of the MCMC, in which case the value \code{alpha} is ignored
 #' 
 #' @export
-#' @examples
-#' # TODO
 
 new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE, alpha = 0.1, estimate_alpha = TRUE) {
   
@@ -232,19 +235,16 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
 
 #------------------------------------------------
 #' @title Delete parameter set
-#'
-#' @description Delete parameter set
-#'
-#' @details TODO
-#' 
-#' @param project an rmaverick project, as produced by the function
+#'   
+#' @description Delete a given parameter set from an rmaverick project.
+#'   
+#' @param project an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
-#' @param set TODO
-#' @param check_delete_output TODO
-#' 
+#' @param set which set to delete. Defaults to the current active set
+#' @param check_delete_output whether to prompt the user before deleting any
+#'   existing output
+#'   
 #' @export
-#' @examples
-#' # TODO
 
 delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
@@ -273,8 +273,11 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # drop chosen output
   project$output$single_set[[set]] <- NULL
+  project$output$all_sets$GTI_logevidence_model <- project$output$all_sets$GTI_logevidence_model[-set,]
+  project$output$all_sets$GTI_posterior_model <- project$output$all_sets$GTI_posterior_model[-set,]
   
-  # TODO - recalculate evidence over sets
+  # recalculate evidence over sets
+  project <- recalculate_evidence(project)
   
   # make new final set active
   project$active_set <- length(project$parameter_sets)
@@ -284,96 +287,38 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
 }
 
 #------------------------------------------------
-#' @title Generate scaffolds
-#'
-#' @description Generate scaffolds
-#'
-#' @details TODO
-#' 
-#' @param project an rmaverick project, as produced by the function
-#'   \code{mavproject()}
-#' @param n TODO
-#' @param coupling_on TODO
-#' @param splitmerge_on TODO
-#' @param cluster TODO
-#' @param silent TODO
-#' 
-#' @export
-#' @examples
-#' # TODO
-
-generate_scaffolds <- function(project, n = 10, coupling_on = TRUE, splitmerge_on = TRUE, cluster = NULL, silent = !is.null(cluster)) {
-  
-  # TODO - define K as argument
-  
-  # check inputs
-  #assert_mavproject(project)
-  #assert_scalar_pos_int(n, zero_allowed = FALSE)
-  #assert_scalar_logical(coupling_on)
-  #assert_scalar_logical(splitmerge_on)
-  #if (!is.null(cluster)) {
-  #  assert_cluster(cluster)
-  #}
-  #assert_scalar_logical(silent)
-  
-  # define argument list
-  #all_args <- list()
-  #for (i in 1:n) {
-    
-    # create progress bar
-    #pb_scaf <- txtProgressBar(min = 0, max = n, initial = NA, style = 3)
-    
-    # define arguments
-    #all_args[[i]] <- list(args_data = project$data_processed, args_params = project$parameter_sets, coupling_on = coupling_on, splitmerge_on = splitmerge_on, output_console = output_console, test_convergence = test_convergence, update_progress = update_progress, pb_scaf = pb_scaf)
-  #}
-  
-  # run efficient Rcpp function
-  #if (!is.null(cluster)) {  # run in parallel
-  #  clusterEvalQ(cluster, library(rmaverick))
-  #  output_raw <- clusterApplyLB(cl = cluster, all_args, generate_scaffolds_cpp)
-  #} else {  # run in serial
-  #  output_raw <- lapply(all_args, generate_scaffolds_cpp)
-  #}
-  
-  # return
-  return(project)
-}
-
-#------------------------------------------------
 #' @title Run main MCMC
-#'
-#' @description Run main MCMC
-#'
-#' @details TODO
-#' 
+#'   
+#' @description Run the main rmaverick MCMC. Model parameters are taken from the
+#'   current active parameter set, and MCMC parameters are passed in as
+#'   arguments. All output is stored within the project.
+#'   
 #' @param project an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' @param K the values of K that the MCMC will explore
 #' @param burnin the number of burn-in iterations
 #' @param samples the number of sampling iterations
 #' @param rungs the number of temperature rungs
-#' @param GTI_pow the power used in the generalised thermodynamic integration
+#' @param GTI_pow the power used in the generalised thermodynamic integration 
 #'   method. Must be greater than 1.1
-#' @param auto_converge whether convergence should be assessed automatically
-#'   every \code{converge_test} iterations, leading to termination of the
-#'   burn-in phase. If \code{FALSE} then the full \code{burnin} iterations are
+#' @param auto_converge whether convergence should be assessed automatically 
+#'   every \code{converge_test} iterations, leading to termination of the 
+#'   burn-in phase. If \code{FALSE} then the full \code{burnin} iterations are 
 #'   used
 #' @param converge_test test for convergence every \code{convergence_test} 
 #'   iterations if \code{auto_converge} is being used
 #' @param solve_label_switching_on whether to implement the Stevens' solution to
 #'   the label-switching problem. If turned off then Q-matrix output will no 
 #'   longer be correct, although evidence estimates will be unaffected.
-#' @param coupling_on whether to implement Metropolis-coupling over temperature
+#' @param coupling_on whether to implement Metropolis-coupling over temperature 
 #'   rungs
-#' @param cluster option to pass in a cluster environment (see package
+#' @param cluster option to pass in a cluster environment (see package 
 #'   "parallel")
 #' @param pb_markdown whether to run progress bars in markdown mode, in which 
 #'   case they are updated once at the end to avoid large amounts of output.
 #' @param silent whether to suppress all console output
 #' 
 #' @export
-#' @examples
-#' # TODO
 
 run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = burnin/10, solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
   
@@ -767,51 +712,6 @@ integrate_GTI_logevidence_K <- function(proj, s) {
 }
 
 #------------------------------------------------
-#' @title Get effective sample size (ESS) over all K
-#'
-#' @description Get effective sample size (ESS) over all K
-#'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#'
-#' @export
-#' @examples
-#' # TODO
-
-get_ESS <- function(proj, K = NULL) {
-  
-  # check inputs
-  assert_mavproject(proj)
-  if (!is.null(K)) {
-    assert_scalar_pos_int(K)
-  }
-  
-  # get active set and check non-zero
-  s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
-  
-  # get ESS over all K and check not null
-  ESS_raw <- mapply(function(x) {x$summary$ESS}, proj$output$single_set[[s]]$single_K[-1], SIMPLIFY = FALSE)
-  if (is.null(ESS_raw) | length(ESS_raw)==0) {
-    stop("no ESS output for active set")
-  }
-  
-  # force equal length by introducing NAs as needed
-  max_rungs <- max(mapply(length, ESS_raw))
-  ESS <- mapply(function(x) {
-    ret <- x$summary$ESS
-    c(ret, rep(NA, max_rungs-length(ret)))
-  }, proj$output$single_set[[s]]$single_K[-1])
-  ESS <- round(ESS)
-  
-  return(ESS)
-}
-
-#------------------------------------------------
 # align qmatrices
 # (not exported)
 #' @noRd
@@ -868,15 +768,12 @@ align_qmatrix <- function(proj) {
 #------------------------------------------------
 #' @title Recalculate evidence and posterior estimates
 #'
-#' @description Recalculate evidence and posterior estimates of active set
+#' @description When a new value of K is added in to the analysis it affects all downstream evidence estimates that depend on this K - for example the overall model evidence integrated over K. This function therefore looks through all values of K in the active set and recalculates all downstream elements as needed.
 #'
-#' @details TODO
-#'
-#' @param project TODO
+#' @param project an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
 #' 
 #' @export
-#' @examples
-#' # TODO
 
 recalculate_evidence <- function(project) {
   

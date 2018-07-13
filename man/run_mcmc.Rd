@@ -21,12 +21,12 @@ run_mcmc(project, K = 3, burnin = 100, samples = 1000, rungs = 10,
 
 \item{rungs}{the number of temperature rungs}
 
-\item{GTI_pow}{the power used in the generalised thermodynamic integration
+\item{GTI_pow}{the power used in the generalised thermodynamic integration 
 method. Must be greater than 1.1}
 
-\item{auto_converge}{whether convergence should be assessed automatically
-every \code{converge_test} iterations, leading to termination of the
-burn-in phase. If \code{FALSE} then the full \code{burnin} iterations are
+\item{auto_converge}{whether convergence should be assessed automatically 
+every \code{converge_test} iterations, leading to termination of the 
+burn-in phase. If \code{FALSE} then the full \code{burnin} iterations are 
 used}
 
 \item{converge_test}{test for convergence every \code{convergence_test} 
@@ -36,10 +36,10 @@ iterations if \code{auto_converge} is being used}
 the label-switching problem. If turned off then Q-matrix output will no 
 longer be correct, although evidence estimates will be unaffected.}
 
-\item{coupling_on}{whether to implement Metropolis-coupling over temperature
+\item{coupling_on}{whether to implement Metropolis-coupling over temperature 
 rungs}
 
-\item{cluster}{option to pass in a cluster environment (see package
+\item{cluster}{option to pass in a cluster environment (see package 
 "parallel")}
 
 \item{pb_markdown}{whether to run progress bars in markdown mode, in which 
@@ -48,11 +48,7 @@ case they are updated once at the end to avoid large amounts of output.}
 \item{silent}{whether to suppress all console output}
 }
 \description{
-Run main MCMC
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Run the main rmaverick MCMC. Model parameters are taken from the
+  current active parameter set, and MCMC parameters are passed in as
+  arguments. All output is stored within the project.
 }

@@ -14,9 +14,3 @@
 \description{
 Overload print() function for class maverick_loglike_quantiles
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

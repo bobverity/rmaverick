@@ -12,9 +12,3 @@ is.maverick_loglike_quantiles(x)
 \description{
 Determine if object is of class maverick_loglike_quantiles
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

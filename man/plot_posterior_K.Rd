@@ -7,14 +7,9 @@
 plot_posterior_K(proj)
 }
 \arguments{
-\item{proj}{TODO}
+\item{proj}{an rmaverick project, as produced by the function 
+\code{mavproject()}}
 }
 \description{
 Plot posterior K
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

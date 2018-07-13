@@ -11,7 +11,7 @@ sim_data(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1,
 \arguments{
 \item{n}{number of samples}
 
-\item{ploidy}{ploidy of every sample. If scalar then the same value applies
+\item{ploidy}{ploidy of every sample. If scalar then the same value applies 
 to all samples}
 
 \item{loci}{number of loci}
@@ -31,11 +31,7 @@ to all samples}
 \item{ploidy_col_on}{whether to simulate data with a ploidy column}
 }
 \description{
-Simulate data.
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Simulate data from the same model(s) used in the rmaverick
+  inference step. Data can be generated from models with or without
+  admixture.
 }

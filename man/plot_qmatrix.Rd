@@ -7,18 +7,13 @@
 plot_qmatrix(proj, K = NULL, divide_ind_on = FALSE)
 }
 \arguments{
-\item{proj}{TODO}
+\item{proj}{an rmaverick project, as produced by the function 
+\code{mavproject()}}
 
-\item{K}{TODO}
+\item{K}{which value of K to produce the plot for}
 
 \item{divide_ind_on}{whether to add dividing lines between bars}
 }
 \description{
 Plot Q-matrix of current active set
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

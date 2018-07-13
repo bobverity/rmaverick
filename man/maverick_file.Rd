@@ -12,9 +12,3 @@ maverick_file(name)
 \description{
 Import file from the inst/extdata folder of this package
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

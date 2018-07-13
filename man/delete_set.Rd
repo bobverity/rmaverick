@@ -7,19 +7,14 @@
 delete_set(project, set = NULL, check_delete_output = TRUE)
 }
 \arguments{
-\item{project}{an rmaverick project, as produced by the function
+\item{project}{an rmaverick project, as produced by the function 
 \code{mavproject()}}
 
-\item{set}{TODO}
+\item{set}{which set to delete. Defaults to the current active set}
 
-\item{check_delete_output}{TODO}
+\item{check_delete_output}{whether to prompt the user before deleting any
+existing output}
 }
 \description{
-Delete parameter set
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Delete a given parameter set from an rmaverick project.
 }

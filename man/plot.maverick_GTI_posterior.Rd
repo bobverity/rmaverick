@@ -7,18 +7,12 @@
 \method{plot}{maverick_GTI_posterior}(x, y, ...)
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{an object of class \code{maverick_GTI_posterior}}
 
-\item{y}{TODO}
+\item{y}{(ignored)}
 
-\item{...}{TODO}
+\item{...}{other arguments (ignored)}
 }
 \description{
 Default plot for class maverick_GTI_posterior
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

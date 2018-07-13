@@ -12,9 +12,3 @@ is.maverick_qmatrix_ind(x)
 \description{
 Determine if object is of class maverick_qmatrix_ind
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

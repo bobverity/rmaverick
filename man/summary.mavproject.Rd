@@ -9,14 +9,8 @@
 \arguments{
 \item{object}{object of class \code{mavproject}}
 
-\item{...}{other parameters to pass to summary function}
+\item{...}{other arguments (ignored)}
 }
 \description{
-Overload summary function for class mavproject
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Overload summary function for class mavproject.
 }

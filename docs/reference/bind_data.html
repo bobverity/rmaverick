@@ -30,7 +30,10 @@
 
 <meta property="og:title" content="Bind data to project — bind_data" />
 
-<meta property="og:description" content="Load data into a mavproject prior to analysis. Data must be formatted as a dataframe with samples in rows and loci in columns. If individuals are polyploid then multiple rows can be used per sample. Ploidy is allowed to vary between samples, and can be specified in multiple ways (see details below)." />
+<meta property="og:description" content="Load data into a mavproject prior to analysis. Data must 
+  be formatted as a dataframe with samples in rows and loci in columns. If 
+  individuals are polyploid then multiple rows can be used per sample. Ploidy
+  is allowed to vary between samples, and can be specified in multiple ways." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +99,10 @@
 
     <div class="ref-description">
     
-    <p>Load data into a <code>mavproject</code> prior to analysis. Data must be formatted as a dataframe with samples in rows and loci in columns. If individuals are polyploid then multiple rows can be used per sample. Ploidy is allowed to vary between samples, and can be specified in multiple ways (see details below).</p>
+    <p>Load data into a <code>mavproject</code> prior to analysis. Data must 
+  be formatted as a dataframe with samples in rows and loci in columns. If 
+  individuals are polyploid then multiple rows can be used per sample. Ploidy
+  is allowed to vary between samples, and can be specified in multiple ways.</p>
     
     </div>
 
@@ -109,7 +115,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>project</th>
-      <td><p>an rmaverick project, as produced by the function
+      <td><p>an rmaverick project, as produced by the function 
 <code><a href='mavproject.html'>mavproject()</a></code></p></td>
     </tr>
     <tr>
@@ -123,20 +129,20 @@ then IDs must be defined seperately through the <code>ID</code> argument</p></td
     </tr>
     <tr>
       <th>pop_col</th>
-      <td><p>which column of the input data contains the ostensible
-population of the samples. If NULL then populations must be defined
+      <td><p>which column of the input data contains the ostensible 
+population of the samples. If NULL then populations must be defined 
 seperately through the <code>pop</code> argument</p></td>
     </tr>
     <tr>
       <th>ploidy_col</th>
-      <td><p>which column of the input data contains the ploidy of the
-samples. If NULL then ploidy must be defined seperately through the
+      <td><p>which column of the input data contains the ploidy of the 
+samples. If NULL then ploidy must be defined seperately through the 
 <code>ploidy</code> argument</p></td>
     </tr>
     <tr>
       <th>data_cols</th>
       <td><p>which columns of the input data contain genetic information.
-Defaults to all remaining columns of the data once special columns have
+Defaults to all remaining columns of the data once special columns have 
 been accounted for</p></td>
     </tr>
     <tr>
@@ -149,8 +155,8 @@ been accounted for</p></td>
     </tr>
     <tr>
       <th>ploidy</th>
-      <td><p>sample ploidy, if not using the <code>ploidy_col</code> option. Can
-be a scalar, in which case the same value is used for all samples, or a
+      <td><p>sample ploidy, if not using the <code>ploidy_col</code> option. Can 
+be a scalar, in which case the same value is used for all samples, or a 
 vector specifying the ploidy seperately for each sample.</p></td>
     </tr>
     <tr>
@@ -168,24 +174,13 @@ existing data</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>TODO</p>
-    
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'># TODO
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#details">Details</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+                </ul>
 
   </div>
 </div>

@@ -7,14 +7,9 @@
 recalculate_evidence(project)
 }
 \arguments{
-\item{project}{TODO}
+\item{project}{an rmaverick project, as produced by the function 
+\code{mavproject()}}
 }
 \description{
-Recalculate evidence and posterior estimates of active set
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+When a new value of K is added in to the analysis it affects all downstream evidence estimates that depend on this K - for example the overall model evidence integrated over K. This function therefore looks through all values of K in the active set and recalculates all downstream elements as needed.
 }

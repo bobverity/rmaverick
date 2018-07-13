@@ -7,18 +7,13 @@
 plot_alpha(proj, K = NULL, col = "black")
 }
 \arguments{
-\item{proj}{TODO}
+\item{proj}{an rmaverick project, as produced by the function 
+\code{mavproject()}}
 
-\item{K}{TODO}
+\item{K}{which value of K to produce the plot for}
 
-\item{col}{TODO}
+\item{col}{colour of the trace}
 }
 \description{
 Produce diagnostic plots of parameter alpha
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

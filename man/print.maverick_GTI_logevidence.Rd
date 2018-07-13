@@ -14,9 +14,3 @@
 \description{
 Overload print() function for class maverick_GTI_logevidence
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

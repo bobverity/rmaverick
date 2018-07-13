@@ -7,22 +7,18 @@
 plot_trace(proj, K = NULL, rung = NULL, param = "alpha", col = "black")
 }
 \arguments{
-\item{proj}{TODO}
+\item{proj}{an rmaverick project, as produced by the function 
+\code{mavproject()}}
 
-\item{K}{TODO}
+\item{K}{which value of K to produce the plot for}
 
-\item{rung}{TODO}
+\item{rung}{which value of K to produce the plot for. Defaults to cold rung}
 
-\item{param}{TODO}
+\item{param}{whether to produce trace plot of admixture parameter
+(\code{"alpha"}) or the log-likelihood (\code{"loglike"})}
 
-\item{col}{TODO}
+\item{col}{colour of the trace}
 }
 \description{
 Produce MCMC trace plot of alpha or log-likelihood
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

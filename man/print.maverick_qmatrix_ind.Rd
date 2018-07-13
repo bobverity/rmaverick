@@ -14,9 +14,3 @@
 \description{
 Overload print() function for class maverick_qmatrix_ind
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

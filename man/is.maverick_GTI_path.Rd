@@ -12,9 +12,3 @@ is.maverick_GTI_path(x)
 \description{
 Determine if object is of class maverick_GTI_path
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

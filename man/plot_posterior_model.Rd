@@ -7,14 +7,9 @@
 plot_posterior_model(proj)
 }
 \arguments{
-\item{proj}{TODO}
+\item{proj}{an rmaverick project, as produced by the function 
+\code{mavproject()}}
 }
 \description{
 Plot posterior model
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

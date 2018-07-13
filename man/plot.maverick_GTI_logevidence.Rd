@@ -7,18 +7,12 @@
 \method{plot}{maverick_GTI_logevidence}(x, y, ...)
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{an object of class \code{maverick_GTI_logevidence}}
 
-\item{y}{TODO}
+\item{y}{(ignored)}
 
-\item{...}{TODO}
+\item{...}{other arguments (ignored)}
 }
 \description{
 Default plot for class maverick_GTI_logevidence
-}
-\details{
-TODO
-}
-\examples{
-# TODO
 }

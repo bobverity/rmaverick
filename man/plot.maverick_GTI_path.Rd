@@ -7,18 +7,13 @@
 \method{plot}{maverick_GTI_path}(x, y, ...)
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{an object of class \code{maverick_GTI_path}}
 
-\item{y}{TODO}
+\item{y}{how to format the x-axis. 1 = integer rungs, 2 = values of
+beta}
 
-\item{...}{TODO}
+\item{...}{other arguments (ignored)}
 }
 \description{
-TODO
-}
-\details{
-TODO
-}
-\examples{
-# TODO
+Default plot for class maverick_GTI_path
 }

@@ -55,18 +55,15 @@ theme_empty <- function() {
 
 #------------------------------------------------
 #' @title Default plot for class maverick_loglike_quantiles
-#'
-#' @description TODO
-#'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
-#'
+#'   
+#' @description Default plot for class maverick_loglike_quantiles
+#'   
+#' @param x an object of class \code{maverick_loglike_quantiles}
+#' @param y a vector of x-axis values corresponding to each loglikelihood
+#'   quantile
+#' @param ... other arguments (ignored)
+#'   
 #' @export
-#' @examples
-#' # TODO
 
 plot.maverick_loglike_quantiles <- function(x, y, ...) {
   
@@ -87,20 +84,18 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
 
 #------------------------------------------------
 #' @title Plot loglike quantiles of current active set
-#'
+#'   
 #' @description Plot loglike quantiles of current active set
-#'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#' @param axis_type TODO
-#' @param connect_points TODO
-#' @param connect_whiskers TODO
+#'   
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param axis_type how to format the x-axis. 1 = integer rungs, 2 = values of
+#'   beta, 3 = values of beta raised to the GTI power
+#' @param connect_points whether to connect points in the middle of quantiles
+#' @param connect_whiskers whether to connect points at the ends of the whiskers
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points = FALSE, connect_whiskers = FALSE) {
   
@@ -174,19 +169,15 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
 #------------------------------------------------
 #' @title Default plot for class maverick_qmatrix_ind
 #'
-#' @description TODO
+#' @description Default plot for class maverick_qmatrix_ind
 #'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
+#' @param x an object of class \code{maverick_qmatrix_ind}
+#' @param y (ignored)
+#' @param ... other arguments (ignored)
 #'
 #' @export
-#' @examples
-#' # TODO
 
-plot.maverick_qmatrix_ind <- function(x, y = NULL, ...) {
+plot.maverick_qmatrix_ind <- function(x, y, ...) {
   
   # get data into ggplot format
   m <- unclass(x)
@@ -217,15 +208,12 @@ plot.maverick_qmatrix_ind <- function(x, y = NULL, ...) {
 #'
 #' @description Plot Q-matrix of current active set
 #'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
 #' @param divide_ind_on whether to add dividing lines between bars
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
@@ -273,17 +261,14 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
 #------------------------------------------------
 #' @title Default plot for class maverick_GTI_path
 #'
-#' @description TODO
+#' @description Default plot for class maverick_GTI_path
 #'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
+#' @param x an object of class \code{maverick_GTI_path}
+#' @param y how to format the x-axis. 1 = integer rungs, 2 = values of
+#'   beta
+#' @param ... other arguments (ignored)
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot.maverick_GTI_path <- function(x, y, ...) {
   
@@ -334,15 +319,13 @@ plot.maverick_GTI_path <- function(x, y, ...) {
 #'
 #' @description Plot GTI path of current active set
 #'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#' @param axis_type TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param axis_type how to format the x-axis. 1 = integer rungs, 2 = values of
+#'   beta
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
@@ -387,15 +370,11 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
 #'
 #' @description Default plot for class maverick_GTI_logevidence
 #'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
+#' @param x an object of class \code{maverick_GTI_logevidence}
+#' @param y (ignored)
+#' @param ... other arguments (ignored)
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot.maverick_GTI_logevidence <- function(x, y, ...) {
   
@@ -427,13 +406,10 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
 #'
 #' @description Plot log-evidence estimates over K
 #'
-#' @details TODO
-#'
-#' @param proj TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_logevidence_K <- function(proj) {
   
@@ -464,15 +440,11 @@ plot_logevidence_K <- function(proj) {
 #'
 #' @description Default plot for class maverick_GTI_posterior
 #'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
+#' @param x an object of class \code{maverick_GTI_posterior}
+#' @param y (ignored)
+#' @param ... other arguments (ignored)
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot.maverick_GTI_posterior <- function(x, y, ...) {
   
@@ -506,13 +478,10 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
 #'
 #' @description Plot posterior K
 #'
-#' @details TODO
-#'
-#' @param proj TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_posterior_K <- function(proj) {
   
@@ -541,17 +510,13 @@ plot_posterior_K <- function(proj) {
 #------------------------------------------------
 #' @title Default plot for class maverick_GTI_logevidence_model
 #'
-#' @description TODO
+#' @description Default plot for class maverick_GTI_logevidence_model
 #'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
+#' @param x an object of class \code{maverick_GTI_logevidence_model}
+#' @param y (ignored)
+#' @param ... other arguments (ignored)
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
   
@@ -584,13 +549,10 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
 #'
 #' @description Plot log-evidence estimates over parameter sets
 #'
-#' @details TODO
-#'
-#' @param proj TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_logevidence_model <- function(proj) {
   
@@ -613,17 +575,13 @@ plot_logevidence_model <- function(proj) {
 #------------------------------------------------
 #' @title Default plot for class maverick_GTI_posterior_model
 #'
-#' @description TODO
+#' @description Default plot for class maverick_GTI_posterior_model
 #'
-#' @details TODO
-#'
-#' @param x TODO
-#' @param y TODO
-#' @param ... TODO
+#' @param x an object of class \code{maverick_GTI_logevidence_model}
+#' @param y (ignored)
+#' @param ... other arguments (ignored)
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   
@@ -658,13 +616,10 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
 #'
 #' @description Plot posterior model
 #'
-#' @details TODO
-#'
-#' @param proj TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_posterior_model <- function(proj) {
   
@@ -686,20 +641,18 @@ plot_posterior_model <- function(proj) {
 
 #------------------------------------------------
 #' @title Produce MCMC trace plot
-#'
+#'   
 #' @description Produce MCMC trace plot of alpha or log-likelihood
-#'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#' @param rung TODO
-#' @param param TODO
-#' @param col TODO
-#'
+#'   
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param rung which value of K to produce the plot for. Defaults to cold rung
+#' @param param whether to produce trace plot of admixture parameter
+#'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
+#' @param col colour of the trace
+#'   
 #' @export
-#' @examples
-#' # TODO
 
 plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
@@ -791,17 +744,15 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
 #'
 #' @description Produce MCMC autocorrelation plot of alpha or log-likelihood
 #'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#' @param rung TODO
-#' @param param TODO
-#' @param col TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param rung which value of K to produce the plot for. Defaults to cold rung
+#' @param param whether to produce trace plot of admixture parameter
+#'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
+#' @param col colour of the trace
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
@@ -895,17 +846,15 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
 #'
 #' @description Produce MCMC density plot of alpha or log-likelihood
 #'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#' @param rung TODO
-#' @param param TODO
-#' @param col TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param rung which value of K to produce the plot for. Defaults to cold rung
+#' @param param whether to produce trace plot of admixture parameter
+#'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
+#' @param col colour of the trace
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
@@ -996,15 +945,12 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
 #'
 #' @description Produce diagnostic plots of parameter alpha
 #'
-#' @details TODO
-#'
-#' @param proj TODO
-#' @param K TODO
-#' @param col TODO
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param col colour of the trace
 #'
 #' @export
-#' @examples
-#' # TODO
 
 plot_alpha <- function(proj, K = NULL, col = "black") {
   

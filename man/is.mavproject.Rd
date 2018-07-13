@@ -12,9 +12,3 @@ is.mavproject(x)
 \description{
 Determine if object is of class mavproject
 }
-\details{
-TODO
-}
-\examples{
-# TODO
-}

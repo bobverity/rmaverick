@@ -14,6 +14,3 @@ print_full(x, ...)
 \description{
 Calling \code{print()} on an object of class mavproject results in custom output. This function therefore stands in for the base \code{print()} function, and is equivalent to running \code{print(unclass(x))}.
 }
-\examples{
-# TODO
-}

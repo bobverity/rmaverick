@@ -4,11 +4,7 @@
 #'
 #' @description Create a new rmaverick project.
 #'
-#' @details TODO
-#'
 #' @export
-#' @examples
-#' # TODO
 
 mavproject <- function() {
   
@@ -44,15 +40,16 @@ mavproject <- function() {
 
 #------------------------------------------------
 #' @title Custom print function for class mavproject
-#'
-#' @description Custom print function for class mavproject, printing a summary of the key elements (also equivalent to \code{summary(x)}). To do an ordinary \code{print()} of all elements of the project, use the \code{print_full()} function.
-#'
+#'   
+#' @description Custom print function for class mavproject, printing a summary
+#'   of the key elements (also equivalent to \code{summary(x)}). To do an
+#'   ordinary \code{print()} of all elements of the project, use the
+#'   \code{print_full()} function.
+#'   
 #' @param x object of class \code{mavproject}
 #' @param ... other arguments (ignored)
-#'
+#'   
 #' @export
-#' @examples
-#' # TODO
 
 print.mavproject <- function(x, ...) {
   
@@ -72,8 +69,6 @@ print.mavproject <- function(x, ...) {
 #' @param ... other arguments passed to \code{print()}
 #'
 #' @export
-#' @examples
-#' # TODO
 
 print_full <- function(x, ...) {
   
@@ -89,17 +84,13 @@ print_full <- function(x, ...) {
 
 #------------------------------------------------
 #' @title Print summary for class mavproject
-#'
-#' @description Overload summary function for class mavproject
-#'
-#' @details TODO
-#'
+#'   
+#' @description Overload summary function for class mavproject.
+#'   
 #' @param object object of class \code{mavproject}
-#' @param ... other parameters to pass to summary function
-#'
+#' @param ... other arguments (ignored)
+#'   
 #' @export
-#' @examples
-#' # TODO
 
 summary.mavproject <- function(object, ...) {
   
@@ -181,19 +172,6 @@ summary.mavproject <- function(object, ...) {
     
   }
   cat("\n")
-  
-  # print output summary
-  cat("OUTPUT:\n")
-  if (length(object$parameterSets)==0) {
-    cat("   (none saved)\n")
-  } else {
-    for (i in 1:length(object$parameterSets)) {
-    
-    #percentComplete <- round(mean(x$output[[i]]$K_complete)*100, digits=2)
-    #cat(sprintf("   SET%s: %s%% complete", i, percentComplete))
-    
-    }
-  }
 
 }
 
@@ -202,13 +180,9 @@ summary.mavproject <- function(object, ...) {
 #'
 #' @description Determine if object is of class mavproject
 #'
-#' @details TODO
-#'
 #' @param x object of class \code{mavproject}
 #'
 #' @export
-#' @examples
-#' # TODO
 
 is.mavproject <- function(x) {
   inherits(x, "mavproject")
