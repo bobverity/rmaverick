@@ -5,11 +5,7 @@ rmaverick
 
 [![Build Status](https://travis-ci.org/bobverity/rmaverick.png?branch=develop)](https://travis-ci.org/bobverity/rmaverick) [![Coverage status](https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg)](https://codecov.io/github/bobverity/rmaverick?branch=develop) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/bobverity/rmaverick?branch=develop&svg=true)](https://ci.appveyor.com/project/bobverity/rmaverick)
 
-<<<<<<< HEAD
-The goal of *rmaverick* is to infer population structure from genetic data. What makes *rmaverick* different from other similar programs is its ability to estimate the *evidence* for different numbers of sub-populations (K), and even different evolutionary models, through a method called generalised thermodynamic integration (GTI). *rmaverick* is an updated version of the earlier [MavericK](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981280/) program, and comes with a number of new features that make it more powerful and easier to use.
-=======
 The goal of *rmaverick* is to infer population structure from genetic data. What makes *rmaverick* different from other similar programs is its ability to estimate the *evidence* for different numbers of sub-populations (K), and even different evolutionary models, through a method called generalised thermodynamic integration (GTI). *rmaverick* is an updated version of the earlier program [MavericK](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981280/), and comes with a number of new features that make it more powerful and easier to use.
->>>>>>> develop
 
 Installation
 ------------
@@ -47,7 +43,7 @@ library(rmaverick)
 Example analysis
 ----------------
 
-This example demonstrates the complete analysis pipeline, including importing data, running the main MCMC, comparing different models, and producing basic outputs.
+This example demonstrates the complete analysis pipeline, including importing data, running the main MCMC, diagnosing good and bad MCMC behaviour, comparing different models, and producing basic outputs.
 
 ### Simulate some data
 
@@ -159,11 +155,7 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 #> Calculating exact solution for K = 1
-<<<<<<< HEAD
-#>    completed in 0.0017589 seconds
-=======
-#>    completed in 0.00223006 seconds
->>>>>>> develop
+#>    completed in 0.00217042 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -175,11 +167,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 0.793991 seconds
-=======
-#>    completed in 1.60124 seconds
->>>>>>> develop
+#>    completed in 1.5429 seconds
 #> 
 #> Running MCMC for K = 3
 #> Burn-in phase
@@ -191,11 +179,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 1.02812 seconds
-=======
-#>    completed in 1.26565 seconds
->>>>>>> develop
+#>    completed in 1.14761 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
@@ -207,11 +191,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 1.29259 seconds
-=======
-#>    completed in 2.03001 seconds
->>>>>>> develop
+#>    completed in 1.99104 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
@@ -223,21 +203,10 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 1.53951 seconds
+#>    completed in 1.59427 seconds
 #> 
 #> Processing results
-#> Total run-time: 5.75 seconds
-```
-
-Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. In the example above we also saw that the MCMC converged within far fewer than the full 1000 burn-in iterations.
-
-Once the MCMC is complete we can look at our evidence estimates for each value of K, first of all in log space:
-=======
-#>    completed in 1.64919 seconds
-#> 
-#> Processing results
-#> Total run-time: 7.7 seconds
+#> Total run-time: 7.42 seconds
 ```
 
 Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. Notice also that in the example above the MCMC failed to converge for K=2 within 1000 iterations, while all other values of K converged successfully. We therefore need to re-run the MCMC for K=2 with a higher upper limit on the burn-in, still checking for convergence every 100 iterations. This will overwrite the output for K=2, but will leave all other values of K untouched:
@@ -254,10 +223,10 @@ myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, samples = 1e3, rungs = 10, conve
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 3.86225 seconds
+#>    completed in 3.60596 seconds
 #> 
 #> Processing results
-#> Total run-time: 4.82 seconds
+#> Total run-time: 4.61 seconds
 ```
 
 ### Comparing values of K
@@ -268,24 +237,19 @@ The GTI method estimates the evidence for a given model by combining information
 plot_GTI_path(myproj, K = 3)
 ```
 
-![](README-unnamed-chunk-15-1.png)
+![](figures/README-unnamed-chunk-15-1.png)
 
 All plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on (for example adding titles, legends etc.).
 
 In order for our evidence estimate to be unbiased, it is important that the GTI path is relatively smooth. We can modify the smoothness of the path in two ways: 1) by increasing the number of `rungs` used in the MCMC, 2) by changing the value of `GTI_pow` which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. **This check should be performed on every value of K**.
 
 Once we are happy with our GTI paths we can look at our evidence estimates, first of all in log space:
->>>>>>> develop
 
 ``` r
 plot_logevidence_K(myproj)
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-14-1.png)
-=======
-![](README-unnamed-chunk-16-1.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-16-1.png)
 
 We can see a clear signal for K=3 or higher, and the 95% credible intervals are nice and tight. If we needed tighter credible intervals at this stage then we could re-run the MCMC (for the problem values of K only) with a larger number of `samples`.
 
@@ -295,11 +259,7 @@ We can also plot the full posterior distribution of K, which is obtained by tran
 plot_posterior_K(myproj)
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-15-1.png)
-=======
-![](README-unnamed-chunk-17-1.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-17-1.png)
 
 This second plot is usually more straightfoward to interpret, as it is in linear space and so can be understood in terms of ordinary probability. In this example we can see strong evidence for K=3, with a posterior probability of &gt;0.99. Again, if we had seen wide credible intervals at this stage then it would have be worth repeating the MCMC with a larger number of `samples`, but in this case the result is clear and so there is no need.
 
@@ -313,11 +273,7 @@ for (i in 2:5) {
 }
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-16-1.png)![](README-unnamed-chunk-16-2.png)![](README-unnamed-chunk-16-3.png)![](README-unnamed-chunk-16-4.png)
-=======
-![](README-unnamed-chunk-18-1.png)![](README-unnamed-chunk-18-2.png)![](README-unnamed-chunk-18-3.png)![](README-unnamed-chunk-18-4.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-18-1.png)![](figures/README-unnamed-chunk-18-2.png)![](figures/README-unnamed-chunk-18-3.png)![](figures/README-unnamed-chunk-18-4.png)
 
 We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at `mysim$group`. When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, but ideally this should also be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - **the model used by rmaverick and similar programs is just a cartoon of reality, and that there is no strict K in the real world**. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that fit the data well, it is just a guide and should be taken alongside other biological considerations.
 
@@ -357,11 +313,7 @@ We run the MCMC the same way as before, this time using a higher burn-in and sam
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
 #> Calculating exact solution for K = 1
-<<<<<<< HEAD
-#>    completed in 0.0796565 seconds
-=======
-#>    completed in 0.102986 seconds
->>>>>>> develop
+#>    completed in 0.0811794 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -373,11 +325,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, con
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 26.2668 seconds
-=======
-#>    completed in 33.6425 seconds
->>>>>>> develop
+#>    completed in 31.7528 seconds
 #> 
 #> Running MCMC for K = 3
 #> Burn-in phase
@@ -389,11 +337,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, con
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 30.0081 seconds
-=======
-#>    completed in 35.3765 seconds
->>>>>>> develop
+#>    completed in 34.7152 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
@@ -405,11 +349,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, con
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 32.1173 seconds
-=======
-#>    completed in 95.5808 seconds
->>>>>>> develop
+#>    completed in 91.0103 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
@@ -421,30 +361,20 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, con
 #> 
   |                                                                       
   |=================================================================| 100%
-<<<<<<< HEAD
-#>    completed in 35.496 seconds
+#>    completed in 186.015 seconds
 #> 
 #> Processing results
-#> Total run-time: 2.08 minutes
-=======
-#>    completed in 209.867 seconds
-#> 
-#> Processing results
-#> Total run-time: 6.27 minutes
+#> Total run-time: 5.75 minutes
 ```
 
 As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check - we can produce a summary plot of this parameter as follows:
 
 ``` r
 plot_alpha(myproj, K = 3)
->>>>>>> develop
 ```
 
-![](README-unnamed-chunk-21-1.png)
+![](figures/README-unnamed-chunk-21-1.png)
 
-<<<<<<< HEAD
-As before, we can visualise the evidence for each value of K in log space, and in terms of the full posterior distribution:
-=======
 The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how many iterations apart we need to look before draws are approximately independent (here ~20), and the density plot gives the posterior distribution. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
 
 As before, we need to check that our GTI path is smooth and straight **for all values of K**:
@@ -453,50 +383,33 @@ As before, we need to check that our GTI path is smooth and straight **for all v
 plot_GTI_path(myproj, K = 3)
 ```
 
-![](README-unnamed-chunk-22-1.png)
+![](figures/README-unnamed-chunk-22-1.png)
 
 We can visualise the evidence for each value of K in log space, and in terms of the full posterior distribution:
->>>>>>> develop
 
 ``` r
 plot_logevidence_K(myproj)
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-19-1.png)
-=======
-![](README-unnamed-chunk-23-1.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-23-1.png)
 
 ``` r
 plot_posterior_K(myproj)
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-19-2.png)
-
-Again, there is clear evidence for K=3 under this model, despite the model not being an exact match to the model used to produce the data.
-
-Producing posterior allocation plots for a range of values of K, we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation. This is a further clue that the no-admixture model may be more appropriate, as even the admixture model is attempting to converge to this simpler state.
-=======
-![](README-unnamed-chunk-23-2.png)
+![](figures/README-unnamed-chunk-23-2.png)
 
 Again, there is clear evidence for K=3 under this model, despite the fact that this model is technically incorrect for the simulated data.
 
 Producing posterior allocation plots for a range of values of K we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation.
->>>>>>> develop
 
 ``` r
 for (i in 2:5) {
-  print(plot_qmatrix(myproj, K = i))
+  print(plot_qmatrix(myproj, K = i, divide_ind_on = TRUE))
 }
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-20-1.png)![](README-unnamed-chunk-20-2.png)![](README-unnamed-chunk-20-3.png)![](README-unnamed-chunk-20-4.png)
-=======
-![](README-unnamed-chunk-24-1.png)![](README-unnamed-chunk-24-2.png)![](README-unnamed-chunk-24-3.png)![](README-unnamed-chunk-24-4.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-24-1.png)![](figures/README-unnamed-chunk-24-2.png)![](figures/README-unnamed-chunk-24-3.png)![](figures/README-unnamed-chunk-24-4.png)
 
 ### Comparing evolutionary models
 
@@ -506,20 +419,12 @@ Finally, we can make use of one of the major advantages of the model evidence - 
 plot_logevidence_model(myproj)
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-21-1.png)
-=======
-![](README-unnamed-chunk-25-1.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-25-1.png)
 
 ``` r
 plot_posterior_model(myproj)
 ```
 
-<<<<<<< HEAD
-![](README-unnamed-chunk-21-2.png)
-=======
-![](README-unnamed-chunk-25-2.png)
->>>>>>> develop
+![](figures/README-unnamed-chunk-25-2.png)
 
 It is clear that there is far greater support for the no-admixture model, with a posterior probability of &gt;0.99. Therefore we would be justified in ignoring the output from the admixture model, and only reporting results of the no-admixture model.
