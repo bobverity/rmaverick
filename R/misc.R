@@ -89,7 +89,9 @@ rcpp_to_mat <- function(x) {
 # (not exported)
 #' @noRd
 quantile_95 <- function(x) {
-  quantile(x, probs=c(0.025, 0.5, 0.975))
+  ret <- quantile(x, probs=c(0.025, 0.5, 0.975))
+  names(ret) <- c("Q2.5", "Q50", "Q97.5")
+  return(ret)
 }
 
 #------------------------------------------------
@@ -154,87 +156,252 @@ is.cluster <- function(x) {
 # MISC CLASSES
 
 #------------------------------------------------
-# function for determining if object is of class maverick_GTI_path
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_GTI_path
+#'
+#' @description Determine if object is of class maverick_GTI_path
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
 is.maverick_GTI_path <- function(x) {
   inherits(x, "maverick_GTI_path")
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_GTI_path
-# (not exported)
-#' @noRd
+#' @title Overload print() function for class maverick_GTI_path
+#'
+#' @description Overload print() function for class maverick_GTI_path
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_GTI_path}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_GTI_path <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)
 }
 
 #------------------------------------------------
-# function for determining if object is of class maverick_qmatrix_ind
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_qmatrix_ind
+#'
+#' @description Determine if object is of class maverick_qmatrix_ind
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
 is.maverick_qmatrix_ind <- function(x) {
   inherits(x, "maverick_qmatrix_ind")
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_qmatrix_ind
-# (not exported)
-#' @noRd
+#' @title Overload print() function for class maverick_qmatrix_ind
+#'
+#' @description Overload print() function for class maverick_qmatrix_ind
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_qmatrix_ind}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_qmatrix_ind <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)
 }
 
 #------------------------------------------------
-# function for determining if object is of class maverick_loglike_quantiles
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_loglike_quantiles
+#'
+#' @description Determine if object is of class maverick_loglike_quantiles
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
 is.maverick_loglike_quantiles <- function(x) {
   inherits(x, "maverick_loglike_quantiles")
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_loglike_quantiles
-# (not exported)
-#' @noRd
+#' @title Overload print() function for class maverick_loglike_quantiles
+#'
+#' @description Overload print() function for class maverick_loglike_quantiles
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_loglike_quantiles}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_loglike_quantiles <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_GTI_logevidence
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_GTI_logevidence
+#'
+#' @description Determine if object is of class maverick_GTI_logevidence
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
+is.maverick_GTI_logevidence <- function(x) {
+  inherits(x, "maverick_GTI_logevidence")
+}
+
+#------------------------------------------------
+#' @title Overload print() function for class maverick_GTI_logevidence
+#'
+#' @description Overload print() function for class maverick_GTI_logevidence
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_GTI_logevidence}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_GTI_logevidence <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_GTI_posterior
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_GTI_posterior
+#'
+#' @description Determine if object is of class maverick_GTI_posterior
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
+is.maverick_GTI_posterior <- function(x) {
+  inherits(x, "maverick_GTI_logevidence")
+}
+
+#------------------------------------------------
+#' @title Overload print() function for class maverick_GTI_posterior
+#'
+#' @description Overload print() function for class maverick_GTI_posterior
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_GTI_posterior}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_GTI_posterior <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_GTI_logevidence_model
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_GTI_logevidence_model
+#'
+#' @description Determine if object is of class maverick_GTI_logevidence_model
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
+is.maverick_GTI_logevidence_model <- function(x) {
+  inherits(x, "maverick_GTI_logevidence")
+}
+
+#------------------------------------------------
+#' @title Overload print() function for class maverick_GTI_logevidence_model
+#'
+#' @description Overload print() function for class maverick_GTI_logevidence_model
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_GTI_logevidence_model}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_GTI_logevidence_model <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)
 }
 
 #------------------------------------------------
-# overload print() function for class maverick_GTI_posterior_model
-# (not exported)
-#' @noRd
+#' @title Determine if object is of class maverick_GTI_posterior_model
+#'
+#' @description Determine if object is of class maverick_GTI_posterior_model
+#'
+#' @details TODO
+#' 
+#' @param x any R object
+#'
+#' @export
+#' @examples
+#' # TODO
+
+is.maverick_GTI_posterior_model <- function(x) {
+  inherits(x, "maverick_GTI_logevidence")
+}
+
+#------------------------------------------------
+#' @title Overload print() function for class maverick_GTI_posterior_model
+#'
+#' @description Overload print() function for class maverick_GTI_posterior_model
+#'
+#' @details TODO
+#' 
+#' @param x an object of class \code{maverick_GTI_posterior_model}
+#' @param ... other arguments passed to \code{print()} function
+#'
+#' @export
+#' @examples
+#' # TODO
+
 print.maverick_GTI_posterior_model <- function(x, ...) {
   print(as.data.frame(unclass(x)))
   invisible(x)

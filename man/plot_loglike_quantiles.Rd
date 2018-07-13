@@ -4,8 +4,8 @@
 \alias{plot_loglike_quantiles}
 \title{Plot loglike quantiles of current active set}
 \usage{
-plot_loglike_quantiles(proj, K = NULL, axis_type = 3,
-  connect_points = FALSE, ...)
+plot_loglike_quantiles(proj, K = NULL, axis_type = 1,
+  connect_points = FALSE, connect_whiskers = FALSE)
 }
 \arguments{
 \item{proj}{TODO}
@@ -16,7 +16,7 @@ plot_loglike_quantiles(proj, K = NULL, axis_type = 3,
 
 \item{connect_points}{TODO}
 
-\item{...}{TODO}
+\item{connect_whiskers}{TODO}
 }
 \description{
 Plot loglike quantiles of current active set

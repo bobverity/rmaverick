@@ -25,9 +25,9 @@ public:
   int rungs;
   double GTI_pow;
   bool auto_converge;
+  int converge_test;
   bool solve_label_switching_on;
   bool coupling_on;
-  bool splitmerge_on;
   bool pb_markdown;
   bool silent;
   bool estimate_alpha;

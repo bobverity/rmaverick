@@ -4,13 +4,13 @@
 \alias{delete_set}
 \title{Delete parameter set}
 \usage{
-delete_set(project, index = NULL, check_delete_output = TRUE)
+delete_set(project, set = NULL, check_delete_output = TRUE)
 }
 \arguments{
 \item{project}{an rmaverick project, as produced by the function
 \code{mavproject()}}
 
-\item{index}{TODO}
+\item{set}{TODO}
 
 \item{check_delete_output}{TODO}
 }

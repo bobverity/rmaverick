@@ -4,12 +4,10 @@
 \alias{plot_logevidence_model}
 \title{Plot log-evidence estimates over parameter sets}
 \usage{
-plot_logevidence_model(proj, ...)
+plot_logevidence_model(proj)
 }
 \arguments{
 \item{proj}{TODO}
-
-\item{...}{TODO}
 }
 \description{
 Plot log-evidence estimates over parameter sets

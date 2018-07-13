@@ -9,6 +9,15 @@ assert_non_null <- function(x, name = deparse(substitute(x))) {
 }
 
 #------------------------------------------------
+# is character
+assert_character <- function(x, name = deparse(substitute(x))) {
+  if (!is.character(x)) {
+    stop(sprintf("%s must be character", name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
 # is logical
 assert_logical <- function(x, name = deparse(substitute(x))) {
   if (!is.logical(x)) {

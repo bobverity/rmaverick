@@ -43,14 +43,12 @@ mavproject <- function() {
 }
 
 #------------------------------------------------
-#' @title Print function for class mavproject
+#' @title Custom print function for class mavproject
 #'
-#' @description Overload print function for class mavproject
-#'
-#' @details TODO
+#' @description Custom print function for class mavproject, printing a summary of the key elements (also equivalent to \code{summary(x)}). To do an ordinary \code{print()} of all elements of the project, use the \code{print_full()} function.
 #'
 #' @param x object of class \code{mavproject}
-#' @param ... other parameters to pass to print function
+#' @param ... other arguments (ignored)
 #'
 #' @export
 #' @examples
@@ -58,9 +56,34 @@ mavproject <- function() {
 
 print.mavproject <- function(x, ...) {
   
-  # print as list
-  print(unclass(x))
+  # print summary
+  summary(x)
   
+  # return invisibly
+  invisible(x)
+}
+
+#------------------------------------------------
+#' @title Ordinary print function for class mavproject
+#'
+#' @description Calling \code{print()} on an object of class mavproject results in custom output. This function therefore stands in for the base \code{print()} function, and is equivalent to running \code{print(unclass(x))}.
+#'
+#' @param x object of class \code{mavproject}
+#' @param ... other arguments passed to \code{print()}
+#'
+#' @export
+#' @examples
+#' # TODO
+
+print_full <- function(x, ...) {
+  
+  # check inputs
+  assert_mavproject(x)
+  
+  # print un-classed object
+  print(unclass(x), ...)
+  
+  # return invisibly
   invisible(x)
 }
 
@@ -107,10 +130,10 @@ summary.mavproject <- function(object, ...) {
     if (is.null(pop)) {
       cat("   pops = (none defined)\n")
     } else {
-      cat(sprintf("   pops = %s sampled populations\n", length(unique(pop))))
+      cat(sprintf("   pops = %s\n", length(unique(pop))))
     }
     
-    n1 <- sum(is.na(object$data_processed$dat))
+    n1 <- sum(object$data_processed$dat==0)
     n2 <- length(object$data_processed$dat)
     cat(sprintf("   missing data = %s of %s gene copies (%s%%)\n", n1, n2, round(n1/n2*100)))
   }
@@ -142,17 +165,19 @@ summary.mavproject <- function(object, ...) {
     admix_on <- object$parameter_sets[[s]]$admix_on
     estimate_alpha <- object$parameter_sets[[s]]$estimate_alpha
     alpha <- object$parameter_sets[[s]]$alpha
+    lambda <- object$parameter_sets[[s]]$lambda
     
     cat(sprintf("ACTIVE SET: SET%s\n", s))
     if (admix_on) {
-      cat(sprintf("   model = %s\n", "admixture"))
+      cat("   model = admixture\n")
       cat(sprintf("   estimate alpha = %s\n", estimate_alpha))
       if (!estimate_alpha) {
         cat(sprintf("   alpha = %s\n", alpha))
       }
     } else {
-      cat(sprintf("   model = %s\n", "no-admixture"))
+      cat("   model = no-admixture\n")
     }
+    cat(sprintf("   lambda = %s\n", lambda))
     
   }
   cat("\n")

@@ -4,7 +4,7 @@
 \alias{plot_GTI_path}
 \title{Plot GTI path of current active set}
 \usage{
-plot_GTI_path(proj, K = NULL, axis_type = 2, connect_points = TRUE, ...)
+plot_GTI_path(proj, K = NULL, axis_type = 1)
 }
 \arguments{
 \item{proj}{TODO}
@@ -12,10 +12,6 @@ plot_GTI_path(proj, K = NULL, axis_type = 2, connect_points = TRUE, ...)
 \item{K}{TODO}
 
 \item{axis_type}{TODO}
-
-\item{connect_points}{TODO}
-
-\item{...}{TODO}
 }
 \description{
 Plot GTI path of current active set

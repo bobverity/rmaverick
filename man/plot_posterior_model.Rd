@@ -4,12 +4,10 @@
 \alias{plot_posterior_model}
 \title{Plot posterior model}
 \usage{
-plot_posterior_model(proj, ...)
+plot_posterior_model(proj)
 }
 \arguments{
 \item{proj}{TODO}
-
-\item{...}{TODO}
 }
 \description{
 Plot posterior model

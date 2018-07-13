@@ -23,9 +23,9 @@ mcmc_admix::mcmc_admix(Rcpp::List &args_data, Rcpp::List &args_model) {
   rungs = rcpp_to_int(args_model["rungs"]);
   GTI_pow = rcpp_to_double(args_model["GTI_pow"]);
   auto_converge = rcpp_to_bool(args_model["auto_converge"]);
+  converge_test = rcpp_to_int(args_model["converge_test"]);
   solve_label_switching_on = rcpp_to_bool(args_model["solve_label_switching_on"]);
   coupling_on = rcpp_to_bool(args_model["coupling_on"]);
-  splitmerge_on = rcpp_to_bool(args_model["splitmerge_on"]);
   pb_markdown = rcpp_to_bool(args_model["pb_markdown"]);
   silent = rcpp_to_bool(args_model["silent"]);
   estimate_alpha = rcpp_to_bool(args_model["estimate_alpha"]);
@@ -78,9 +78,6 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
   
   // skip if K==1
   if (K==1) {
-    if (!silent) {
-      print("Calculating exact solution for K = 1");
-    }
     return;
   }
   
@@ -95,9 +92,9 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
   Rcpp::Function update_progress = args_functions["update_progress"];
   
   // define points at which convergence checked
-  vector<int> convergence_checkpoint(10);
-  for (int i=0; i<10; i++) {
-    convergence_checkpoint[i] = (i+1)*double(burnin)/10;
+  vector<int> convergence_checkpoint(1,converge_test);
+  while(convergence_checkpoint.back()<burnin) {
+    convergence_checkpoint.push_back(convergence_checkpoint.back()+converge_test);
   }
   int checkpoint_i = 0;
   
@@ -202,6 +199,14 @@ void mcmc_admix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
   
   // skip if K==1
   if (K==1) {
+    if (!silent) {
+      print("Calculating exact solution for K = 1");
+    }
+    
+    // calculate and store exact log-likelihood
+    particle_vec[0].update_allele_admix_freqs();
+    particle_vec[0].calculate_loglike();
+    loglike_sampling[0][0] = particle_vec[0].loglike;
     return;
   }
   
