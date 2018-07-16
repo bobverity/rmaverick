@@ -179,7 +179,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <p>Now we are ready to run a basic MCMC. We will start by exploring values of K from 1 to 5, using 1000 burn-in iterations and 1000 sampling iterations. By default the MCMC has <code>auto_converge</code> turned on, meaning it will test for convergence every <code>convergence_test</code> iterations and will exit if convergence is reached (<code>convergence_test = burnin/10</code> by default). Hence, it is generally a good idea to set <code>burnin</code> to be higher than expected, as the MCMC will adjust this number down if needed. The number of sampling iterations can also be tuned. Our aim when choosing the number of sampling iterations should be to obtain enough samples that our posterior estimates are accurate to an acceptable tolerance level, but not so many that we waste time running the MCMC for long periods past this point. We will look into this parameter again once the MCMC has completed. The most unfamiliar parameter for most users will be the number of “rungs”. <em>rmaverick</em> runs multiple MCMC chains simultaneously, each at a different rung on a “temperature ladder”. The cold chain is our ordinary MCMC chain, and the hot chains serve two purposes: 1) they improve MCMC mixing, 2) they are central to the GTI method of estimating the evidence for different models. Finally, for the sake of this document we will run with <code>pb_markdown=TRUE</code> to avoid printing large amounts of output, but ordinarily this argument should be omitted.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e3</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)
 <span class="co">#&gt; Calculating exact solution for K = 1</span>
-<span class="co">#&gt;    completed in 0.00196716 seconds</span>
+<span class="co">#&gt;    completed in 0.00240525 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 2</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -191,7 +191,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 0.954922 seconds</span>
+<span class="co">#&gt;    completed in 0.964619 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 3</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -203,7 +203,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.10706 seconds</span>
+<span class="co">#&gt;    completed in 1.03873 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 4</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -215,7 +215,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.77554 seconds</span>
+<span class="co">#&gt;    completed in 1.73661 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 5</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -227,7 +227,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.7213 seconds</span>
+<span class="co">#&gt;    completed in 1.78221 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Processing results</span></code></pre></div>
 <p>Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case - for example if one value of K had failed to converge - then we could use the same function to re-run the MCMC for just this value of K and with a longer maximum burn-in as follows:</p>
@@ -242,7 +242,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 0.922902 seconds</span>
+<span class="co">#&gt;    completed in 0.994954 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Processing results</span></code></pre></div>
 <p>This will overwrite the existing output for K=2, but will leave all other values of K untouched.</p>
@@ -298,7 +298,7 @@ myproj
 <p>We run the MCMC the same way as before, this time using a higher burn-in and sampling iterations. Again, this should be run without the <code>pb_markdown=TRUE</code> argument ordinarily:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e4</span>, <span class="dt">samples =</span> <span class="fl">2e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">pb_markdown =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Calculating exact solution for K = 1</span>
-<span class="co">#&gt;    completed in 0.076568 seconds</span>
+<span class="co">#&gt;    completed in 0.0793134 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 2</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -310,7 +310,7 @@ myproj
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 29.6251 seconds</span>
+<span class="co">#&gt;    completed in 29.6519 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 3</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -322,7 +322,7 @@ myproj
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 33.6618 seconds</span>
+<span class="co">#&gt;    completed in 33.1782 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 4</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -334,7 +334,7 @@ myproj
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 228.852 seconds</span>
+<span class="co">#&gt;    completed in 196.246 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 5</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -346,7 +346,7 @@ myproj
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 48.6981 seconds</span>
+<span class="co">#&gt;    completed in 39.2663 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Processing results</span></code></pre></div>
 <p>In this example the MCMC failed to converge for K=4, so we need to re-run this value of K:</p>
@@ -361,7 +361,7 @@ myproj
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 53.4752 seconds</span>
+<span class="co">#&gt;    completed in 47.9983 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Processing results</span></code></pre></div>
 <p>As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check - we can produce a summary plot of this parameter as follows:</p>
