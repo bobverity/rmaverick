@@ -359,7 +359,7 @@ As before, we need to check the behaviour of our MCMC. Under the admixture model
 plot_alpha(myproj, K = 3)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-21-1.png)
+![](R_ignore/images/README-unnamed-chunk-22-1.png)
 
 The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how many iterations apart we need to look before draws are approximately independent (here ~20), and the density plot gives the posterior distribution. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
 
@@ -369,7 +369,7 @@ As before, we need to check that our GTI path is smooth and straight **for all v
 plot_GTI_path(myproj, K = 3)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-22-1.png)
+![](R_ignore/images/README-unnamed-chunk-23-1.png)
 
 We can visualise the evidence for each value of K in log space, and in terms of the full posterior distribution:
 
@@ -377,13 +377,13 @@ We can visualise the evidence for each value of K in log space, and in terms of 
 plot_logevidence_K(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-23-1.png)
+![](R_ignore/images/README-unnamed-chunk-24-1.png)
 
 ``` r
 plot_posterior_K(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-23-2.png)
+![](R_ignore/images/README-unnamed-chunk-24-2.png)
 
 Again, there is clear evidence for K=3 under this model, despite the fact that this model is technically incorrect for the simulated data.
 
@@ -393,7 +393,7 @@ Producing posterior allocation plots for a range of values of K we see results s
 plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-24-1.png)
+![](R_ignore/images/README-unnamed-chunk-25-1.png)
 
 ### Comparing evolutionary models
 
@@ -403,12 +403,12 @@ Finally, we can make use of one of the major advantages of the model evidence - 
 plot_logevidence_model(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-25-1.png)
+![](R_ignore/images/README-unnamed-chunk-26-1.png)
 
 ``` r
 plot_posterior_model(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-25-2.png)
+![](R_ignore/images/README-unnamed-chunk-26-2.png)
 
 It is clear that there is far greater support for the no-admixture model, with a posterior probability of &gt;0.99. Therefore we would be justified in ignoring the output from the admixture model, and only reporting results of the no-admixture model.
