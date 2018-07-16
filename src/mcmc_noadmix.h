@@ -67,6 +67,7 @@ public:
   mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model);
   
   // other functions
+  void starting_group();
   void burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress);
   void sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress);
   

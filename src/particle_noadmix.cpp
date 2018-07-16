@@ -58,6 +58,65 @@ particle_noadmix::particle_noadmix(vector<vector<int>> &data, vector<int> &Jl_, 
   blocked_left = vector<int>(K);
   blocked_right = vector<int>(K);
   
+  // reset group etc.
+  reset_random();
+}
+
+//------------------------------------------------
+// recalculate allele counts
+void particle_noadmix::recalculate_allele_counts() {
+  
+  // reset allele counts
+  for (int k=0; k<K; k++) {
+    for (int l=0; l<L; l++) {
+      fill(allele_counts[k][l].begin(), allele_counts[k][l].end(), 0);
+    }
+  }
+  
+  // recalculate allele counts
+  int this_first_row = 0;
+  for (int i=0; i<n; i++) {
+    int this_ploidy = ploidy[i];
+    int this_group = group[i];
+    
+    for (int l=0; l<L; l++) {
+      for (int j=0; j<this_ploidy; j++) {
+        int this_data = (*data_ptr)[this_first_row+j][l];
+        if (this_data!=0) {
+          allele_counts[this_group][l][this_data-1]++;
+        }
+      }
+    }
+    
+    this_first_row += this_ploidy;
+  } // end loop over i
+  
+}
+
+//------------------------------------------------
+// reset particle with random grouping
+void particle_noadmix::reset_random() {
+  
+  // draw random grouping
+  for (int i=0; i<n; i++) {
+    group[i] = sample2(0,K-1);
+  }
+  
+  // recalculate allele counts
+  recalculate_allele_counts();
+  
+}
+
+//------------------------------------------------
+// reset particle with defined grouping
+void particle_noadmix::reset_defined(vector<int> group0) {
+  
+  // define grouping
+  group = group0;
+  
+  // recalculate allele counts
+  recalculate_allele_counts();
+  
 }
 
 //------------------------------------------------
@@ -70,13 +129,12 @@ void particle_noadmix::update_group() {
     int this_ploidy = ploidy[i];
     
     // calculate log probability of being allocated to each group
-    // TODO - reorder to only check missing once
-    for (int k=0; k<K; k++) {
-      log_qmatrix_ind[i][k] = 0;
-      for (int l=0; l<L; l++) {
-        for (int j=0; j<this_ploidy; j++) {
-          int this_data = (*data_ptr)[this_first_row+j][l];
-          if (this_data!=0) {
+    fill(log_qmatrix_ind[i].begin(), log_qmatrix_ind[i].end(), 0);
+    for (int l=0; l<L; l++) {
+      for (int j=0; j<this_ploidy; j++) {
+        int this_data = (*data_ptr)[this_first_row+j][l];
+        if (this_data!=0) {
+          for (int k=0; k<K; k++) {
             log_qmatrix_ind[i][k] += beta_raised*log_allele_freqs[k][l][this_data-1];
           }
         }
@@ -110,30 +168,8 @@ void particle_noadmix::update_group() {
 // update allele frequencies
 void particle_noadmix::update_allele_freqs() {
   
-  // reset allele counts
-  for (int k=0; k<K; k++) {
-    for (int l=0; l<L; l++) {
-      fill(allele_counts[k][l].begin(), allele_counts[k][l].end(), 0);
-    }
-  }
-  
   // recalculate allele counts
-  int this_first_row = 0;
-  for (int i=0; i<n; i++) {
-    int this_ploidy = ploidy[i];
-    int this_group = group[i];
-    
-    for (int l=0; l<L; l++) {
-      for (int j=0; j<this_ploidy; j++) {
-        int this_data = (*data_ptr)[this_first_row+j][l];
-        if (this_data!=0) {
-          allele_counts[this_group][l][this_data-1]++;
-        }
-      }
-    }
-    
-    this_first_row += this_ploidy;
-  } // end loop over i
+  recalculate_allele_counts();
   
   // draw allele freqs
   for (int k=0; k<K; k++) {
@@ -145,9 +181,66 @@ void particle_noadmix::update_allele_freqs() {
 }
 
 //------------------------------------------------
+// update group allocations to maximum-likelihood grouping
+void particle_noadmix::EM_group() {
+  
+  // loop through individuals
+  int this_first_row = 0;
+  for (int i=0; i<n; i++) {
+    int this_ploidy = ploidy[i];
+    
+    // calculate log probability of being allocated to each group
+    fill(log_qmatrix_ind[i].begin(), log_qmatrix_ind[i].end(), 0);
+    for (int l=0; l<L; l++) {
+      for (int j=0; j<this_ploidy; j++) {
+        int this_data = (*data_ptr)[this_first_row+j][l];
+        if (this_data!=0) {
+          for (int k=0; k<K; k++) {
+            log_qmatrix_ind[i][k] += beta_raised*log_allele_freqs[k][l][this_data-1];
+          }
+        }
+      }
+    }
+    
+    // find maximum element
+    double max_value = log_qmatrix_ind[i][0];
+    int max_index = 0;
+    for (int k=1; k<K; k++) {
+      if (log_qmatrix_ind[i][k]>max_value) {
+        max_value = log_qmatrix_ind[i][k];
+        max_index = k;
+      }
+    }
+    
+    // set new group as max element
+    group[i] = max_index;
+    
+    this_first_row += this_ploidy;
+  } // end loop over i
+  
+}
+
+//------------------------------------------------
+// update allele frequencies to expected values
+void particle_noadmix::EM_allele_freqs() {
+  
+  // recalculate allele counts
+  recalculate_allele_counts();
+  
+  // draw allele freqs
+  for (int k=0; k<K; k++) {
+    for (int l=0; l<L; l++) {
+      expectation_rdirichlet2(log_allele_freqs[k][l], allele_counts[k][l], beta_raised, lambda);
+    }
+  }
+  
+}
+
+//------------------------------------------------
 // fix label switching problem
 void particle_noadmix::solve_label_switching(const vector<vector<double>> &log_qmatrix_ind_running) {
   
+  // TODO - re-instantiate this method, rather than label switching at mcmc level? Profile first.
   foo();
   
   // fill in cost matrix

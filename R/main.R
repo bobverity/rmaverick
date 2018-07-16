@@ -214,19 +214,30 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
   names(project$parameter_sets)[s] <- paste0("set", s)
   
   # create new output corresponding to this set
+  GTI_logevidence <- data.frame(K = numeric(),
+                                mean = numeric(),
+                                SE = numeric())
+  class(GTI_logevidence) <- "maverick_GTI_logevidence"
+  
+  GTI_posterior <- data.frame(K = numeric(),
+                              Q2.5 = numeric(),
+                              Q50 = numeric(),
+                              Q97.5 = numeric())
+  class(GTI_posterior) <- "maverick_GTI_posterior"
+  
   project$output$single_set[[s]] <- list(single_K = list(),
-                                         all_K = list())
+                                         all_K = list(GTI_logevidence = GTI_logevidence,
+                                                      GTI_posterior = GTI_posterior))
+  
   names(project$output$single_set) <- paste0("set", 1:length(project$output$single_set))
   
   # expand summary output over all parameter sets
-  save_class <- class(project$output$all_sets$GTI_logevidence_model)
   GTI_logevidence_model <- rbind(project$output$all_sets$GTI_logevidence_model, data.frame(set = s, name = name, mean = NA, SE = NA, stringsAsFactors = FALSE))
-  class(GTI_logevidence_model) <- save_class
+  class(GTI_logevidence_model) <- "maverick_GTI_logevidence_model"
   project$output$all_sets$GTI_logevidence_model <- GTI_logevidence_model
   
-  save_class <- class(project$output$all_sets$GTI_posterior_model)
   GTI_posterior_model <- rbind(project$output$all_sets$GTI_posterior_model, data.frame(set = s, name = name, Q2.5 = NA, Q50 = NA, Q97.5 = NA, stringsAsFactors = FALSE))
-  class(GTI_posterior_model) <- save_class
+  class(GTI_posterior_model) <- "maverick_GTI_posterior_model"
   project$output$all_sets$GTI_posterior_model <- GTI_posterior_model
   
   # return
@@ -256,14 +267,14 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   set <- define_default(set, project$active_set)
   
   # further checks
-  assert_scalar_pos_int(set)
+  assert_scalar_pos_int(set, zero_allowed = FALSE)
   assert_leq(set, length(project$parameter_sets))
   
   # check before overwriting existing output
   if (project$active_set>0 & check_delete_output) {
     
     # ask before overwriting. On abort, return original project
-    if (!user_yes_no(sprintf("Output for set %s will be deleted. Continue? (Y/N): ", set))) {
+    if (!user_yes_no(sprintf("Any existing output for set %s will be deleted. Continue? (Y/N): ", set))) {
       return(project)
     }
   }
@@ -273,14 +284,22 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # drop chosen output
   project$output$single_set[[set]] <- NULL
-  project$output$all_sets$GTI_logevidence_model <- project$output$all_sets$GTI_logevidence_model[-set,]
-  project$output$all_sets$GTI_posterior_model <- project$output$all_sets$GTI_posterior_model[-set,]
   
-  # recalculate evidence over sets
-  project <- recalculate_evidence(project)
+  GTI_logevidence_model <- as.data.frame(unclass(project$output$all_sets$GTI_logevidence_model))[-set,]
+  class(GTI_logevidence_model) <- "maverick_GTI_logevidence_model"
+  project$output$all_sets$GTI_logevidence_model <- GTI_logevidence_model
+  
+  GTI_posterior_model <- as.data.frame(unclass(project$output$all_sets$GTI_posterior_model))[-set,]
+  class(GTI_posterior_model) <- "maverick_GTI_posterior_model"
+  project$output$all_sets$GTI_posterior_model <- GTI_posterior_model
   
   # make new final set active
   project$active_set <- length(project$parameter_sets)
+  
+  # recalculate evidence over sets if needed
+  if (project$active_set>0) {
+    project <- recalculate_evidence(project)
+  }
   
   # return
   return(project)
@@ -320,10 +339,10 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
 #' 
 #' @export
 
-run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = burnin/10, solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
+run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
   
   # start timer
-  t0 <- Sys.time()
+  #t0 <- Sys.time()
   
   # check inputs
   assert_mavproject(project)
@@ -345,6 +364,9 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   
   # get active set
   s <- project$active_set
+  if (s==0) {
+    stop("no active parameter set")
+  }
   
   # get useful quantities
   ploidy <- project$data_processed$ploidy
@@ -574,12 +596,12 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   project <- recalculate_evidence(project)
   
   # end timer
-  tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-  if (tdiff<60) {
-    message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
-  } else {
-    message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
-  }
+  #tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+  #if (tdiff<60) {
+  #  message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
+  #} else {
+  #  message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+  #}
   
   # return invisibly
   invisible(project)
@@ -593,6 +615,9 @@ get_GTI_logevidence_K <- function(proj, s) {
   
   # extract objects of interest
   x <- proj$output$single_set[[s]]$single_K
+  if (length(x)==0) {
+    return(proj)
+  }
   
   # get log-evidence over all K
   GTI_logevidence_raw <- mapply(function(y) {
@@ -623,7 +648,7 @@ get_GTI_logevidence_K <- function(proj, s) {
 get_GTI_posterior <- function(x) {
   
   # return NULL if all NA
-  if (all(is.na(x$mean))) {
+  if (length(x$mean)==0 || all(is.na(x$mean))) {
     return(NULL)
   }
   
@@ -648,6 +673,9 @@ get_GTI_posterior_K <- function(proj, s) {
   
   # calculate posterior K
   GTI_posterior <- get_GTI_posterior(proj$output$single_set[[s]]$all_K$GTI_logevidence)
+  if (is.null(GTI_posterior)) {
+    return(proj)
+  }
   GTI_posterior <- cbind(K = 1:nrow(GTI_posterior), GTI_posterior)
   class(GTI_posterior) <- "maverick_GTI_posterior"
   proj$output$single_set[[s]]$all_K$GTI_posterior <- GTI_posterior
@@ -664,6 +692,9 @@ get_GTI_posterior_model <- function(proj) {
   
   # calculate posterior model
   GTI_posterior_model_raw <- get_GTI_posterior(proj$output$all_sets$GTI_logevidence_model)
+  if (is.null(GTI_posterior_model_raw)) {
+    return(proj)
+  }
   proj$output$all_sets$GTI_posterior_model$Q2.5 <- GTI_posterior_model_raw$Q2.5
   proj$output$all_sets$GTI_posterior_model$Q50 <- GTI_posterior_model_raw$Q50
   proj$output$all_sets$GTI_posterior_model$Q97.5 <- GTI_posterior_model_raw$Q97.5
@@ -679,7 +710,7 @@ get_GTI_posterior_model <- function(proj) {
 integrate_GTI_logevidence <- function(x) {
   
   # return NULL if all NA
-  if (all(is.na(x$mean))) {
+  if (length(x$mean)==0 || all(is.na(x$mean))) {
     return(NULL)
   }
   
@@ -702,10 +733,11 @@ integrate_GTI_logevidence_K <- function(proj, s) {
   
   # integrate over K
   integrated_raw <- integrate_GTI_logevidence(proj$output$single_set[[s]]$all_K$GTI_logevidence)
-  if (!is.null(integrated_raw)) {
-    proj$output$all_sets$GTI_logevidence_model$mean[s] <- integrated_raw$mean
-    proj$output$all_sets$GTI_logevidence_model$SE[s] <- integrated_raw$SE
+  if (is.null(integrated_raw)) {
+    return(proj)
   }
+  proj$output$all_sets$GTI_logevidence_model$mean[s] <- integrated_raw$mean
+  proj$output$all_sets$GTI_logevidence_model$SE[s] <- integrated_raw$SE
   
   # return modified project
   return(proj)
@@ -777,8 +809,14 @@ align_qmatrix <- function(proj) {
 
 recalculate_evidence <- function(project) {
   
+  # check inputs
+  assert_mavproject(project)
+  
   # get active set
   s <- project$active_set
+  if (s==0) {
+    stop("no active parameter set")
+  }
   
   # get log-evidence over all K and load into project
   project <- get_GTI_logevidence_K(project, s)

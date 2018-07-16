@@ -82,6 +82,78 @@ particle_admix::particle_admix(vector<vector<int>> &data, vector<int> &Jl_, vect
   blocked_left = vector<int>(K);
   blocked_right = vector<int>(K);
   
+  // reset grouping etc.
+  reset_random();
+}
+
+//------------------------------------------------
+// recalculate allele and admixture counts
+void particle_admix::recalculate_allele_admix_counts() {
+  
+  // reset allele counts
+  for (int k=0; k<K; k++) {
+    for (int l=0; l<L; l++) {
+      fill(allele_counts[k][l].begin(), allele_counts[k][l].end(), 0);
+    }
+  }
+  
+  // reset admix counts
+  for (int i=0; i<n; i++) {
+    fill(admix_counts[i].begin(), admix_counts[i].end(), 0);
+  }
+  
+  // recalculate allele and admix counts
+  int this_first_row = 0;
+  for (int i=0; i<n; i++) {
+    int this_ploidy = ploidy[i];
+    
+    for (int l=0; l<L; l++) {
+      for (int j=0; j<this_ploidy; j++) {
+        int this_group = group[this_first_row+j][l];
+        int this_data = (*data_ptr)[this_first_row+j][l];
+        if (this_data!=0) {
+          allele_counts[this_group][l][this_data-1]++;
+          admix_counts[i][this_group]++;
+        }
+      }
+    }
+    
+    this_first_row += this_ploidy;
+  } // end loop over i
+  
+}
+
+//------------------------------------------------
+// reset particle with random grouping
+void particle_admix::reset_random() {
+  
+  // draw random grouping
+  int this_first_row = 0;
+  for (int i=0; i<n; i++) {
+    int this_ploidy = ploidy[i];
+    for (int j=0; j<this_ploidy; j++) {
+      for (int l=0; l<L; l++) {
+        group[this_first_row+j][l] = sample2(0,K-1);
+      }
+    }
+    this_first_row += this_ploidy;
+  }
+  
+  // recalculate allele counts
+  recalculate_allele_admix_counts();
+  
+}
+
+//------------------------------------------------
+// reset particle with defined grouping
+void particle_admix::reset_defined(vector<vector<int>> group0) {
+  
+  // define grouping
+  group = group0;
+  
+  // recalculate allele counts
+  recalculate_allele_admix_counts();
+  
 }
 
 //------------------------------------------------
@@ -200,36 +272,8 @@ void particle_admix::update_group() {
 // update allele and admixture frequencies
 void particle_admix::update_allele_admix_freqs() {
   
-  // reset allele counts
-  for (int k=0; k<K; k++) {
-    for (int l=0; l<L; l++) {
-      fill(allele_counts[k][l].begin(), allele_counts[k][l].end(), 0);
-    }
-  }
-  
-  // reset admix counts
-  for (int i=0; i<n; i++) {
-    fill(admix_counts[i].begin(), admix_counts[i].end(), 0);
-  }
-  
-  // recalculate allele and admix counts
-  int this_first_row = 0;
-  for (int i=0; i<n; i++) {
-    int this_ploidy = ploidy[i];
-    
-    for (int l=0; l<L; l++) {
-      for (int j=0; j<this_ploidy; j++) {
-        int this_group = group[this_first_row+j][l];
-        int this_data = (*data_ptr)[this_first_row+j][l];
-        if (this_data!=0) {
-          allele_counts[this_group][l][this_data-1]++;
-          admix_counts[i][this_group]++;
-        }
-      }
-    }
-    
-    this_first_row += this_ploidy;
-  } // end loop over i
+  // recalculate allele and admixture counts
+  recalculate_allele_admix_counts();
   
   // draw allele freqs
   for (int k=0; k<K; k++) {
@@ -274,6 +318,69 @@ void particle_admix::update_alpha() {
   
   // draw new alpha
   alpha = rgamma1(w1, w2);
+  
+}
+
+//------------------------------------------------
+// update group allocations to maximum-likelihood grouping
+void particle_admix::EM_group() {
+  
+  // loop through individuals
+  int this_first_row = 0;
+  for (int i=0; i<n; i++) {
+    int this_ploidy = ploidy[i];
+    
+    for (int l=0; l<L; l++) {
+      for (int j=0; j<this_ploidy; j++) {
+        
+        // calculate log probability of being allocated to each group
+        int this_data = (*data_ptr)[this_first_row+j][l];
+        if (this_data==0) {
+          continue;
+        }
+        for (int k=0; k<K; k++) {
+          log_qmatrix_gene[this_first_row+j][l][k] = log_admix_freqs[i][k] + beta_raised*log_allele_freqs[k][l][this_data-1];
+        }
+        
+        // find maximum element
+        double max_value = log_qmatrix_gene[this_first_row+j][l][0];
+        int max_index = 0;
+        for (int k=1; k<K; k++) {
+          if (log_qmatrix_gene[this_first_row+j][l][k]>max_value) {
+            max_value = log_qmatrix_gene[this_first_row+j][l][k];
+            max_index = k;
+          }
+        }
+        
+        // set new group as max element
+        group[this_first_row+j][l] = max_index;
+        
+      } // end j loop
+    } // end l loop
+    
+    this_first_row += this_ploidy;
+  } // end i loop
+  
+}
+
+//------------------------------------------------
+// update allele frequencies to expected values
+void particle_admix::EM_allele_admix_freqs() {
+  
+  // recalculate allele and admixture counts
+  recalculate_allele_admix_counts();
+  
+  // draw allele freqs
+  for (int k=0; k<K; k++) {
+    for (int l=0; l<L; l++) {
+      expectation_rdirichlet2(log_allele_freqs[k][l], allele_counts[k][l], beta_raised, lambda);
+    }
+  }
+  
+  // draw admix freqs
+  for (int i=0; i<n; i++) {
+    expectation_rdirichlet2(log_admix_freqs[i], admix_counts[i], 1.0, alpha);
+  }
   
 }
 

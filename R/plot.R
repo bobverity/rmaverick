@@ -220,7 +220,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_pos_int(K)
   }
   assert_scalar_logical(divide_ind_on)
   
@@ -230,28 +230,56 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
     stop("no active parameter set")
   }
   
-  # set default K to first value with output
+  # set default K to all values with output
   null_output <- mapply(function(x) {is.null(x$summary$qmatrix_ind)}, proj$output$single_set[[s]]$single_K)
   if (all(null_output)) {
     stop("no output for active parameter set")
   }
-  if (is.null(K)) {
-    K <- which(!null_output)[1]
-    message(sprintf("using K = %s by default", K))
-  }
+  K <- define_default(K, which(!null_output))
   
   # check output exists for chosen K
-  qmatrix_ind <- proj$output$single_set[[s]]$single_K[[K]]$summary$qmatrix_ind
-  if (is.null(qmatrix_ind)) {
-    stop(sprintf("no qmatrix_ind output for K = %s of active set", K))
+  qmatrix_ind_list <- list()
+  for (i in 1:length(K)) {
+    qmatrix_ind_list[[i]] <- proj$output$single_set[[s]]$single_K[[K[i]]]$summary$qmatrix_ind
+    if (is.null(qmatrix_ind_list[[i]])) {
+      stop(sprintf("no qmatrix_ind output for K = %s of active set", K[i]))
+    }
+  }
+  n <- nrow(qmatrix_ind_list[[1]])
+  
+  # get data into ggplot format
+  df <- NULL
+  for (i in 1:length(K)) {
+    m <- unclass(qmatrix_ind_list[[i]])
+    df <- rbind(df, data.frame(K = as.numeric(K[i]), ind = rep(1:n,each=K[i]), k = as.factor(rep(1:K[i],times=n)), val = as.vector(t(m))))
   }
   
-  # produce Q-matrix plot
-  plot1 <- plot(qmatrix_ind)
+  # produce basic plot
+  plot1 <- ggplot(df) + theme_empty()
+  plot1 <- plot1 + geom_bar(aes_(x = ~ind, y = ~val, fill = ~k), width = 1, stat = "identity")
+  plot1 <- plot1 + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0))
+  
+  # arrange in rows
+  if (length(K)==1) {
+    plot1 <- plot1 + facet_wrap(~K, ncol = 1)
+    plot1 <- plot1 + theme(strip.background = element_blank(), strip.text = element_blank())
+    plot1 <- plot1 + xlab("sample") + ylab("probability")
+  } else {
+    plot1 <- plot1 + facet_wrap(~K, ncol = 1, strip.position = "left")
+    plot1 <- plot1 + theme(strip.background = element_blank())
+    plot1 <- plot1 + xlab("sample") + ylab("K")
+  }
+  
+  # add legends
+  plot1 <- plot1 + scale_fill_manual(values = default_colours(max(K)), name = "group")
+  plot1 <- plot1 + scale_colour_manual(values = "white")
+  plot1 <- plot1 + guides(colour = FALSE)
+  
+  # add border
+  plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
   
   # optionally add dividing lines
   if (divide_ind_on) {
-    n <- nrow(qmatrix_ind)
     plot1 <- plot1 + geom_segment(aes_(x = ~x, y = ~y, xend = ~x, yend = ~y+1, col = "white"), size = 0.3, data = data.frame(x = 1:n-0.5, y = rep(0,n)))
   }
   

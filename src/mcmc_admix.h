@@ -62,6 +62,9 @@ public:
   std::vector<std::vector<double>> loglike_sampling;
   std::vector<double> alpha_store;
   
+  // best group under no-admixture model
+  std::vector<int> group_no_admix;
+  
   // objects for storing acceptance rates
   std::vector<int> coupling_accept;
   
@@ -71,6 +74,7 @@ public:
   mcmc_admix(Rcpp::List &args_data, Rcpp::List &args_model);
   
   // other functions
+  void starting_group();
   void burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress);
   void sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress);
   

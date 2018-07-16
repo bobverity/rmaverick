@@ -1,4 +1,5 @@
 
+#include "mcmc_noadmix.h"
 #include "mcmc_admix.h"
 #include "misc.h"
 #include "probability.h"
@@ -67,8 +68,43 @@ mcmc_admix::mcmc_admix(Rcpp::List &args_data, Rcpp::List &args_model) {
   loglike_sampling = vector<vector<double>>(rungs, vector<double>(samples));
   alpha_store = vector<double>(samples);
   
+  // find starting group under no-admixture model
+  mcmc_noadmix m0(args_data, args_model);
+  m0.starting_group();
+  group_no_admix = m0.particle_vec[0].group;
+  
   // objects for storing acceptance rates
   coupling_accept = vector<int>(rungs-1);
+  
+}
+
+//------------------------------------------------
+// find high likelihood group through EM algorithm
+void mcmc_admix::starting_group() {
+  
+  // skip if K==1
+  if (K==1) {
+    return;
+  }
+  
+  // create starting group by replicating no-admix best group over gene copies
+  vector<vector<int>> best_group = vector<vector<int>>(sum(ploidy), vector<int>(L));
+  int this_first_row = 0;
+  for (int i=0; i<n; i++) {
+    int this_ploidy = ploidy[i];
+    for (int j=0; j<this_ploidy; j++) {
+      for (int l=0; l<L; l++) {
+        best_group[this_first_row+j][l] = group_no_admix[i];
+      }
+    }
+    this_first_row += this_ploidy;
+  }
+  
+  // assign best grouping to all rungs
+  for (int r=0; r<rungs; r++) {
+    particle_vec[r].reset_defined(best_group);
+    particle_vec[r].update_allele_admix_freqs();
+  }
   
 }
 
@@ -183,8 +219,6 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
     }
     
   } // end burn-in iterations
-  
-  //print_array(log_qmatrix_gene_running);
   
   // warning if still not converged
   if (!convergence_reached && !silent) {
@@ -347,6 +381,8 @@ void mcmc_admix::update_qmatrix_gene() {
     }
     this_first_row += this_ploidy;
   }
+  
+  //print_array(qmatrix_gene);
   
 }
 

@@ -69,6 +69,46 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
 }
 
 //------------------------------------------------
+// find high likelihood group through EM algorithm
+void mcmc_noadmix::starting_group() {
+  
+  // skip if K==1
+  if (K==1) {
+    return;
+  }
+  
+  // initialise best group and best log-likelihood
+  vector<int> best_group(n);
+  double best_loglike = 0;
+  
+  // run EM algorithm multiple times from random starting points
+  cold_rung = rung_order[rungs-1];
+  for (int EM_rep=0; EM_rep<100; EM_rep++) {
+    
+    // EM algorithm
+    particle_vec[cold_rung].reset_random();
+    for (int rep=0; rep<10; rep++) {
+      particle_vec[cold_rung].EM_allele_freqs();
+      particle_vec[cold_rung].EM_group();
+      particle_vec[cold_rung].calculate_loglike();
+    }
+    
+    // update best estimates
+    if (particle_vec[cold_rung].loglike>best_loglike || EM_rep==0) {
+      best_group = particle_vec[cold_rung].group;
+      best_loglike = particle_vec[cold_rung].loglike;
+    }
+  }
+  
+  // assign best grouping to all rungs
+  for (int r=0; r<rungs; r++) {
+    particle_vec[r].reset_defined(best_group);
+    particle_vec[r].update_allele_freqs();
+  }
+  
+}
+
+//------------------------------------------------
 // loop through burn-in iterations
 void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress) {
   
@@ -193,7 +233,7 @@ void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_pr
     }
     
     // calculate and store exact log-likelihood
-    particle_vec[0].update_allele_freqs();
+    particle_vec[0].recalculate_allele_counts();
     particle_vec[0].calculate_loglike();
     loglike_sampling[0][0] = particle_vec[0].loglike;
     return;

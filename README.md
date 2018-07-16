@@ -149,21 +149,9 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.00219769 seconds
+#>    completed in 0.00200935 seconds
 #> 
 #> Running MCMC for K = 2
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    Warning: convergence still not reached within 1000 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 1.56651 seconds
-#> 
-#> Running MCMC for K = 3
 #> Burn-in phase
 #> 
   |                                                                       
@@ -173,19 +161,31 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.15975 seconds
+#>    completed in 0.93908 seconds
+#> 
+#> Running MCMC for K = 3
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    Warning: convergence still not reached within 1000 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 2.20878 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 600 iterations
+#>    converged within 400 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.9863 seconds
+#>    completed in 1.78175 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
@@ -197,10 +197,9 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.62952 seconds
+#>    completed in 1.56181 seconds
 #> 
 #> Processing results
-#> Total run-time: 7.54 seconds
 ```
 
 Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. Notice also that in the example above the MCMC failed to converge for K=2 within 1000 iterations, while all other values of K converged successfully. We therefore need to re-run the MCMC for K=2 with a higher upper limit on the burn-in, still checking for convergence every 100 iterations. This will overwrite the output for K=2, but will leave all other values of K untouched:
@@ -212,15 +211,14 @@ myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, samples = 1e3, rungs = 10, conve
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 3500 iterations
+#>    converged within 6900 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 3.78025 seconds
+#>    completed in 9.11965 seconds
 #> 
 #> Processing results
-#> Total run-time: 4.75 seconds
 ```
 
 ### Comparing values of K
@@ -262,12 +260,10 @@ This second plot is usually more straightfoward to interpret, as it is in linear
 The main result of interest from this sort of analysis is usually the posterior allocation or "structure" plot. This plot contains one bar for each individual, with the proportion of each colour giving the posterior probability of belonging to each of the K subpopulations. We can use the `plot_qmatrix()` function to produce posterior allocation plots for different values of K:
 
 ``` r
-for (i in 2:5) {
-  print(plot_qmatrix(myproj, K = i, divide_ind_on = TRUE))
-}
+plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-18-1.png)![](R_ignore/images/README-unnamed-chunk-18-2.png)![](R_ignore/images/README-unnamed-chunk-18-3.png)![](R_ignore/images/README-unnamed-chunk-18-4.png)
+![](R_ignore/images/README-unnamed-chunk-18-1.png)
 
 We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at `mysim$group`. When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, but ideally this should also be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - **the model used by rmaverick and similar programs is just a cartoon of reality, and that there is no strict K in the real world**. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that fit the data well, it is just a guide and should be taken alongside other biological considerations.
 
@@ -304,21 +300,9 @@ We run the MCMC the same way as before, this time using a higher burn-in and sam
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.0763512 seconds
+#>    completed in 0.07977 seconds
 #> 
 #> Running MCMC for K = 2
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    converged within 400 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 32.6278 seconds
-#> 
-#> Running MCMC for K = 3
 #> Burn-in phase
 #> 
   |                                                                       
@@ -328,34 +312,45 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, con
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 34.8911 seconds
+#>    completed in 30.1793 seconds
+#> 
+#> Running MCMC for K = 3
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    converged within 400 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 35.4477 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 3700 iterations
+#>    Warning: convergence still not reached within 10000 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 93.8949 seconds
+#>    completed in 195.777 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 8700 iterations
+#>    converged within 400 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 197.073 seconds
+#>    completed in 41.3046 seconds
 #> 
 #> Processing results
-#> Total run-time: 6 minutes
 ```
 
 As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check - we can produce a summary plot of this parameter as follows:
@@ -395,12 +390,10 @@ Again, there is clear evidence for K=3 under this model, despite the fact that t
 Producing posterior allocation plots for a range of values of K we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation.
 
 ``` r
-for (i in 2:5) {
-  print(plot_qmatrix(myproj, K = i, divide_ind_on = TRUE))
-}
+plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-24-1.png)![](R_ignore/images/README-unnamed-chunk-24-2.png)![](R_ignore/images/README-unnamed-chunk-24-3.png)![](R_ignore/images/README-unnamed-chunk-24-4.png)
+![](R_ignore/images/README-unnamed-chunk-24-1.png)
 
 ### Comparing evolutionary models
 

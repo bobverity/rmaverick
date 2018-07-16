@@ -10,23 +10,6 @@
 using namespace std;
 
 //------------------------------------------------
-// Run MCMC
-// [[Rcpp::export]]
-Rcpp::List generate_scaffolds_cpp(Rcpp::List args) {
-  foobar();
-  
-  // create return object
-  Rcpp::List ret;
-  ret.push_back(Rcpp::wrap( -9 ));
-  
-  Rcpp::StringVector ret_names;
-  ret_names.push_back("x");
-  
-  ret.names() = ret_names;
-  return ret;
-}
-
-//------------------------------------------------
 // run main MCMC
 // [[Rcpp::export]]
 Rcpp::List run_mcmc_cpp(Rcpp::List args) {
@@ -54,8 +37,13 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
   // run MCMC and store results
   if (admix_on) { // admixture model
     
-    // run MCMC
+    // initialise MCMC object
     mcmc_admix m(args_data, args_model);
+    
+    // find starting group
+    m.starting_group();
+    
+    // run MCMC
     m.burnin_mcmc(args_functions, args_progress);
     m.sampling_mcmc(args_functions, args_progress);
     
@@ -68,8 +56,13 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
     
   } else { // no-admixture model
     
-    // run MCMC
+    // initialise MCMC object
     mcmc_noadmix m(args_data, args_model);
+    
+    // find starting group
+    m.starting_group();
+    
+    // run MCMC
     m.burnin_mcmc(args_functions, args_progress);
     m.sampling_mcmc(args_functions, args_progress);
     
@@ -93,6 +86,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
   ret.push_back(Rcpp::wrap( qmatrix_ind ));
   ret.push_back(Rcpp::wrap( alpha_store ));
   ret.push_back(Rcpp::wrap( coupling_accept ));
+  ret.push_back(Rcpp::wrap( time_span.count() ));
   
   Rcpp::StringVector ret_names;
   ret_names.push_back("loglike_burnin");
@@ -100,6 +94,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
   ret_names.push_back("qmatrix_ind");
   ret_names.push_back("alpha_store");
   ret_names.push_back("coupling_accept");
+  ret_names.push_back("run_time");
   
   ret.names() = ret_names;
   return ret;

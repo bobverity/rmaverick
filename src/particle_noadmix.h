@@ -56,9 +56,13 @@ public:
   particle_noadmix(std::vector<std::vector<int>> &data, std::vector<int> &Jl_, std::vector<int> &ploidy_, Rcpp::List &args_model, double beta_raised_);
   
   // other functions
-  void reset();
+  void reset_random();
+  void reset_defined(std::vector<int> group0);
+  void recalculate_allele_counts();
   void update_group();
   void update_allele_freqs();
+  void EM_group();
+  void EM_allele_freqs();
   void solve_label_switching(const std::vector<std::vector<double>> &log_qmatrix_running);
   void calculate_loglike();
   

@@ -172,6 +172,24 @@ void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, d
 }
 
 //------------------------------------------------
+// returns expectation of rdirichlet2
+void expectation_rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, double gamma) {
+  int n = x.size();
+  double x_sum = 0;
+  for (int i=0; i<n; i++) {
+    x[i] = double(alpha[i])*beta+gamma;
+    if (x[i]<UNDERFLO) {
+      x[i] = UNDERFLO;
+    }
+    x_sum += x[i];
+  }
+  double log_x_sum = log(x_sum);
+  for (int i=0; i<n; i++) {
+    x[i] = log(x[i]) - log_x_sum;
+  }
+}
+
+//------------------------------------------------
 // draw from Poisson(rate) distribution
 int rpois1(double rate) {
   return R::rpois(rate);

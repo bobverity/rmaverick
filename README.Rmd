@@ -163,10 +163,8 @@ This second plot is usually more straightfoward to interpret, as it is in linear
 
 The main result of interest from this sort of analysis is usually the posterior allocation or "structure" plot. This plot contains one bar for each individual, with the proportion of each colour giving the posterior probability of belonging to each of the K subpopulations. We can use the `plot_qmatrix()` function to produce posterior allocation plots for different values of K:
 
-```{r, fig.height=1.5, fig.width=8}
-for (i in 2:5) {
-  print(plot_qmatrix(myproj, K = i, divide_ind_on = TRUE))
-}
+```{r, fig.height=5, fig.width=8}
+plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
 
@@ -218,10 +216,8 @@ Again, there is clear evidence for K=3 under this model, despite the fact that t
 
 Producing posterior allocation plots for a range of values of K we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation.
 
-```{r, fig.height=1.5, fig.width=8}
-for (i in 2:5) {
-  print(plot_qmatrix(myproj, K = i, divide_ind_on = TRUE))
-}
+```{r, fig.height=5, fig.width=8}
+plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
 

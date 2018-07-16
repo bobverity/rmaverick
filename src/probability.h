@@ -74,6 +74,10 @@ std::vector<double> rdirichlet1(std::vector<double> &shape_vec);
 void rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, double gamma);
 
 //------------------------------------------------
+// returns expectation of rdirichlet2
+void expectation_rdirichlet2(std::vector<double> &x, std::vector<int> &alpha, double beta, double gamma);
+
+//------------------------------------------------
 // draw from Poisson(rate) distribution
 int rpois1(double rate);
 
