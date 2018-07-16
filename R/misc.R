@@ -124,7 +124,7 @@ test_convergence <- function(x, n) {
   g <- geweke_pvalue(mcmc(x[1:n]))
   ret <- (g>0.01)
   if (is.na(ret)) {
-    ret <- FALSE;
+    ret <- TRUE;
   }
   return(ret)
 }

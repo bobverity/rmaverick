@@ -125,11 +125,13 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 ```
 
-Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. Notice also that in the example above the MCMC failed to converge for K=2 within 1000 iterations, while all other values of K converged successfully. We therefore need to re-run the MCMC for K=2 with a higher upper limit on the burn-in, still checking for convergence every 100 iterations. This will overwrite the output for K=2, but will leave all other values of K untouched:
+Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case - for example if one value of K had failed to converge - then we could use the same function to re-run the MCMC for just this value of K and with a longer maximum burn-in as follows:
 
 ```{r}
-myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, samples = 1e3, rungs = 10, converge_test = 100, pb_markdown =  TRUE)
+myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, converge_test = 100, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 ```
+
+This will overwrite the existing output for K=2, but will leave all other values of K untouched.
 
 ### Comparing values of K
 
@@ -189,7 +191,11 @@ We run the MCMC the same way as before, this time using a higher burn-in and sam
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
 ```
 
+In this example the MCMC failed to converge for K=4, so we need to re-run this value of K:
 
+```{r}
+myproj <- run_mcmc(myproj, K = 4, burnin = 1e5, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
+```
 
 As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check - we can produce a summary plot of this parameter as follows:
 
@@ -197,7 +203,7 @@ As before, we need to check the behaviour of our MCMC. Under the admixture model
 plot_alpha(myproj, K = 3)
 ```
 
-The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how many iterations apart we need to look before draws are approximately independent (here ~20), and the density plot gives the posterior distribution. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
+The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~20), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
 
 As before, we need to check that our GTI path is smooth and straight **for all values of K**:
 
