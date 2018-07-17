@@ -477,7 +477,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       # ---------- raw mcmc results ----------
       
       # get loglikelihood in coda::mcmc format
-      loglike_burnin <- mcmc(t(rcpp_to_mat(output_raw[[i]]$loglike_burnin)))
+      loglike_burnin <- mapply(function(x){mcmc(x)}, output_raw[[i]]$loglike_burnin)
       loglike_sampling <- mcmc(t(rcpp_to_mat(output_raw[[i]]$loglike_sampling)))
       
       # alpha

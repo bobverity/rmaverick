@@ -135,11 +135,17 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
   int checkpoint_i = 0;
   
   // loop through burnin iterations
-  bool convergence_reached = false;
+  vector<bool> convergence_reached(rungs, false);
+  bool all_convergence_reached = false;
   for (int rep=0; rep<burnin; rep++) {
     
     // update particles
     for (int r=0; r<rungs; r++) {
+      
+      // skip over converged rungs
+      if (convergence_reached[r]) {
+        continue;
+      }
       int rung = rung_order[r];
       
       // update group allocation of all individuals
@@ -153,14 +159,6 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
       
     } // end loop over rungs
     
-    // Metropolis-coupling
-    if (coupling_on) {
-      metropolis_coupling();
-    }
-    
-    // focus on cold rung
-    cold_rung = rung_order[rungs-1];
-    
     // fix labels
     if (solve_label_switching_on) {
       solve_label_switching();
@@ -172,6 +170,9 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // store loglikelihood
     for (int r=0; r<rungs; r++) {
+      if (convergence_reached[r]) {
+        continue;
+      }
       int rung = rung_order[r];
       loglike_burnin[r][rep] = particle_vec[rung].loglike;
     }
@@ -191,22 +192,28 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     // check for convergence
     if (auto_converge && (rep+1)==convergence_checkpoint[checkpoint_i]) {
       
-      // break if convergence reached
-      convergence_reached = true;
+      // check for convergence of all unconverged chains
       for (int r=0; r<rungs; r++) {
-        bool this_converged = rcpp_to_bool(test_convergence(loglike_burnin[r], rep+1));
-        if (!this_converged) {
-          convergence_reached = false;
+        if (!convergence_reached[r]) {
+          convergence_reached[r] = rcpp_to_bool(test_convergence(loglike_burnin[r], rep+1));
+          if (convergence_reached[r]) {
+            loglike_burnin[r].resize(rep+1);
+          }
+        }
+      }
+      // break if convergence reached
+      all_convergence_reached = true;
+      for (int r=0; r<rungs; r++) {
+        if (!convergence_reached[r]) {
+          all_convergence_reached = false;
           break;
         }
       }
-      if (convergence_reached) {
+      // end if all reached convergence
+      if (all_convergence_reached) {
         if (!silent) {
           update_progress(args_progress, "pb_burnin", burnin, burnin);
           print("   converged within", rep+1, "iterations");
-        }
-        for (int r=0; r<rungs; r++) {
-          loglike_burnin[r].resize(rep+1);
         }
         break;
       }
@@ -216,7 +223,7 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
   } // end burn-in iterations
   
   // warning if still not converged
-  if (!convergence_reached && !silent) {
+  if (!all_convergence_reached && !silent) {
     print("   Warning: convergence still not reached within", burnin, "iterations");
   }
   

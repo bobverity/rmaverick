@@ -7,6 +7,8 @@ rmaverick
 
 The goal of *rmaverick* is to infer population structure from genetic data. What makes *rmaverick* different from other similar programs is its ability to estimate the *evidence* for different numbers of sub-populations (K), and even different evolutionary models, through a method called generalised thermodynamic integration (GTI). *rmaverick* is an updated version of the earlier program [MavericK](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981280/), and comes with a number of new features that make it more powerful and easier to use.
 
+*It is worth stating at the outset that rmaverick is designed for relatively small data sets of hundreds of samples and tens to hundreds of loci. It is not designed for large-scale genomic data sets (e.g. thousands of SNPs), for which other programs are more appropriate.*
+
 Installation
 ------------
 
@@ -115,7 +117,7 @@ myproj
 #>    (none defined)
 ```
 
-If there have been mistakes in reading in the data, for example if mata-data columns have not been specified and so have been interpreted as genetic data (a common mistake!) then this should be visible at this stage.
+If there have been mistakes in reading in the data, for example if mata-data columns have not been specified and so have been interpreted as genetic data (a common mistake) then this should be visible at this stage.
 
 ### Define parameters and run basic MCMC
 
@@ -149,7 +151,7 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.00200935 seconds
+#>    completed in 0.00213408 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -161,33 +163,9 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 0.93908 seconds
+#>    completed in 0.833058 seconds
 #> 
 #> Running MCMC for K = 3
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    Warning: convergence still not reached within 1000 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 2.20878 seconds
-#> 
-#> Running MCMC for K = 4
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    converged within 400 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 1.78175 seconds
-#> 
-#> Running MCMC for K = 5
 #> Burn-in phase
 #> 
   |                                                                       
@@ -197,26 +175,50 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.56181 seconds
+#>    completed in 1.03707 seconds
+#> 
+#> Running MCMC for K = 4
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    converged within 600 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 1.45947 seconds
+#> 
+#> Running MCMC for K = 5
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    converged within 300 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 1.6302 seconds
 #> 
 #> Processing results
 ```
 
-Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. Notice also that in the example above the MCMC failed to converge for K=2 within 1000 iterations, while all other values of K converged successfully. We therefore need to re-run the MCMC for K=2 with a higher upper limit on the burn-in, still checking for convergence every 100 iterations. This will overwrite the output for K=2, but will leave all other values of K untouched:
+Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case, for example if one value of K had failed to converge, then we could use the same `run_mcmc()` function to re-run the MCMC for just this value of K with a longer maximum burn-in. This will overwrite the existing output for the problem value of K, but will leave all other values untouched:
 
 ``` r
-myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, samples = 1e3, rungs = 10, converge_test = 100, pb_markdown =  TRUE)
+myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, converge_test = 100, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 #> Running MCMC for K = 2
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 6900 iterations
+#>    converged within 100 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 9.11965 seconds
+#>    completed in 0.823842 seconds
 #> 
 #> Processing results
 ```
@@ -231,7 +233,7 @@ plot_GTI_path(myproj, K = 3)
 
 ![](R_ignore/images/README-unnamed-chunk-15-1.png)
 
-All plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on (for example adding titles, legends etc.).
+All plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on - for example adding titles, legends etc.
 
 In order for our evidence estimate to be unbiased, it is important that the GTI path is relatively smooth. We can modify the smoothness of the path in two ways: 1) by increasing the number of `rungs` used in the MCMC, 2) by changing the value of `GTI_pow` which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. **This check should be performed on every value of K**.
 
@@ -271,7 +273,7 @@ We can see that for K=3 (the most highly supported value of K) there is a clear 
 
 We will also run the simulated data through the admixture model, partly to explore how this model differs in implementation from the simpler no-admixture model, and partly to test whether *rmaverick* can detect that this model is incorrect based on the model evidence.
 
-We start by creating a new parameter set, this time under the admixture model and with the parameter alpha free to be estimated by the MCMC. Alpha controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple populations (we arrive back at the no-admixture model when alpha is zero).
+We start by creating a new parameter set, this time under the admixture model and with the parameter alpha free to be estimated by the MCMC. Alpha controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple populations, and arriving back at the no-admixture model when alpha equals zero.
 
 ``` r
 myproj <- new_set(myproj, name = "incorrect model (admixture)", admix_on = TRUE, estimate_alpha = TRUE)
@@ -293,16 +295,52 @@ myproj
 #>    lambda = 1
 ```
 
-The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy seperately, and also has additional parameters to estimate. For this reason we suggest that **if there is no prior biological reason to expect admixture between populations then you should consider running the simpler non-admixture model only**.
+The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy seperately, and also has additional parameters to estimate. For this reason we suggest that **if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only**.
 
-We run the MCMC the same way as before, this time using a higher burn-in and sampling iterations. Again, this should be run without the `pb_markdown=TRUE` argument ordinarily:
+We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the `pb_markdown=TRUE` argument ordinarily):
 
 ``` r
-myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
+myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3, rungs = 10, pb_markdown = TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.07977 seconds
+#>    completed in 0.0802589 seconds
 #> 
 #> Running MCMC for K = 2
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    converged within 100 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 27.9552 seconds
+#> 
+#> Running MCMC for K = 3
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    converged within 100 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 31.9599 seconds
+#> 
+#> Running MCMC for K = 4
+#> Burn-in phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    converged within 800 iterations
+#> Sampling phase
+#> 
+  |                                                                       
+  |=================================================================| 100%
+#>    completed in 38.1948 seconds
+#> 
+#> Running MCMC for K = 5
 #> Burn-in phase
 #> 
   |                                                                       
@@ -312,56 +350,20 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, con
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 30.1793 seconds
-#> 
-#> Running MCMC for K = 3
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    converged within 400 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 35.4477 seconds
-#> 
-#> Running MCMC for K = 4
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    Warning: convergence still not reached within 10000 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 195.777 seconds
-#> 
-#> Running MCMC for K = 5
-#> Burn-in phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    converged within 400 iterations
-#> Sampling phase
-#> 
-  |                                                                       
-  |=================================================================| 100%
-#>    completed in 41.3046 seconds
+#>    completed in 38.8032 seconds
 #> 
 #> Processing results
 ```
 
-As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check - we can produce a summary plot of this parameter as follows:
+As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check. We can produce a summary plot of this parameter as follows:
 
 ``` r
 plot_alpha(myproj, K = 3)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-22-1.png)
+![](R_ignore/images/README-unnamed-chunk-21-1.png)
 
-The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how many iterations apart we need to look before draws are approximately independent (here ~20), and the density plot gives the posterior distribution. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
+The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~20), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
 
 As before, we need to check that our GTI path is smooth and straight **for all values of K**:
 
@@ -369,7 +371,7 @@ As before, we need to check that our GTI path is smooth and straight **for all v
 plot_GTI_path(myproj, K = 3)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-23-1.png)
+![](R_ignore/images/README-unnamed-chunk-22-1.png)
 
 We can visualise the evidence for each value of K in log space, and in terms of the full posterior distribution:
 
@@ -377,13 +379,13 @@ We can visualise the evidence for each value of K in log space, and in terms of 
 plot_logevidence_K(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-24-1.png)
+![](R_ignore/images/README-unnamed-chunk-23-1.png)
 
 ``` r
 plot_posterior_K(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-24-2.png)
+![](R_ignore/images/README-unnamed-chunk-23-2.png)
 
 Again, there is clear evidence for K=3 under this model, despite the fact that this model is technically incorrect for the simulated data.
 
@@ -393,22 +395,22 @@ Producing posterior allocation plots for a range of values of K we see results s
 plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-25-1.png)
+![](R_ignore/images/README-unnamed-chunk-24-1.png)
 
 ### Comparing evolutionary models
 
-Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of K under that model. We can plot the model evidence in log space, and in the form of a posterior distribution after transforming to linear space and normalising to sum to one:
+Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of K under that model. We can plot the overall model evidence in log space, and in the form of a posterior distribution after transforming to linear space and normalising to sum to one:
 
 ``` r
 plot_logevidence_model(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-26-1.png)
+![](R_ignore/images/README-unnamed-chunk-25-1.png)
 
 ``` r
 plot_posterior_model(myproj)
 ```
 
-![](R_ignore/images/README-unnamed-chunk-26-2.png)
+![](R_ignore/images/README-unnamed-chunk-25-2.png)
 
-It is clear that there is far greater support for the no-admixture model, with a posterior probability of &gt;0.99. Therefore we would be justified in ignoring the output from the admixture model, and only reporting results of the no-admixture model.
+It is clear that there is far greater support for the no-admixture model, therefore we would be justified in ignoring the output from the admixture model and only reporting results of the no-admixture model.

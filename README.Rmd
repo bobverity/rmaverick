@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 
 The goal of *rmaverick* is to infer population structure from genetic data. What makes *rmaverick* different from other similar programs is its ability to estimate the *evidence* for different numbers of sub-populations (K), and even different evolutionary models, through a method called generalised thermodynamic integration (GTI). *rmaverick* is an updated version of the earlier program [MavericK](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981280/), and comes with a number of new features that make it more powerful and easier to use.
 
+*It is worth stating at the outset that rmaverick is designed for relatively small data sets of hundreds of samples and tens to hundreds of loci. It is not designed for large-scale genomic data sets (e.g. thousands of SNPs), for which other programs are more appropriate.*
+
 ## Installation
 
 *rmaverick* relies on the [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html) package, which requires the following OS-specific steps:
@@ -102,7 +104,7 @@ Notice the general format of the `bind_data()` function, which takes the same pr
 myproj
 ```
 
-If there have been mistakes in reading in the data, for example if mata-data columns have not been specified and so have been interpreted as genetic data (a common mistake!) then this should be visible at this stage.
+If there have been mistakes in reading in the data, for example if mata-data columns have not been specified and so have been interpreted as genetic data (a common mistake) then this should be visible at this stage.
 
 
 ### Define parameters and run basic MCMC
@@ -125,13 +127,11 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 ```
 
-Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case - for example if one value of K had failed to converge - then we could use the same function to re-run the MCMC for just this value of K and with a longer maximum burn-in as follows:
+Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case, for example if one value of K had failed to converge, then we could use the same `run_mcmc()` function to re-run the MCMC for just this value of K with a longer maximum burn-in. This will overwrite the existing output for the problem value of K, but will leave all other values untouched:
 
 ```{r}
 myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, converge_test = 100, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 ```
-
-This will overwrite the existing output for K=2, but will leave all other values of K untouched.
 
 ### Comparing values of K
 
@@ -141,7 +141,7 @@ The GTI method estimates the evidence for a given model by combining information
 plot_GTI_path(myproj, K = 3)
 ```
 
-All plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on (for example adding titles, legends etc.).
+All plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on - for example adding titles, legends etc.
 
 In order for our evidence estimate to be unbiased, it is important that the GTI path is relatively smooth. We can modify the smoothness of the path in two ways: 1) by increasing the number of `rungs` used in the MCMC, 2) by changing the value of `GTI_pow` which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. **This check should be performed on every value of K**.
 
@@ -177,27 +177,21 @@ We can see that for K=3 (the most highly supported value of K) there is a clear 
 
 We will also run the simulated data through the admixture model, partly to explore how this model differs in implementation from the simpler no-admixture model, and partly to test whether *rmaverick* can detect that this model is incorrect based on the model evidence.
 
-We start by creating a new parameter set, this time under the admixture model and with the parameter alpha free to be estimated by the MCMC. Alpha controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple populations (we arrive back at the no-admixture model when alpha is zero).
+We start by creating a new parameter set, this time under the admixture model and with the parameter alpha free to be estimated by the MCMC. Alpha controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple populations, and arriving back at the no-admixture model when alpha equals zero.
 
 ```{r}
 myproj <- new_set(myproj, name = "incorrect model (admixture)", admix_on = TRUE, estimate_alpha = TRUE)
 myproj
 ```
 
-The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy seperately, and also has additional parameters to estimate. For this reason we suggest that **if there is no prior biological reason to expect admixture between populations then you should consider running the simpler non-admixture model only**.
+The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy seperately, and also has additional parameters to estimate. For this reason we suggest that **if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only**.
 
-We run the MCMC the same way as before, this time using a higher burn-in and sampling iterations. Again, this should be run without the `pb_markdown=TRUE` argument ordinarily:
+We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the `pb_markdown=TRUE` argument ordinarily):
 ```{r}
-myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
+myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3, rungs = 10, pb_markdown = TRUE)
 ```
 
-In this example the MCMC failed to converge for K=4, so we need to re-run this value of K:
-
-```{r}
-myproj <- run_mcmc(myproj, K = 4, burnin = 1e5, samples = 2e3, rungs = 10, converge_test = 100, pb_markdown = TRUE)
-```
-
-As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check - we can produce a summary plot of this parameter as follows:
+As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter alpha to check. We can produce a summary plot of this parameter as follows:
 
 ```{r}
 plot_alpha(myproj, K = 3)
@@ -229,11 +223,11 @@ plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 
 ### Comparing evolutionary models
 
-Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of K under that model. We can plot the model evidence in log space, and in the form of a posterior distribution after transforming to linear space and normalising to sum to one:
+Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of K under that model. We can plot the overall model evidence in log space, and in the form of a posterior distribution after transforming to linear space and normalising to sum to one:
 
-```{r, fig.height=5, fig.width=5}
+```{r, fig.height=4, fig.width=4}
 plot_logevidence_model(myproj)
 plot_posterior_model(myproj)
 ```
 
-It is clear that there is far greater support for the no-admixture model, with a posterior probability of >0.99. Therefore we would be justified in ignoring the output from the admixture model, and only reporting results of the no-admixture model.
+It is clear that there is far greater support for the no-admixture model, therefore we would be justified in ignoring the output from the admixture model and only reporting results of the no-admixture model.
