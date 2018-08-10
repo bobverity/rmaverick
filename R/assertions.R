@@ -1,5 +1,14 @@
 
 #------------------------------------------------
+# is NULL
+assert_null <- function(x, name = deparse(substitute(x))) {
+  if (!is.null(x)) {
+    stop(sprintf("%s must be null", name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
 # is not NULL
 assert_non_null <- function(x, name = deparse(substitute(x))) {
   if (is.null(x)) {
@@ -98,6 +107,15 @@ assert_pos_int <- function(x, zero_allowed = TRUE, name = deparse(substitute(x))
 assert_scalar_pos_int <- function(x, zero_allowed = TRUE, name = deparse(substitute(x))) {
   assert_pos_int(x, zero_allowed, name)
   assert_length(x, 1, name)
+  return(TRUE)
+}
+
+#------------------------------------------------
+# x and y are equal (accepts any type)
+assert_eq <- function(x, y, name = deparse(substitute(x))) {
+  if (!isTRUE(all.equal(x,y))) {
+    stop(sprintf("%s must equal %s", name, y), call. = FALSE)
+  }
   return(TRUE)
 }
 

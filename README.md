@@ -3,7 +3,9 @@
 rmaverick
 =========
 
-[![Build Status](https://travis-ci.org/bobverity/rmaverick.png?branch=develop)](https://travis-ci.org/bobverity/rmaverick) [![Coverage status](https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg)](https://codecov.io/github/bobverity/rmaverick?branch=develop) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/bobverity/rmaverick?branch=develop&svg=true)](https://ci.appveyor.com/project/bobverity/rmaverick)
+### version 1.0.1
+
+[![Build Status](https://travis-ci.org/bobverity/rmaverick.png?branch=develop)](https://travis-ci.org/bobverity/rmaverick) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/bobverity/rmaverick?branch=develop&svg=true)](https://ci.appveyor.com/project/bobverity/rmaverick) [![Coverage status](https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg)](https://codecov.io/github/bobverity/rmaverick?branch=develop)
 
 The goal of *rmaverick* is to infer population structure from genetic data. What makes *rmaverick* different from other similar programs is its ability to estimate the *evidence* for different numbers of sub-populations (K), and even different evolutionary models, through a method called generalised thermodynamic integration (GTI). *rmaverick* is an updated version of the earlier program [MavericK](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981280/), and comes with a number of new features that make it more powerful and easier to use.
 
@@ -102,7 +104,11 @@ myproj <- mavproject()
 myproj <- bind_data(myproj, mysim$data, ID_col = 1, pop_col = 2, ploidy_col = 3)
 ```
 
-Notice the general format of the `bind_data()` function, which takes the same project as both input and output. This is the format that most *rmaverick* functions will take, as it allows a function to modify the project before overwriting the original version. Notice also that we have specified which columns are meta-data, and all other columns are assumed to contain genetic data. We can view the project to check that the data have been loaded in correctly:
+Notice the general format of the `bind_data()` function, which takes the same project as both input and output. This is the format that most *rmaverick* functions will take, as it allows a function to modify the project before overwriting the original version. The actual data is loaded in as a `data.frame`, so any function that reads data into R in this format, such as `read.csv()` or `read.table()`, can be used. In the input arguments we have also specified which columns are meta-data, and all other columns are assumed to contain genetic data.
+
+Data can also be arranged in wide format, with one row per sample and several columns per locus. This format can be read in using the additional argument `wide_format = TRUE`, and by setting the `ploidy` argument to the correct value.
+
+We can view the project to check that the data have been loaded in correctly:
 
 ``` r
 myproj
@@ -117,7 +123,7 @@ myproj
 #>    (none defined)
 ```
 
-If there have been mistakes in reading in the data, for example if mata-data columns have not been specified and so have been interpreted as genetic data (a common mistake) then this should be visible at this stage.
+If there have been mistakes in reading in the data, for example if meta-data columns have not been specified and so have been interpreted as genetic data (a common mistake) then this should be visible at this stage.
 
 ### Define parameters and run basic MCMC
 
@@ -151,7 +157,7 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.00199475 seconds
+#>    completed in 0.0020119 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -163,7 +169,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 0.832971 seconds
+#>    completed in 0.823469 seconds
 #> 
 #> Running MCMC for K = 3
 #> Burn-in phase
@@ -175,7 +181,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.06625 seconds
+#>    completed in 1.08316 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
@@ -187,7 +193,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.44383 seconds
+#>    completed in 1.48447 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
@@ -199,7 +205,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.63726 seconds
+#>    completed in 1.63426 seconds
 #> 
 #> Processing results
 ```
@@ -218,7 +224,7 @@ myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, converge_test = 100, samples = 1
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 0.829564 seconds
+#>    completed in 0.902807 seconds
 #> 
 #> Processing results
 ```
@@ -255,7 +261,7 @@ plot_posterior_K(myproj)
 
 ![](R_ignore/images/README-unnamed-chunk-17-1.png)
 
-This second plot is usually more straightfoward to interpret, as it is in linear space and so can be understood in terms of ordinary probability. In this example we can see strong evidence for K=3, with a posterior probability of &gt;0.99. Again, if we had seen wide credible intervals at this stage then it would have be worth repeating the MCMC with a larger number of `samples`, but in this case the result is clear and so there is no need.
+This second plot is usually more straightforward to interpret, as it is in linear space and so can be understood in terms of ordinary probability. In this example we can see strong evidence for K=3, with a posterior probability of &gt;0.99. Again, if we had seen wide credible intervals at this stage then it would have be worth repeating the MCMC with a larger number of `samples`, but in this case the result is clear and so there is no need.
 
 ### Structure plots
 
@@ -295,14 +301,14 @@ myproj
 #>    lambda = 1
 ```
 
-The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy seperately, and also has additional parameters to estimate. For this reason we suggest that **if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only**.
+The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy separately, and also has additional parameters to estimate. For this reason we suggest that **if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only**.
 
 We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the `pb_markdown=TRUE` argument ordinarily):
 
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3, rungs = 10, pb_markdown = TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.0780724 seconds
+#>    completed in 0.0774912 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -314,7 +320,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples =
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 29.3956 seconds
+#>    completed in 28.4619 seconds
 #> 
 #> Running MCMC for K = 3
 #> Burn-in phase
@@ -326,7 +332,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples =
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 32.0255 seconds
+#>    completed in 31.6759 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
@@ -338,7 +344,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples =
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 36.6833 seconds
+#>    completed in 36.9242 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
@@ -350,7 +356,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples =
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 38.5665 seconds
+#>    completed in 38.4851 seconds
 #> 
 #> Processing results
 ```
@@ -363,7 +369,7 @@ plot_alpha(myproj, K = 3)
 
 ![](R_ignore/images/README-unnamed-chunk-21-1.png)
 
-The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~20), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the adxmiture model is essentially converging on this simpler model.
+The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~20), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the admixture model is essentially converging on this simpler model.
 
 As before, we need to check that our GTI path is smooth and straight **for all values of K**:
 

@@ -6,7 +6,8 @@
 \usage{
 bind_data(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL,
   data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL,
-  missing_data = -9, name = NULL, check_delete_output = TRUE)
+  missing_data = -9, wide_format = FALSE, name = NULL,
+  check_delete_output = TRUE)
 }
 \arguments{
 \item{project}{an rmaverick project, as produced by the function 
@@ -38,6 +39,11 @@ be a scalar, in which case the same value is used for all samples, or a
 vector specifying the ploidy seperately for each sample.}
 
 \item{missing_data}{which value represents missing data}
+
+\item{wide_format}{if \code{TRUE} then uses one line per sample, with loci
+stacked side-by-side in columns. When using this format the ploidy must be
+the same for all samples, and must be specified using the \code{ploidy}
+variable rather than as a seperate column}
 
 \item{name}{optional name of the data set, to aid in record keeping}
 

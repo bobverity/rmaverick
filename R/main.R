@@ -43,13 +43,17 @@ NULL
 #'   be a scalar, in which case the same value is used for all samples, or a 
 #'   vector specifying the ploidy seperately for each sample.
 #' @param missing_data which value represents missing data
+#' @param wide_format if \code{TRUE} then uses one line per sample, with loci
+#'   stacked side-by-side in columns. When using this format the ploidy must be
+#'   the same for all samples, and must be specified using the \code{ploidy}
+#'   variable rather than as a seperate column
 #' @param name optional name of the data set, to aid in record keeping
 #' @param check_delete_output whether to prompt the user before overwriting 
 #'   existing data
 #'
 #' @export
 
-bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, name = NULL, check_delete_output = TRUE) {
+bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE, name = NULL, check_delete_output = TRUE) {
   
   # check before overwriting existing output
   if (project$active_set>0 & check_delete_output) {
@@ -64,7 +68,7 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
   }
   
   # process and perform checks on data
-  dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data)
+  dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format)
   dat_proc$name <- name
   
   # add data to project
@@ -78,19 +82,52 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
 # process data
 # (not exported)
 #' @noRd
-process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
+process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format) {
   
-  # checks on input
+  # check inputs
   assert_dataframe(df)
   assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
+  
+  # process differently in wide vs. long format
+  if (wide_format) {
+    ret <- process_data_wide(df = df,
+                             ID_col = ID_col,
+                             pop_col = pop_col,
+                             ploidy_col = ploidy_col,
+                             data_cols = data_cols,
+                             ID = ID,
+                             pop = pop,
+                             ploidy = ploidy,
+                             missing_data = missing_data)
+  } else {
+    ret <- process_data_long(df = df,
+                             ID_col = ID_col,
+                             pop_col = pop_col,
+                             ploidy_col = ploidy_col,
+                             data_cols = data_cols,
+                             ID = ID,
+                             pop = pop,
+                             ploidy = ploidy,
+                             missing_data = missing_data)
+  }
+  
+  return(ret)
+}
+
+#------------------------------------------------
+# process data in long format
+# (not exported)
+#' @noRd
+process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
   
   # get ploidy in final form
   if (is.null(ploidy_col)) {
     if (is.null(ploidy)) {
       message("using default value of ploidy = 1")
+      ploidy <- 1
     }
-    if (length(ploidy)==1) {
-      assert_that((nrow(df)%%ploidy)==0)
+    if (length(ploidy) == 1) {
+      assert_that((nrow(df)%%ploidy) == 0)
       ploidy <- rep(ploidy, nrow(df)/ploidy)
     }
   } else {
@@ -99,13 +136,13 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
     ploidy_raw <- df[,ploidy_col]
     ploidy <- NULL
     i <- 1
-    while (i<=nrow(df)) {
+    while (i <= nrow(df)) {
       ploidy <- c(ploidy, ploidy_raw[i])
       i <- i + ploidy_raw[i]
     }
   }
   assert_pos_int(ploidy)
-  assert_that(nrow(df)==sum(ploidy))
+  assert_that(nrow(df) == sum(ploidy))
   ind_first_row <- cumsum(ploidy) - ploidy + 1
   n <- length(ploidy)
   
@@ -161,6 +198,66 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
               ind_first_row = ind_first_row,
               pop = pop,
               ploidy = ploidy)
+  
+  return(ret)
+}
+
+#------------------------------------------------
+# process data in wide format
+# (not exported)
+#' @noRd
+process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
+  
+  # check inputs
+  assert_null(ploidy_col)
+  assert_non_null(ploidy)
+  assert_scalar_pos_int(ploidy)
+  
+  # get genetic data columns
+  if (is.null(data_cols)) {
+    data_cols <- setdiff(1:ncol(df), c(ID_col, pop_col, ploidy_col))
+  }
+  assert_pos_int(data_cols, zero_allowed = FALSE)
+  assert_leq(data_cols, ncol(df))
+  assert_noduplicates(data_cols)
+  
+  # check ploidy compatible with data dimensions
+  assert_that((length(data_cols)%%ploidy) == 0)
+  
+  # get genetic data into long format
+  dat <- as.matrix(df[,data_cols,drop = FALSE])
+  n <- nrow(dat)
+  L <- ncol(dat)/ploidy
+  tmp <- apply(dat, 1, function(x){matrix(x, ncol = ploidy, byrow = TRUE)})
+  dat_long <- matrix(tmp, ncol = L, byrow = TRUE)
+  
+  # add meta-data columns back in
+  if (is.null(ID_col)) {
+    ID <- define_default(ID, paste0("sample", 1:n))
+  } else {
+    assert_scalar_pos_int(ID_col, zero_allowed = FALSE)
+    assert_leq(ID_col, ncol(df))
+    ID <- df[, ID_col]
+  }
+  assert_length(ID,n)
+  df_out <- data.frame(ID = rep(ID, each = ploidy), stringsAsFactors = FALSE)
+  if (!is.null(pop_col)) {
+    assert_scalar_pos_int(pop_col, zero_allowed = FALSE)
+    assert_leq(pop_col, ncol(df))
+    df_out <- cbind(df_out, pop = rep(df[,pop_col], each = ploidy))
+  }
+  df_out <- cbind(df_out, dat_long)
+  
+  # now can process data in long format
+  ret <- process_data_long(df = df_out,
+                           ID_col = ID_col,
+                           pop_col = pop_col,
+                           ploidy_col = ploidy_col,
+                           data_cols = NULL,
+                           ID = ID,
+                           pop = pop,
+                           ploidy = ploidy,
+                           missing_data = missing_data)
   
   return(ret)
 }
