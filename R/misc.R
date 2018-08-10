@@ -1,5 +1,23 @@
 
 #------------------------------------------------
+# assert x is class mavproject
+assert_mavproject <- function(x, message = "%s must be of class 'mavproject'", name = deparse(substitute(x))) {
+  if (!is.mavproject(x)) {
+    stop(sprintf(message, name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
+# assert x is class cluster
+assert_cluster <- function(x, message = "%s must be of class 'cluster'", name = deparse(substitute(x))) {
+  if (!is.cluster(x)) {
+    stop(sprintf(message, name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
 #' @title Import file
 #'
 #' @description Import file from the inst/extdata folder of this package

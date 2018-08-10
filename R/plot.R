@@ -102,11 +102,11 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   assert_in(axis_type, 1:3)
-  assert_scalar_logical(connect_points)
-  assert_scalar_logical(connect_whiskers)
+  assert_single_logical(connect_points)
+  assert_single_logical(connect_whiskers)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -222,7 +222,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   if (!is.null(K)) {
     assert_pos_int(K)
   }
-  assert_scalar_logical(divide_ind_on)
+  assert_single_logical(divide_ind_on)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -360,7 +360,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   assert_in(axis_type, 1:2)
   
@@ -687,10 +687,10 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   if (!is.null(rung)) {
-    assert_scalar_pos_int(rung)
+    assert_single_pos_int(rung)
   }
   assert_in(param, c("alpha", "loglike"))
   
@@ -787,10 +787,10 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   if (!is.null(rung)) {
-    assert_scalar_pos_int(rung)
+    assert_single_pos_int(rung)
   }
   assert_in(param, c("alpha", "loglike"))
   
@@ -889,10 +889,10 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
   # check inputs
   assert_mavproject(proj)
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   if (!is.null(rung)) {
-    assert_scalar_pos_int(rung)
+    assert_single_pos_int(rung)
   }
   assert_in(param, c("alpha", "loglike"))
   

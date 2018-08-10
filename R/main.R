@@ -3,7 +3,6 @@
 # The following commands ensure that package dependencies are listed in the NAMESPACE file.
 
 #' @useDynLib rmaverick
-#' @import assertthat
 #' @import parallel
 #' @import coda
 #' @import ggplot2
@@ -127,11 +126,11 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
       ploidy <- 1
     }
     if (length(ploidy) == 1) {
-      assert_that((nrow(df)%%ploidy) == 0)
+      assert_eq((nrow(df)%%ploidy), 0)
       ploidy <- rep(ploidy, nrow(df)/ploidy)
     }
   } else {
-    assert_scalar_pos_int(ploidy_col, zero_allowed = FALSE)
+    assert_single_pos_int(ploidy_col, zero_allowed = FALSE)
     assert_leq(ploidy_col, ncol(df))
     ploidy_raw <- df[,ploidy_col]
     ploidy <- NULL
@@ -142,7 +141,7 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
     }
   }
   assert_pos_int(ploidy)
-  assert_that(nrow(df) == sum(ploidy))
+  assert_nrow(df, sum(ploidy))
   ind_first_row <- cumsum(ploidy) - ploidy + 1
   n <- length(ploidy)
   
@@ -150,7 +149,7 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
   if (is.null(ID_col)) {
     ID <- define_default(ID, paste0("sample", 1:n))
   } else {
-    assert_scalar_pos_int(ID_col, zero_allowed = FALSE)
+    assert_single_pos_int(ID_col, zero_allowed = FALSE)
     assert_leq(ID_col, ncol(df))
     ID <- df[ind_first_row, ID_col]
   }
@@ -160,7 +159,7 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
   if (is.null(pop_col)) {
     pop <- define_default(pop, rep(1,n))
   } else {
-    assert_scalar_pos_int(pop_col, zero_allowed = FALSE)
+    assert_single_pos_int(pop_col, zero_allowed = FALSE)
     assert_leq(pop_col, ncol(df))
     pop <- df[ind_first_row,pop_col]
   }
@@ -177,10 +176,8 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
   
   dat <- as.matrix(df[,data_cols,drop = FALSE])
   L <- ncol(dat)
-  assert_that(n>0)
-  assert_that(L>0)
-  assert_that(all(apply(dat, 1, is.numeric)))
-  dat[dat==missing_data] <- NA
+  apply(dat, 1, assert_numeric)
+  dat[dat == missing_data] <- NA
   
   # recode to remove redundancy
   Jl <- rep(NA, L)
@@ -211,7 +208,7 @@ process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
   # check inputs
   assert_null(ploidy_col)
   assert_non_null(ploidy)
-  assert_scalar_pos_int(ploidy)
+  assert_single_pos_int(ploidy)
   
   # get genetic data columns
   if (is.null(data_cols)) {
@@ -222,7 +219,7 @@ process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
   assert_noduplicates(data_cols)
   
   # check ploidy compatible with data dimensions
-  assert_that((length(data_cols)%%ploidy) == 0)
+  assert_eq((length(data_cols)%%ploidy), 0)
   
   # get genetic data into long format
   dat <- as.matrix(df[,data_cols,drop = FALSE])
@@ -235,14 +232,14 @@ process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
   if (is.null(ID_col)) {
     ID <- define_default(ID, paste0("sample", 1:n))
   } else {
-    assert_scalar_pos_int(ID_col, zero_allowed = FALSE)
+    assert_single_pos_int(ID_col, zero_allowed = FALSE)
     assert_leq(ID_col, ncol(df))
     ID <- df[, ID_col]
   }
   assert_length(ID,n)
   df_out <- data.frame(ID = rep(ID, each = ploidy), stringsAsFactors = FALSE)
   if (!is.null(pop_col)) {
-    assert_scalar_pos_int(pop_col, zero_allowed = FALSE)
+    assert_single_pos_int(pop_col, zero_allowed = FALSE)
     assert_leq(pop_col, ncol(df))
     df_out <- cbind(df_out, pop = rep(df[,pop_col], each = ploidy))
   }
@@ -289,11 +286,11 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
   
   # check inputs
   assert_mavproject(project)
-  assert_character(name)
-  assert_scalar_pos(lambda)
-  assert_scalar_logical(admix_on)
-  assert_scalar_pos(alpha)
-  assert_scalar_logical(estimate_alpha)
+  assert_string(name)
+  assert_single_pos(lambda)
+  assert_single_logical(admix_on)
+  assert_single_pos(alpha)
+  assert_single_logical(estimate_alpha)
   
   # count current parameter sets and add one
   s <- length(project$parameter_sets) + 1
@@ -358,13 +355,13 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # check inputs
   assert_mavproject(project)
-  assert_scalar_logical(check_delete_output)
+  assert_single_logical(check_delete_output)
   
   # set index to active_set by default
   set <- define_default(set, project$active_set)
   
   # further checks
-  assert_scalar_pos_int(set, zero_allowed = FALSE)
+  assert_single_pos_int(set, zero_allowed = FALSE)
   assert_leq(set, length(project$parameter_sets))
   
   # check before overwriting existing output
@@ -444,20 +441,20 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   # check inputs
   assert_mavproject(project)
   assert_pos_int(K, zero_allowed = FALSE)
-  assert_scalar_pos_int(burnin, zero_allowed = FALSE)
-  assert_scalar_pos_int(samples, zero_allowed = FALSE)
-  assert_scalar_pos_int(rungs, zero_allowed = FALSE)
-  assert_scalar_pos(GTI_pow)
+  assert_single_pos_int(burnin, zero_allowed = FALSE)
+  assert_single_pos_int(samples, zero_allowed = FALSE)
+  assert_single_pos_int(rungs, zero_allowed = FALSE)
+  assert_single_pos(GTI_pow)
   assert_gr(GTI_pow, 1.1)
-  assert_scalar_logical(auto_converge)
-  assert_scalar_pos_int(converge_test, zero_allowed = FALSE)
-  assert_scalar_logical(solve_label_switching_on)
-  assert_scalar_logical(coupling_on)
+  assert_single_logical(auto_converge)
+  assert_single_pos_int(converge_test, zero_allowed = FALSE)
+  assert_single_logical(solve_label_switching_on)
+  assert_single_logical(coupling_on)
   if (!is.null(cluster)) {
     assert_cluster(cluster)
   }
-  assert_scalar_logical(pb_markdown)
-  assert_scalar_logical(silent)
+  assert_single_logical(pb_markdown)
+  assert_single_logical(silent)
   
   # get active set
   s <- project$active_set
