@@ -9,24 +9,23 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This vignette demonstrates how to run *rmaverick* in parallel, making use of multiple cores if they are available.
+This vignette demonstrates how to run *rmaverick* in parallel, making use of multiple cores if they are available. Each explored value of K can be run on a separate core, often leading to a significant speedup.
 
 ```{r, echo=FALSE}
 set.seed(1)
 library(rmaverick)
 ```
 
-Install and load the "parallel" package
+First, we must install and load the "parallel" package:
 
 ```{r, eval = FALSE}
 install.packages("parallel")
 ```
-
 ```{r}
 library(parallel)
 ```
 
-Simulate some data etc.
+We will need some data to work with, so lets simulate some data and load it into a new project. We will also create a simple parameter set to work with:
 
 ```{r}
 set.seed(1)
@@ -37,29 +36,29 @@ myproj <- bind_data(myproj, mysim$data, ID_col = 1, pop_col = 2, ploidy_col = 3)
 myproj <- new_set(myproj, admix_on = FALSE)
 ```
 
-Detect cores
+Before running anything in parallel we need to know how many cores our machine has. You may know this number already, but if you don't then the parallel package has a handy function for detecting the number of cores for you:
 
 ```{r}
 cores <- detectCores()
 ```
 
-Make a cluster
+We then create a cluster object, which creates multiple copies of R running in parallel over different cores. Here we are using all available cores, but if you want to hold some back for other intensive tasks then simply use a smaller number of cores when specifying this cluster.
 
 ```{r, eval = FALSE}
 cl <- makeCluster(cores)
 ```
 
-Pass in the cluster
+We can then run the MCMC using the usual `run_mcmc()` function, this time passing in the cluster as an argument. Note that output is supressed when running in parallel:
 
 ```{r, eval = FALSE}
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, cluster = cl)
 ```
 
-Terminate the cluster
+Finally, it is good practice to shut down the workers once we are finished:
 
 ```{r, eval = FALSE}
 stopCluster(cl)
 ```
 
-
+You should find that this is considerably faster than running the MCMC without passing in the cluster object.
 
