@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Installing <em>rmaverick</em> • rmaverick</title>
+<title>Installing rmaverick • rmaverick</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Installing &lt;em&gt;rmaverick&lt;/em&gt;">
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Installing rmaverick">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -55,7 +55,7 @@
       <a href="../articles/basic_tutorial.html">Basic tutorial</a>
     </li>
     <li>
-      <a href="../articles/installation.html">Installing *rmaverick*</a>
+      <a href="../articles/installation.html">Installing rmaverick</a>
     </li>
     <li>
       <a href="../articles/parallel.html">Running in parallel</a>
@@ -75,8 +75,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Installing <em>rmaverick</em>
-</h1>
+      <h1>Installing rmaverick</h1>
                         <h4 class="author">Bob Verity</h4>
             
             <h4 class="date">2018-08-16</h4>
@@ -88,6 +87,9 @@
 
     
     
+<div id="install-rcpp" class="section level2">
+<h2 class="hasAnchor">
+<a href="#install-rcpp" class="anchor"></a>Install Rcpp</h2>
 <p><em>rmaverick</em> relies on the <a href="https://cran.r-project.org/web/packages/Rcpp/index.html">Rcpp</a> package, which requires the following OS-specific steps:</p>
 <ul>
 <li>Windows
@@ -111,15 +113,29 @@
 </ul>
 </li>
 </ul>
+</div>
+<div id="install-and-load-rmaverick" class="section level2">
+<h2 class="hasAnchor">
+<a href="#install-and-load-rmaverick" class="anchor"></a>Install and load <em>rmaverick</em>
+</h2>
 <p>Next, in R, ensure that you have the <a href="https://www.rstudio.com/products/rpackages/devtools/">devtools</a> package installed by running</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>, <span class="dt">repos=</span><span class="st">'http://cran.us.r-project.org'</span>)</code></pre></div>
 <p>Then install the <em>rmaverick</em> package directly from GitHub by running</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"bobverity/rmaverick"</span>)</code></pre></div>
 <p>Finally, we need to load the package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rmaverick)</code></pre></div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#install-rcpp">Install Rcpp</a></li>
+      <li><a href="#install-and-load-rmaverick">Install and load <em>rmaverick</em></a></li>
+      </ul>
+</div>
       </div>
 
 </div>

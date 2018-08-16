@@ -1,5 +1,5 @@
 ---
-title: "Installing *rmaverick*"
+title: "Installing rmaverick"
 author: "Bob Verity"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -8,6 +8,8 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+## Install Rcpp
 
 *rmaverick* relies on the [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html) package, which requires the following OS-specific steps:
 
@@ -22,6 +24,8 @@ vignette: >
         ```{}
         sudo apt-get install r-base-dev texlive-full
         ```
+
+## Install and load *rmaverick*
 
 Next, in R, ensure that you have the [devtools](https://www.rstudio.com/products/rpackages/devtools/) package installed by running
 
