@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This vignette demonstrates how to run *rmaverick* in parallel using the "parallel" package.
+This vignette demonstrates how to run *rmaverick* in parallel, making use of multiple cores if they are available.
 
 ```{r, echo=FALSE}
 set.seed(1)
@@ -45,19 +45,19 @@ cores <- detectCores()
 
 Make a cluster
 
-```{r}
+```{r, eval = FALSE}
 cl <- makeCluster(cores)
 ```
 
 Pass in the cluster
 
-```{r}
+```{r, eval = FALSE}
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, cluster = cl)
 ```
 
 Terminate the cluster
 
-```{r}
+```{r, eval = FALSE}
 stopCluster(cl)
 ```
 
