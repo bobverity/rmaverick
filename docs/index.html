@@ -204,7 +204,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <p>Now we are ready to run a basic MCMC. We will start by exploring values of K from 1 to 5, using 1000 burn-in iterations and 1000 sampling iterations. By default the MCMC has <code>auto_converge</code> turned on, meaning it will test for convergence every <code>convergence_test</code> iterations and will exit if convergence is reached (<code>convergence_test = burnin/10</code> by default). Hence, it is generally a good idea to set <code>burnin</code> to be higher than expected, as the MCMC will adjust this number down if needed. The number of sampling iterations can also be tuned. Our aim when choosing the number of sampling iterations should be to obtain enough samples that our posterior estimates are accurate to an acceptable tolerance level, but not so many that we waste time running the MCMC for long periods past this point. We will look into this parameter again once the MCMC has completed. The most unfamiliar parameter for most users will be the number of “rungs”. <em>rmaverick</em> runs multiple MCMC chains simultaneously, each at a different rung on a “temperature ladder”. The cold chain is our ordinary MCMC chain, and the hot chains serve two purposes: 1) they improve MCMC mixing, 2) they are central to the GTI method of estimating the evidence for different models. Finally, for the sake of this document we will run with <code>pb_markdown = TRUE</code> to avoid printing large amounts of output, but you should run without this argument.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e3</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)
 <span class="co">#&gt; Calculating exact solution for K = 1</span>
-<span class="co">#&gt;    completed in 0.00227136 seconds</span>
+<span class="co">#&gt;    completed in 0.00194684 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 2</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -216,7 +216,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 0.85542 seconds</span>
+<span class="co">#&gt;    completed in 0.814805 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 3</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -228,7 +228,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.06065 seconds</span>
+<span class="co">#&gt;    completed in 1.0226 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 4</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -240,7 +240,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.46759 seconds</span>
+<span class="co">#&gt;    completed in 1.41862 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Running MCMC for K = 5</span>
 <span class="co">#&gt; Burn-in phase</span>
@@ -252,7 +252,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.63939 seconds</span>
+<span class="co">#&gt;    completed in 1.56869 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Processing results</span></code></pre></div>
 <p>Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case, for example if one value of K had failed to converge, then we could use the same <code><a href="reference/run_mcmc.html">run_mcmc()</a></code> function to re-run the MCMC for just a single value of K and with a longer maximum burn-in. This will overwrite the existing output for the specified value of K, but will leave all other values untouched:</p>
@@ -267,7 +267,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <span class="co">#&gt; </span>
   |<span class="st">                                                                       </span>
 <span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 0.807548 seconds</span>
+<span class="co">#&gt;    completed in 0.793446 seconds</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Processing results</span></code></pre></div>
 </div>
@@ -296,110 +296,6 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/bind_da
 <p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-18-1.png" width="768"></p>
 <p>We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at <code>mysim$group</code>, although obviously this is not possible for real data.</p>
 <p>When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, but ideally this should also be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - <strong>the model used by rmaverick and similar programs is just a cartoon of reality, and there is no strict K in the real world</strong>. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that fit the data well, it is just a guide and should be taken alongside other biological considerations.</p>
-</div>
-<div id="admixture-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#admixture-model" class="anchor"></a>Admixture model</h3>
-<p>We will also run the simulated data through the admixture model, partly to explore how this model differs in implementation from the simpler no-admixture model, and partly to test whether <em>rmaverick</em> can detect that this model is poorly supported based on the model evidence.</p>
-<p>We start by creating a new parameter set, this time under the admixture model with the parameter <em>alpha</em> free to be estimated by the MCMC. <em>Alpha</em> controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple populations, and arriving back at the no-admixture model when it equals zero.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/new_set.html">new_set</a></span>(myproj, <span class="dt">name =</span> <span class="st">"incorrect model (admixture)"</span>, <span class="dt">admix_on =</span> <span class="ot">TRUE</span>, <span class="dt">estimate_alpha =</span> <span class="ot">TRUE</span>)
-myproj
-<span class="co">#&gt; DATA:</span>
-<span class="co">#&gt;    individuals = 100</span>
-<span class="co">#&gt;    loci = 20</span>
-<span class="co">#&gt;    ploidy = 2</span>
-<span class="co">#&gt;    pops = 3</span>
-<span class="co">#&gt;    missing data = 0 of 4000 gene copies (0%)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; PARAMETER SETS:</span>
-<span class="co">#&gt;    SET1: correct model (no admixture)</span>
-<span class="co">#&gt;  * SET2: incorrect model (admixture)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; ACTIVE SET: SET2</span>
-<span class="co">#&gt;    model = admixture</span>
-<span class="co">#&gt;    estimate alpha = TRUE</span>
-<span class="co">#&gt;    lambda = 1</span></code></pre></div>
-<p>The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy separately, and also has additional parameters to estimate. For this reason we suggest that <strong>if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only</strong>.</p>
-<p>We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the <code>pb_markdown = TRUE</code> argument ordinarily.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e2</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">2e1</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span> <span class="ot">TRUE</span>)
-<span class="co">#&gt; Calculating exact solution for K = 1</span>
-<span class="co">#&gt;    completed in 0.0701126 seconds</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Running MCMC for K = 2</span>
-<span class="co">#&gt; Burn-in phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    converged within 100 iterations</span>
-<span class="co">#&gt; Sampling phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.73459 seconds</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Running MCMC for K = 3</span>
-<span class="co">#&gt; Burn-in phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    Warning: convergence still not reached within 100 iterations</span>
-<span class="co">#&gt; Sampling phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 1.94154 seconds</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Running MCMC for K = 4</span>
-<span class="co">#&gt; Burn-in phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    Warning: convergence still not reached within 100 iterations</span>
-<span class="co">#&gt; Sampling phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 2.16128 seconds</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Running MCMC for K = 5</span>
-<span class="co">#&gt; Burn-in phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    Warning: convergence still not reached within 100 iterations</span>
-<span class="co">#&gt; Sampling phase</span>
-<span class="co">#&gt; </span>
-  |<span class="st">                                                                       </span>
-<span class="st">  </span><span class="er">|=================================================================|</span><span class="st"> </span><span class="dv">100</span>%
-<span class="co">#&gt;    completed in 2.35855 seconds</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Processing results</span></code></pre></div>
-<p>As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter <em>alpha</em> to check. We can produce a summary plot of this parameter as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_alpha.html">plot_alpha</a></span>(myproj, <span class="dt">K =</span> <span class="dv">3</span>)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-21-1.png" width="700"></p>
-<p>The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~20 draws), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the admixture model is essentially converging on this simpler model.</p>
-<p>As before, we need to check that our GTI path is smooth and straight <strong>for all values of K</strong>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_GTI_path.html">plot_GTI_path</a></span>(myproj, <span class="dt">K =</span> <span class="dv">3</span>)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-22-1.png" width="700"></p>
-<p>Assuming we are happy with these paths, we can visualise the evidence for each value of K in log space and linear space:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_logevidence_K.html">plot_logevidence_K</a></span>(myproj)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-23-1.png" width="700"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_posterior_K.html">plot_posterior_K</a></span>(myproj)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-23-2.png" width="700"></p>
-<p>Again, there is clear evidence for K=3 under this model, despite the fact that this model is technically incorrect for the simulated data.</p>
-<p>Producing posterior allocation plots for a range of values of K we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_qmatrix.html">plot_qmatrix</a></span>(myproj, <span class="dt">K =</span> <span class="dv">2</span>:<span class="dv">5</span>, <span class="dt">divide_ind_on =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-24-1.png" width="768"></p>
-</div>
-<div id="comparing-evolutionary-models" class="section level3">
-<h3 class="hasAnchor">
-<a href="#comparing-evolutionary-models" class="anchor"></a>Comparing evolutionary models</h3>
-<p>Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of K under that model. We can plot the overall model evidence in log space using the <code><a href="reference/plot_logevidence_model.html">plot_logevidence_model()</a></code> function, and in the form of a posterior distribution using the <code><a href="reference/plot_posterior_model.html">plot_posterior_model()</a></code> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_logevidence_model.html">plot_logevidence_model</a></span>(myproj)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-25-1.png" width="384"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/plot_posterior_model.html">plot_posterior_model</a></span>(myproj)</code></pre></div>
-<p><img src="../../../My%20Programs/Estimating%20K/rmaverick/R_ignore/images/README-unnamed-chunk-25-2.png" width="384"></p>
-<p>It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. We can also conclude that whatever admixture is present in the data is minimal, which should be taken alongside other biological considerations.</p>
 </div>
 </div>
 </div>

@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## Install Rcpp
+### Installing Rcpp
 
 *rmaverick* relies on the [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html) package, which requires the following OS-specific steps:
 
@@ -25,7 +25,7 @@ vignette: >
         sudo apt-get install r-base-dev texlive-full
         ```
 
-## Install and load *rmaverick*
+### Installing and loading *rmaverick*
 
 Next, in R, ensure that you have the [devtools](https://www.rstudio.com/products/rpackages/devtools/) package installed by running
 
