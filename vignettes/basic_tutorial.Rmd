@@ -32,7 +32,7 @@ names(mysim)
 
 As well as the raw data, we have a record of the allele frequencies, admixture frequencies and grouping that were used in generating these data. These additional records can be useful in ground-truthing our estimated values later on, but are not actually used by the program.
 
-All that is needed for *rmaverick* analysis is the "data" element, which is in `data.frame` format. If using real data, any function that reads in a values in `data.frame` format can be used - for example the `read.csv()` and `read.table()` functions. Running `head(mysim$data)` we can see the general data format required by *rmaverick*:
+All that is needed for *rmaverick* analysis is the "data" element, which is in dataframe format. If using real data, any function that reads in a values in a dataframe can be used - for example the `read.csv()` and `read.table()` functions. Running `head(mysim$data)` we can see the general data format required by *rmaverick*:
 
 ```{r}
 head(mysim$data)
@@ -82,10 +82,10 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 ```
 
-Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. All other values of K converged within the specified burn-in period. If this was not the case, for example if one value of K had failed to converge, then we could use the same `run_mcmc()` function to re-run the MCMC for just a single value of K and with a longer maximum burn-in. This will overwrite the existing output for the specified value of K, but will leave all other values untouched:
+Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. If any values of K failed to converge then we can use the same `run_mcmc()` function to re-run the MCMC for just a single value of K and with a longer maximum burn-in. This will overwrite the existing output for the specified value of K, but will leave all other values untouched:
 
 ```{r}
-myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, converge_test = 100, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
+myproj <- run_mcmc(myproj, K = 5, burnin = 1e4, converge_test = 100, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 ```
 
 ### Comparing values of K
@@ -154,7 +154,7 @@ As before, we need to check the behaviour of our MCMC. Under the admixture model
 plot_alpha(myproj, K = 3)
 ```
 
-The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~20 draws), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the admixture model is essentially converging on this simpler model.
+The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~40 draws), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the admixture model is essentially converging on this simpler model.
 
 As before, we need to check that our GTI path is smooth and straight **for all values of K**:
 
