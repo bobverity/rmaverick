@@ -157,7 +157,7 @@ Now we are ready to run a basic MCMC. We will start by exploring values of K fro
 ``` r
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.00194837 seconds
+#>    completed in 0.00220871 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -169,7 +169,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 0.824417 seconds
+#>    completed in 0.857197 seconds
 #> 
 #> Running MCMC for K = 3
 #> Burn-in phase
@@ -181,7 +181,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.03601 seconds
+#>    completed in 1.05711 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
@@ -193,7 +193,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.40492 seconds
+#>    completed in 1.52628 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
@@ -205,7 +205,7 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 1.5825 seconds
+#>    completed in 1.68748 seconds
 #> 
 #> Processing results
 ```
@@ -224,7 +224,7 @@ myproj <- run_mcmc(myproj, K = 2, burnin = 1e4, converge_test = 100, samples = 1
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 0.823243 seconds
+#>    completed in 0.855188 seconds
 #> 
 #> Processing results
 ```
@@ -308,9 +308,9 @@ The admixture model tends to take considerably longer to run than the no-admixtu
 We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the `pb_markdown = TRUE` argument ordinarily.
 
 ``` r
-myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3, rungs = 10, pb_markdown = TRUE)
+myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e2, converge_test = 100, samples = 2e1, rungs = 10, pb_markdown = TRUE)
 #> Calculating exact solution for K = 1
-#>    completed in 0.0756974 seconds
+#>    completed in 0.080149 seconds
 #> 
 #> Running MCMC for K = 2
 #> Burn-in phase
@@ -322,43 +322,43 @@ myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples =
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 26.8086 seconds
+#>    completed in 1.76001 seconds
 #> 
 #> Running MCMC for K = 3
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 100 iterations
+#>    Warning: convergence still not reached within 100 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 30.337 seconds
+#>    completed in 1.9797 seconds
 #> 
 #> Running MCMC for K = 4
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 800 iterations
+#>    Warning: convergence still not reached within 100 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 35.1778 seconds
+#>    completed in 2.13307 seconds
 #> 
 #> Running MCMC for K = 5
 #> Burn-in phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    converged within 300 iterations
+#>    Warning: convergence still not reached within 100 iterations
 #> Sampling phase
 #> 
   |                                                                       
   |=================================================================| 100%
-#>    completed in 37.1908 seconds
+#>    completed in 2.35714 seconds
 #> 
 #> Processing results
 ```

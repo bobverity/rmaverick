@@ -856,7 +856,8 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   
   # get into ggplot format
   a <- acf(v, lag.max = lag_max, plot = FALSE)
-  df <- data.frame(lag = 0:lag_max, ACF = as.vector(a$acf))
+  acf <- as.vector(a$acf)
+  df <- data.frame(lag = (1:length(acf))-1, ACF = acf)
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()

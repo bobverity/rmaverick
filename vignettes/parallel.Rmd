@@ -1,5 +1,5 @@
 ---
-title: "Running *rmaverick* in parallel"
+title: "Running in parallel"
 author: "Bob Verity"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
