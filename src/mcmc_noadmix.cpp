@@ -218,7 +218,8 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
         break;
       }
       checkpoint_i++;
-    }
+      
+    }  // end if auto_converge
     
   } // end burn-in iterations
   

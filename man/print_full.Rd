@@ -12,5 +12,8 @@ print_full(x, ...)
 \item{...}{other arguments passed to \code{print()}}
 }
 \description{
-Calling \code{print()} on an object of class mavproject results in custom output. This function therefore stands in for the base \code{print()} function, and is equivalent to running \code{print(unclass(x))}.
+Calling \code{print()} on an object of class mavproject results
+  in custom output. This function therefore stands in for the base
+  \code{print()} function, and is equivalent to running
+  \code{print(unclass(x))}.
 }

@@ -8,7 +8,6 @@
 # OS generated files #
 ######################
 .DS_Store
-
 # specific files and folders #
 ##############################
 ignore/
@@ -17,3 +16,4 @@ ignore/
 *.Rapp.history
 R/.Rd*
 .Rproj.user
+inst/doc

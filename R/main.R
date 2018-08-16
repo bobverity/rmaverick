@@ -46,7 +46,7 @@ NULL
 #'   stacked side-by-side in columns. When using this format the ploidy must be
 #'   the same for all samples, and must be specified using the \code{ploidy}
 #'   variable rather than as a seperate column
-#' @param name optional name of the data set, to aid in record keeping
+#' @param name optional name of the data set to aid in record keeping
 #' @param check_delete_output whether to prompt the user before overwriting 
 #'   existing data
 #'
@@ -54,8 +54,12 @@ NULL
 
 bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE, name = NULL, check_delete_output = TRUE) {
   
+  # check inputs
+  assert_dataframe(df)
+  assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
+  
   # check before overwriting existing output
-  if (project$active_set>0 & check_delete_output) {
+  if (project$active_set>0 && check_delete_output) {
     
     # ask before overwriting. On abort, return original project
     if (!user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")) {
@@ -67,12 +71,12 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
   }
   
   # process and perform checks on data
-  dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format)
-  dat_proc$name <- name
+  dat_processed <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format)
+  dat_processed$name <- name
   
   # add data to project
   project$data <- df
-  project$data_processed <- dat_proc
+  project$data_processed <- dat_processed
   
   return(project)
 }
@@ -82,10 +86,6 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
 # (not exported)
 #' @noRd
 process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format) {
-  
-  # check inputs
-  assert_dataframe(df)
-  assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
   
   # process differently in wide vs. long format
   if (wide_format) {
@@ -206,8 +206,8 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
 process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
   
   # check inputs
-  assert_null(ploidy_col)
-  assert_non_null(ploidy)
+  assert_null(ploidy_col, message = "ploidy_col must be null when using wide_format")
+  assert_non_null(ploidy, message = "ploidy must be specified when using wide format")
   assert_single_pos_int(ploidy)
   
   # get genetic data columns
@@ -524,7 +524,6 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   } else { # run in serial
     output_raw <- lapply(parallel_args, run_mcmc_cpp)
   }
-  
   
   #------------------------
   

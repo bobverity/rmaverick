@@ -45,7 +45,7 @@ stacked side-by-side in columns. When using this format the ploidy must be
 the same for all samples, and must be specified using the \code{ploidy}
 variable rather than as a seperate column}
 
-\item{name}{optional name of the data set, to aid in record keeping}
+\item{name}{optional name of the data set to aid in record keeping}
 
 \item{check_delete_output}{whether to prompt the user before overwriting 
 existing data}
