@@ -29,7 +29,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rmaverick</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.0.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.0.2</span>
       </span>
     </div>
 
@@ -124,6 +124,14 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"bobverity/rmaverick"</span>)</code></pre></div>
 <p>Finally, we need to load the package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rmaverick)</code></pre></div>
+<p>You can test that the package is loaded and working by running the following command, which should produce this output:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mavproject.html">mavproject</a></span>()
+myproj</code></pre></div>
+<pre><code>## DATA:
+##    (none loaded)
+## 
+## PARAMETER SETS:
+##    (none defined)</code></pre>
 </div>
   </div>
 
