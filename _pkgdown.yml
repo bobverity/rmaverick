@@ -1,6 +1,6 @@
 template:
   params:
-    bootswatch: Flatly
+    bootswatch: flatly
     
 navbar:
   title: "rmaverick"
