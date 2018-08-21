@@ -436,7 +436,7 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
 run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
   
   # start timer
-  #t0 <- Sys.time()
+  t0 <- Sys.time()
   
   # check inputs
   assert_mavproject(project)

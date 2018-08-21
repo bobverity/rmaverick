@@ -11,7 +11,7 @@ vignette: >
 
 This vignette demonstrates how to run *rmaverick* in parallel, making use of multiple cores if they are available. Each explored value of K can be run on a separate core, often leading to a significant speedup.
 
-**Note that these instructions are only exactly correct for Mac/Linux systems**. On Mac/Linux, all loaded packages are made availalbe to all cores by default by "forking", meaning every core has access to *rmaverick* functions. In Windows you must instead use the *Parallel Socket Cluster* (PSOCK), which starts out with base packages only and any additional packages must be loaded through the `clusterEvalQ()` function. See 
+**Note that these instructions apply to Mac/Linux systems**. On Mac/Linux, all loaded packages are made availalbe to all cores by default by "forking", meaning every core has access to *rmaverick* functions. In Windows you must instead use the *Parallel Socket Cluster* (PSOCK), which starts out with base packages only and any additional packages must be loaded through the `clusterEvalQ()` function.
 
 ```{r, echo=FALSE}
 set.seed(1)
