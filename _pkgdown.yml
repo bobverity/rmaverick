@@ -1,0 +1,11 @@
+template:
+  params:
+    bootswatch: Flatly
+    
+navbar:
+  title: "rmaverick"
+  left:
+    - text: "Vignettes"
+      href: articles/index.html
+    - text: "Functions"
+      href: reference/index.html

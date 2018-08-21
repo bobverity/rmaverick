@@ -25,11 +25,9 @@ install.packages("parallel")
 library(parallel)
 ```
 
-
 We will need some data to work with, so lets simulate some data and load it into a new project. We will also create a simple parameter set to work with:
 
 ```{r}
-set.seed(1)
 mysim <- sim_data(n = 50, loci = 10, K = 3, admix_on = FALSE)
 
 myproj <- mavproject()
