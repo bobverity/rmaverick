@@ -596,8 +596,8 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       
       # get ESS
       ESS <- effectiveSize(loglike_sampling)
-      ESS[ESS==0] <- samples # if no variation then assume zero autocorrelation
-      ESS[ESS>samples] <- samples # ESS cannot exceed actual number of samples taken
+      ESS[ESS == 0] <- samples # if no variation then assume zero autocorrelation
+      ESS[ESS > samples] <- samples # ESS cannot exceed actual number of samples taken
       names(ESS) <- rung_names
       
       # weight likelihood according to GTI_pow
@@ -689,12 +689,12 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   project <- recalculate_evidence(project)
   
   # end timer
-  #tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-  #if (tdiff<60) {
-  #  message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
-  #} else {
-  #  message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
-  #}
+  tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+  if (tdiff<60) {
+    message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
+  } else {
+    message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+  }
   
   # return invisibly
   invisible(project)

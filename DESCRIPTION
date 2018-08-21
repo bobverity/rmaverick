@@ -1,7 +1,7 @@
 Package: rmaverick
 Type: Package
 Title: Analysis of population structure
-Version: 1.0.2
+Version: 1.0.3
 Date: 2018-04-06
 URL: https://bobverity.github.io/rmaverick/
 Authors@R: person("Robert", "Verity", email = "r.verity@imperial.ac.uk",
@@ -11,6 +11,7 @@ Description: Carries out analysis of genetic population structure with thermodyn
 License: MIT + file LICENSE
 Imports:
     Rcpp (>= 0.12.14),
+    parallel,
     coda,
     ggplot2,
     gridExtra

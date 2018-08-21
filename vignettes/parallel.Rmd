@@ -11,6 +11,8 @@ vignette: >
 
 This vignette demonstrates how to run *rmaverick* in parallel, making use of multiple cores if they are available. Each explored value of K can be run on a separate core, often leading to a significant speedup.
 
+**Note that these instructions are only exactly correct for Mac/Linux systems**. On Mac/Linux, all loaded packages are made availalbe to all cores by default by "forking", meaning every core has access to *rmaverick* functions. In Windows you must instead use the *Parallel Socket Cluster* (PSOCK), which starts out with base packages only and any additional packages must be loaded through the `clusterEvalQ()` function. See 
+
 ```{r, echo=FALSE}
 set.seed(1)
 library(rmaverick)
@@ -20,10 +22,9 @@ First, we must install and load the "parallel" package:
 
 ```{r, eval = FALSE}
 install.packages("parallel")
-```
-```{r}
 library(parallel)
 ```
+
 
 We will need some data to work with, so lets simulate some data and load it into a new project. We will also create a simple parameter set to work with:
 
@@ -38,7 +39,7 @@ myproj <- new_set(myproj, admix_on = FALSE)
 
 Before running anything in parallel we need to know how many cores our machine has. You may know this number already, but if you don't then the parallel package has a handy function for detecting the number of cores for you:
 
-```{r}
+```{r, eval = FALSE}
 cores <- detectCores()
 ```
 
@@ -48,7 +49,7 @@ We then create a cluster object, which creates multiple copies of R running in p
 cl <- makeCluster(cores)
 ```
 
-We can then run the MCMC using the usual `run_mcmc()` function, this time passing in the cluster as an argument. Note that output is supressed when running in parallel:
+We can then run the MCMC using the usual `run_mcmc()` function, this time passing in the cluster as an argument. This causes *rmaverick* to use a `clusterApplyLB()` call rather than an ordinary `lapply()` call when submitting different values of K. Note that output is supressed when running in parallel to avoid sending print commands to multiple cores, so you will not see the usual progress bars.
 
 ```{r, eval = FALSE}
 myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, cluster = cl)

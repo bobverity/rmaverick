@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot Q-matrix of current active set — plot_qmatrix • rmaverick</title>
+<title>Produce diagnostic plots of log-likelihood — plot_loglike • rmaverick</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -28,9 +28,9 @@
 
 
 
-<meta property="og:title" content="Plot Q-matrix of current active set — plot_qmatrix" />
+<meta property="og:title" content="Produce diagnostic plots of log-likelihood — plot_loglike" />
 
-<meta property="og:description" content="Plot Q-matrix of current active set" />
+<meta property="og:description" content="Produce diagnostic plots of the log-likelihood." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -107,18 +107,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot Q-matrix of current active set</h1>
+    <h1>Produce diagnostic plots of log-likelihood</h1>
     
-    <div class="hidden name"><code>plot_qmatrix.Rd</code></div>
+    <div class="hidden name"><code>plot_loglike.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Plot Q-matrix of current active set</p>
+    <p>Produce diagnostic plots of the log-likelihood.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plot_qmatrix</span>(<span class='no'>proj</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>divide_ind_on</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_loglike</span>(<span class='no'>proj</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"black"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -133,8 +133,8 @@
       <td><p>which value of K to produce the plot for</p></td>
     </tr>
     <tr>
-      <th>divide_ind_on</th>
-      <td><p>whether to add dividing lines between bars</p></td>
+      <th>col</th>
+      <td><p>colour of the trace</p></td>
     </tr>
     </table>
     
