@@ -9,6 +9,7 @@ Authors@R: person("Robert", "Verity", email = "r.verity@imperial.ac.uk",
 Maintainer: Robert Verity <maverick.help@bobverity.com>
 Description: Carries out analysis of genetic population structure with thermodynamic integration.
 License: MIT + file LICENSE
+BugReports: https://github.com/bobverity/rmaverick/issues
 Imports:
     Rcpp (>= 0.12.14),
     parallel,

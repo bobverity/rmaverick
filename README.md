@@ -11,9 +11,5 @@ The goal of *rmaverick* is to infer population structure from genetic data. What
 
 **It is worth stating at the outset that rmaverick is designed for relatively small data sets of the order of hundreds of samples and tens to hundreds of loci. It is not designed for large-scale genomic data sets (e.g. thousands of SNPs), for which other programs are more appropriate.**
 
-Details of the package, including vignettes on installing and running the package, can be found on the [main webpage](https://bobverity.github.io/rmaverick/). The following vignettes are available:
-
-* [Installation instructions](https://bobverity.github.io/rmaverick/articles/installation.html)
-* [Basic tutorial](https://bobverity.github.io/rmaverick/articles/basic_tutorial.html)
-* [Running in parallel](https://bobverity.github.io/rmaverick/articles/parallel.html)
+Details of the package, including vignettes on installing and running the package, can be found on the [main webpage](https://bobverity.github.io/rmaverick/).
 

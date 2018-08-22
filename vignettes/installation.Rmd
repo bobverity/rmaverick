@@ -39,7 +39,9 @@ Then install the *rmaverick* package directly from GitHub by running
 devtools::install_github("bobverity/rmaverick")
 ```
 
-Finally, we need to load the package:
+If you have any problems installing, please check the [Known issues](https://bobverity.github.io/rmaverick/articles/known-issues.html) page to see if there is a known solution. If not then please [raise an issue](https://github.com/bobverity/rmaverick/issues) on github.
+
+Assuming everything installed correctly, we need to load the package:
 
 ```{r}
 library(rmaverick)

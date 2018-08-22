@@ -63,7 +63,14 @@
   <a href="../articles/known-issues.html">Known issues</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/bobverity/rmaverick">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -93,8 +100,15 @@
 <pre><code>Warning message:
 In strptime(x, fmt, tz = "GMT") :
   unknown timezone 'default/Europe/Brussels'</code></pre>
-<p><em>rmaverick</em> appears to take issue with certain timezones. This prevents various timers from working, which in turn stops the package from being installed.</p>
+<p><em>rmaverick</em> appears to take issue with certain timezones. This prevents various timers from working, which stops the package from being installed.</p>
 <p>A known solution is to use the <code>Sys.setenv()</code> function to set the timezone manually at the beginning of a script. The “Europe/Berlin” is known to work.</p>
+</div>
+<div id="make-not-found" class="section level3">
+<h3 class="hasAnchor">
+<a href="#make-not-found" class="anchor"></a>Make not found</h3>
+<pre><code>Warning in system(cmd) : 'make' not found
+ERROR: compilation failed for package 'rmaverick'</code></pre>
+<p>This can be caused by a mismatch between versions R and RTools. Make sure you have the correct version of <a href="https://cran.r-project.org/bin/windows/Rtools/">RTools</a> installed for your version of R, then restart RStudio (or whatever IDE you are using) and try again.</p>
 </div>
   </div>
 

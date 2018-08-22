@@ -21,3 +21,6 @@ navbar:
       href: articles/faq.html
     - text: "Known issues"
       href: articles/known-issues.html
+  right:
+   - icon: fa-github
+     href: https://github.com/bobverity/rmaverick

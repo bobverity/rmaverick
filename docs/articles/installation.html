@@ -63,7 +63,14 @@
   <a href="../articles/known-issues.html">Known issues</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/bobverity/rmaverick">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -122,7 +129,8 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>, <span class="dt">repos=</span><span class="st">'http://cran.us.r-project.org'</span>)</code></pre></div>
 <p>Then install the <em>rmaverick</em> package directly from GitHub by running</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"bobverity/rmaverick"</span>)</code></pre></div>
-<p>Finally, we need to load the package:</p>
+<p>If you have any problems installing, please check the <a href="https://bobverity.github.io/rmaverick/articles/known-issues.html">Known issues</a> page to see if there is a known solution. If not then please <a href="https://github.com/bobverity/rmaverick/issues">raise an issue</a> on github.</p>
+<p>Assuming everything installed correctly, we need to load the package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rmaverick)</code></pre></div>
 <p>You can test that the package is loaded and working by running the following command, which should produce this output:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mavproject.html">mavproject</a></span>()

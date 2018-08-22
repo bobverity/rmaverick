@@ -63,7 +63,14 @@
   <a href="../articles/known-issues.html">Known issues</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/bobverity/rmaverick">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -87,7 +94,7 @@
 
     
     
-<p>This vignette demonstrates how to run <em>rmaverick</em> in parallel, making use of multiple cores if they are available. Each explored value of K can be run on a separate core, often leading to a significant speedup.</p>
+<p>This vignette demonstrates how to run <em>rmaverick</em> in parallel, making use of multiple cores if they are available.</p>
 <p>First, we must install and load the “parallel” package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"parallel"</span>)
 <span class="kw">library</span>(parallel)</code></pre></div>
@@ -96,16 +103,30 @@
 
 myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mavproject.html">mavproject</a></span>()
 myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind_data.html">bind_data</a></span>(myproj, mysim$data, <span class="dt">ID_col =</span> <span class="dv">1</span>, <span class="dt">pop_col =</span> <span class="dv">2</span>, <span class="dt">ploidy_col =</span> <span class="dv">3</span>)
-myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/new_set.html">new_set</a></span>(myproj, <span class="dt">admix_on =</span> <span class="ot">FALSE</span>)</code></pre></div>
+myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/new_set.html">new_set</a></span>(myproj, <span class="dt">admix_on =</span> <span class="ot">FALSE</span>)
+myproj</code></pre></div>
+<pre><code>## DATA:
+##    individuals = 50
+##    loci = 10
+##    ploidy = 2
+##    pops = 3
+##    missing data = 0 of 1000 gene copies (0%)
+## 
+## PARAMETER SETS:
+##  * SET1: (no name)
+## 
+## ACTIVE SET: SET1
+##    model = no-admixture
+##    lambda = 1</code></pre>
 <p>Before running anything in parallel we need to know how many cores our machine has. You may know this number already, but if you don’t then the parallel package has a handy function for detecting the number of cores for you:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cores &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>()</code></pre></div>
-<p>We then create a cluster object, which creates multiple copies of R running in parallel over different cores. Here we are using all available cores, but if you want to hold some back for other intensive tasks then simply use a smaller number of cores when specifying this cluster.</p>
+<p>Next we make a cluster object, which creates multiple copies of R running in parallel over different cores. Here we are using all available cores, but if you want to hold some back for other intensive tasks then simply use a smaller number of cores when specifying this cluster.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cl &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/parallel/topics/makeCluster">makeCluster</a></span>(cores)</code></pre></div>
-<p>We can then run the MCMC using the usual <code><a href="../reference/run_mcmc.html">run_mcmc()</a></code> function, this time passing in the cluster as an argument. This causes <em>rmaverick</em> to use a <code><a href="http://www.rdocumentation.org/packages/parallel/topics/clusterApply">clusterApplyLB()</a></code> call rather than an ordinary <code>lapply()</code> call when submitting different values of K. Note that output is supressed when running in parallel to avoid sending print commands to multiple cores, so you will not see the usual progress bars.</p>
+<p>We then run the usual <code><a href="../reference/run_mcmc.html">run_mcmc()</a></code> function, this time passing in the cluster as an argument. This causes <em>rmaverick</em> to use a <code><a href="http://www.rdocumentation.org/packages/parallel/topics/clusterApply">clusterApplyLB()</a></code> call rather than an ordinary <code>lapply()</code> call over different values of K. Each value of K is added to a queue over the specified number of cores - when the first job completes, the next job is placed on the node that has become free and this continues until all jobs are complete.</p>
+<p>Note that output is supressed when running in parallel to avoid sending print commands to multiple cores, so you will not see the usual progress bars.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e3</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">cluster =</span> cl)</code></pre></div>
 <p>Finally, it is good practice to shut down the workers once we are finished:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/parallel/topics/makeCluster">stopCluster</a></span>(cl)</code></pre></div>
-<p>You should find that this is considerably faster than running the MCMC without passing in the cluster object.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
