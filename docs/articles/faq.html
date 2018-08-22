@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Installing rmaverick • rmaverick</title>
+<title>Frequently Asked Questions • rmaverick</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Installing rmaverick">
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Frequently Asked Questions">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -75,67 +75,39 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Installing rmaverick</h1>
+      <h1>Frequently Asked Questions</h1>
                         <h4 class="author">Bob Verity</h4>
             
             <h4 class="date">2018-08-22</h4>
       
       
-      <div class="hidden name"><code>installation.Rmd</code></div>
+      <div class="hidden name"><code>faq.Rmd</code></div>
 
     </div>
 
     
     
-<div id="installing-rcpp" class="section level3">
-<h3 class="hasAnchor">
-<a href="#installing-rcpp" class="anchor"></a>Installing Rcpp</h3>
-<p><em>rmaverick</em> relies on the <a href="https://cran.r-project.org/web/packages/Rcpp/index.html">Rcpp</a> package, which requires the following OS-specific steps:</p>
-<ul>
-<li>Windows
-<ul>
-<li>Download and install the appropriate version of <a href="https://cran.rstudio.com/bin/windows/Rtools/">Rtools</a> for your version of R. On installation, ensure you check the box to arrange your system PATH as recommended by Rtools</li>
-</ul>
-</li>
-<li>Mac OS X
-<ul>
-<li>Download and install <a href="http://itunes.apple.com/us/app/xcode/id497799835?mt=12">XCode</a>
-</li>
-<li>Within XCode go to Preferences : Downloads and install the Command Line Tools</li>
-</ul>
-</li>
-<li>Linux (Debian/Ubuntu)
-<ul>
-<li>
-<p>Install the core software development utilities required for R package development as well as LaTeX by executing</p>
-<pre><code>sudo apt-get install r-base-dev texlive-full</code></pre>
-</li>
-</ul>
-</li>
-</ul>
+<div id="q--what-about-correlated-allele-frequencies" class="section level2">
+<h2 class="hasAnchor">
+<a href="#q--what-about-correlated-allele-frequencies" class="anchor"></a>Q. What about correlated allele frequencies?</h2>
+<p>A. This model is not currently implemented, but may be in future versions. Note that this <em>will</em> have an impact on estimates of K. The independent allele frequencies model used by <em>rmaverick</em> assumes that what we are calling “subpopulations” tend to be quite different from each other in their genetic composition. Therefore, subtle signals of population structure may be missed, and estimates of K under the independent allele frequencies model will tend to be lower than estimates under the correlated allele frequencies model. In other words, this model can only pick up strong population structure.</p>
 </div>
-<div id="installing-and-loading-rmaverick" class="section level3">
-<h3 class="hasAnchor">
-<a href="#installing-and-loading-rmaverick" class="anchor"></a>Installing and loading <em>rmaverick</em>
-</h3>
-<p>Next, in R, ensure that you have the <a href="https://www.rstudio.com/products/rpackages/devtools/">devtools</a> package installed by running</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>, <span class="dt">repos=</span><span class="st">'http://cran.us.r-project.org'</span>)</code></pre></div>
-<p>Then install the <em>rmaverick</em> package directly from GitHub by running</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"bobverity/rmaverick"</span>)</code></pre></div>
-<p>Finally, we need to load the package:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rmaverick)</code></pre></div>
-<p>You can test that the package is loaded and working by running the following command, which should produce this output:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mavproject.html">mavproject</a></span>()
-myproj</code></pre></div>
-<pre><code>## DATA:
-##    (none loaded)
-## 
-## PARAMETER SETS:
-##    (none defined)</code></pre>
+<div id="q--what-about-spatial-priors" class="section level2">
+<h2 class="hasAnchor">
+<a href="#q--what-about-spatial-priors" class="anchor"></a>Q. What about spatial priors?</h2>
+<p>A. Spatial information is not currently utilised, but may be in future versions.</p>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#q--what-about-correlated-allele-frequencies">Q. What about correlated allele frequencies?</a></li>
+      <li><a href="#q--what-about-spatial-priors">Q. What about spatial priors?</a></li>
+      </ul>
+</div>
       </div>
 
 </div>

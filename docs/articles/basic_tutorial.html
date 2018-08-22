@@ -35,11 +35,32 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Vignettes
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/index.html">Vignettes</a>
+      <a href="../articles/installation.html">Installation</a>
+    </li>
+    <li>
+      <a href="../articles/basic_tutorial.html">Basic tutorial</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Running in parallel</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../articles/faq.html">FAQ</a>
+</li>
+<li>
+  <a href="../articles/known-issues.html">Known issues</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -57,7 +78,7 @@
       <h1>Basic tutorial</h1>
                         <h4 class="author">Bob Verity</h4>
             
-            <h4 class="date">2018-08-21</h4>
+            <h4 class="date">2018-08-22</h4>
       
       
       <div class="hidden name"><code>basic_tutorial.Rmd</code></div>
@@ -143,74 +164,62 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ##    model = no-admixture
 ##    lambda = 1</code></pre>
 <p>Now we are ready to run a basic MCMC. We will start by exploring values of K from 1 to 5, using 1000 burn-in iterations and 1000 sampling iterations. By default the MCMC has <code>auto_converge</code> turned on, meaning it will test for convergence every <code>convergence_test</code> iterations and will exit if convergence is reached (<code>convergence_test = burnin/10</code> by default). Hence, it is generally a good idea to set <code>burnin</code> to be higher than expected, as the MCMC will adjust this number down if needed. The number of sampling iterations can also be tuned. Our aim when choosing the number of sampling iterations should be to obtain enough samples that our posterior estimates are accurate to an acceptable tolerance level, but not so many that we waste time running the MCMC for long periods past this point. We will look into this parameter again once the MCMC has completed. The most unfamiliar parameter for most users will be the number of “rungs”. <em>rmaverick</em> runs multiple MCMC chains simultaneously, each at a different rung on a “temperature ladder”. The cold chain is our ordinary MCMC chain, and the hot chains serve two purposes: 1) they improve MCMC mixing, 2) they are central to the GTI method of estimating the evidence for different models. Finally, for the sake of this document we will run with <code>pb_markdown = TRUE</code> to avoid printing large amounts of output, but you should run without this argument.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e3</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#myproj &lt;- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, pb_markdown =  TRUE)</span>
+myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e1</span>, <span class="dt">samples =</span> <span class="fl">1e1</span>, <span class="dt">rungs =</span> <span class="dv">1</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Calculating exact solution for K = 1
-##    completed in 0.00366159 seconds
+##    completed in 0.000666681 seconds
 ## 
 ## Running MCMC for K = 2
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 100 iterations
+##    converged within 2 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 1.62845 seconds
+##    completed in 0.0600173 seconds
 ## 
 ## Running MCMC for K = 3
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 200 iterations
+##    converged within 2 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 2.20961 seconds
+##    completed in 0.0705169 seconds
 ## 
 ## Running MCMC for K = 4
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 400 iterations
+##    converged within 2 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 2.65916 seconds
+##    completed in 0.0913884 seconds
 ## 
 ## Running MCMC for K = 5
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    Warning: convergence still not reached within 1000 iterations
+##    converged within 2 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 3.23954 seconds
+##    completed in 0.116321 seconds
 ## 
 ## Processing results</code></pre>
 <p>Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. If any values of K failed to converge then we can use the same <code><a href="../reference/run_mcmc.html">run_mcmc()</a></code> function to re-run the MCMC for just a single value of K and with a longer maximum burn-in. This will overwrite the existing output for the specified value of K, but will leave all other values untouched:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e4</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>## Running MCMC for K = 5
-## Burn-in phase
-## 
-  |                                                                       
-  |=================================================================| 100%
-##    converged within 400 iterations
-## Sampling phase
-## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 2.66715 seconds
-## 
-## Processing results</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#myproj &lt;- run_mcmc(myproj, K = 5, burnin = 1e4, converge_test = 100, samples = 1e3, rungs = 10, pb_markdown =  TRUE)</span></code></pre></div>
 </div>
 <div id="comparing-values-of-k" class="section level3">
 <h3 class="hasAnchor">
@@ -262,57 +271,58 @@ myproj</code></pre></div>
 ##    lambda = 1</code></pre>
 <p>The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy separately, and also has additional parameters to estimate. For this reason we suggest that <strong>if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only</strong>.</p>
 <p>We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the <code>pb_markdown = TRUE</code> argument ordinarily.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e4</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">2e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#myproj &lt;- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3, rungs = 10, pb_markdown = TRUE)</span>
+myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e1</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">2e1</span>, <span class="dt">rungs =</span> <span class="dv">1</span>, <span class="dt">pb_markdown =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Calculating exact solution for K = 1
-##    completed in 0.145123 seconds
+##    completed in 0.0219217 seconds
 ## 
 ## Running MCMC for K = 2
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 400 iterations
+##    Warning: convergence still not reached within 10 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 51.7401 seconds
+##    completed in 0.171103 seconds
 ## 
 ## Running MCMC for K = 3
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 200 iterations
+##    Warning: convergence still not reached within 10 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 57.0683 seconds
+##    completed in 0.164128 seconds
 ## 
 ## Running MCMC for K = 4
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 200 iterations
+##    Warning: convergence still not reached within 10 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 83.3991 seconds
+##    completed in 0.209295 seconds
 ## 
 ## Running MCMC for K = 5
 ## Burn-in phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    converged within 400 iterations
+##    Warning: convergence still not reached within 10 iterations
 ## Sampling phase
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 79.8173 seconds
+##    completed in 0.320147 seconds
 ## 
 ## Processing results</code></pre>
 <p>As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter <em>alpha</em> to check. We can produce a summary plot of this parameter as follows:</p>

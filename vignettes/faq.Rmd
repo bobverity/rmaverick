@@ -1,0 +1,22 @@
+---
+title: "Frequently Asked Questions"
+author: "Bob Verity"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Q. What about correlated allele frequencies?
+
+A. This model is not currently implemented, but may be in future versions. Note that this *will* have an impact on estimates of K. The independent allele frequencies model used by *rmaverick* assumes that what we are calling "subpopulations" tend to be quite different from each other in their genetic composition. Therefore, subtle signals of population structure may be missed, and estimates of K under the independent allele frequencies model will tend to be lower than estimates under the correlated allele frequencies model. In other words, this model can only pick up strong population structure.
+
+## Q. What about spatial priors?
+
+A. Spatial information is not currently utilised, but may be in future versions.
+
+
+
+

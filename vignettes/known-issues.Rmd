@@ -1,0 +1,22 @@
+---
+title: "Known Issues"
+author: "Bob Verity"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Timezone warning on installation
+
+```
+Warning message:
+In strptime(x, fmt, tz = "GMT") :
+  unknown timezone 'default/Europe/Brussels'
+```
+
+*rmaverick* appears to take issue with certain timezones. This prevents various timers from working, which in turn stops the package from being installed.
+
+A known solution is to use the `Sys.setenv()` function to set the timezone manually at the beginning of a script. The "Europe/Berlin" is known to work.
