@@ -9,7 +9,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This vignette demonstrates the complete *rmaverick* analysis pipeline, including importing data, running the main MCMC, diagnosing good and bad MCMC behaviour, comparing different models, and producing basic outputs.
+This vignette demonstrates the complete *rmaverick* analysis pipeline, including:
+* importing data
+* running the main MCMC
+* diagnosing good and bad MCMC behaviour
+* comparing different models
+* producing basic outputs.
 
 ```{r, echo=FALSE}
 set.seed(1)
@@ -30,9 +35,9 @@ Running `names(mysim)` we can see that the simulated data contains several eleme
 names(mysim)
 ```
 
-As well as the raw data, we have a record of the allele frequencies, admixture frequencies and grouping that were used in generating these data. These additional records can be useful in ground-truthing our estimated values later on, but are not actually used by the program.
+The raw data is stored in the "data" element. In addition, we have a record of the allele frequencies, admixture frequencies and grouping that were used in generating these data. These additional records can be useful in ground-truthing our estimated values later on, but are not actually used by the program - all that is needed for *rmaverick* analysis is the "data" element.
 
-All that is needed for *rmaverick* analysis is the "data" element, which is in dataframe format. If using real data, any function that reads in a values in a dataframe can be used - for example the `read.csv()` and `read.table()` functions. Running `head(mysim$data)` we can see the general data format required by *rmaverick*:
+Data must be in dataframe format. When using real data, any function that reads in a values in a dataframe can be used - for example the `read.csv()` and `read.table()` functions. Running `head(mysim$data)` we can see the general data format required by *rmaverick*:
 
 ```{r}
 head(mysim$data)
@@ -127,14 +132,14 @@ plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 
 We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at `mysim$group`, although obviously this is not possible for real data.
 
-When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, but ideally this should also be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - **the model used by rmaverick and similar programs is just a cartoon of reality, and there is no strict K in the real world**. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that fit the data well, it is just a guide and should be taken alongside other biological considerations.
+When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, and ideally this should also be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - **the model used by rmaverick and similar programs is just a cartoon of reality, and there is no strict K in the real world**. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that fit the data well, it is just a guide and should be taken alongside other biological considerations.
 
 
 ### Admixture model
 
 We will also run the simulated data through the admixture model, partly to explore how this model differs in implementation from the simpler no-admixture model, and partly to test whether *rmaverick* can detect that this model is poorly supported based on the model evidence.
 
-We start by creating a new parameter set, this time under the admixture model with the parameter *alpha* free to be estimated by the MCMC. *Alpha* controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple populations, and arriving back at the no-admixture model when it equals zero.
+We start by creating a new parameter set, this time under the admixture model with the parameter *alpha* free to be estimated by the MCMC. *Alpha* controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple subpopulations, and arriving back at the no-admixture model when it equals zero.
 
 ```{r}
 myproj <- new_set(myproj, name = "incorrect model (admixture)", admix_on = TRUE, estimate_alpha = TRUE)
@@ -187,5 +192,7 @@ plot_logevidence_model(myproj)
 plot_posterior_model(myproj)
 ```
 
-It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. We can also conclude that whatever admixture is present in the data is minimal, which should be taken alongside other biological considerations.
+It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. The data suggests that whatever admixture is present is minimal, and should be taken alongside other biological considerations.
+
+At this point our basic analysis is complete, but see [this](https://bobverity.github.io/rmaverick/articles/parallel.html) vignette on how to speed up the analysis by running in parallel over multiple cores.
 
