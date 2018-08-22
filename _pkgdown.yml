@@ -1,7 +1,8 @@
 
+title: rmaverick
 template:
   params:
-bootswatch: cosmo
+    bootswatch: flatly
     
 navbar:
   title: "rmaverick"
