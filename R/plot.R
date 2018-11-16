@@ -89,7 +89,7 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
 plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points = FALSE, connect_whiskers = FALSE) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -199,7 +199,7 @@ plot.maverick_qmatrix_ind <- function(x, y, ...) {
 plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_pos_int(K)
   }
@@ -330,7 +330,7 @@ plot.maverick_GTI_path <- function(x, y, ...) {
 plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -406,7 +406,7 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
 plot_logevidence_K <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -470,7 +470,7 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
 plot_posterior_K <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -533,7 +533,7 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
 plot_logevidence_model <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # check output exists
   GTI_logevidence_model <- proj$output$all_sets$GTI_logevidence_model
@@ -592,7 +592,7 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
 plot_posterior_model <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # check output exists
   GTI_posterior_model <- proj$output$all_sets$GTI_posterior_model
@@ -625,7 +625,7 @@ plot_posterior_model <- function(proj) {
 plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -725,7 +725,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
 plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -828,7 +828,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
 plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }

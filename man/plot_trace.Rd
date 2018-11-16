@@ -4,7 +4,8 @@
 \alias{plot_trace}
 \title{Produce MCMC trace plot}
 \usage{
-plot_trace(proj, K = NULL, rung = NULL, param = "alpha", col = "black")
+plot_trace(proj, K = NULL, rung = NULL, param = "alpha",
+  col = "black")
 }
 \arguments{
 \item{proj}{an rmaverick project, as produced by the function 

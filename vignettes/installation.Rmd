@@ -50,7 +50,8 @@ library(rmaverick)
 You can test that the package is loaded and working by running the following command, which should produce this output:
 
 ```{r}
-myproj <- mavproject()
-myproj
+check_rmaverick_loaded()
 ```
+
+Now check out the [tutorials](https://bobverity.github.io/rmaverick/articles/basic_tutorial.html) on how to run analyses in *rmaverick*.
 

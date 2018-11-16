@@ -15,6 +15,18 @@
 NULL
 
 #------------------------------------------------
+#' @title Check that rmaverick package has loaded successfully
+#'
+#' @description Simple function to check that rmaverick package has loaded
+#'   successfully. Prints "rmaverick loaded successfully!" if so.
+#'
+#' @export
+
+check_rmaverick_loaded <- function() {
+  message("rmaverick loaded successfully!")
+}
+
+#------------------------------------------------
 #' @title Bind data to project
 #'   
 #' @description Load data into a \code{mavproject} prior to analysis. Data must 
@@ -54,7 +66,8 @@ NULL
 
 bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE, name = NULL, check_delete_output = TRUE) {
   
-  # check inputs
+  # check inputs (further checks carried out in process_data() function)
+  assert_custom_class(project, "mavproject")
   assert_dataframe(df)
   assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
   
@@ -83,7 +96,6 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
 
 #------------------------------------------------
 # process data
-# (not exported)
 #' @noRd
 process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format) {
   
@@ -115,7 +127,6 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
 
 #------------------------------------------------
 # process data in long format
-# (not exported)
 #' @noRd
 process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
   
@@ -201,7 +212,6 @@ process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
 
 #------------------------------------------------
 # process data in wide format
-# (not exported)
 #' @noRd
 process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
   
@@ -285,7 +295,7 @@ process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
 new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE, alpha = 0.1, estimate_alpha = TRUE) {
   
   # check inputs
-  assert_mavproject(project)
+  assert_custom_class(project, "mavproject")
   assert_string(name)
   assert_single_pos(lambda)
   assert_single_logical(admix_on)
@@ -354,7 +364,7 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
 delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # check inputs
-  assert_mavproject(project)
+  assert_custom_class(project, "mavproject")
   assert_single_logical(check_delete_output)
   
   # set index to active_set by default
@@ -400,6 +410,31 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
 }
 
 #------------------------------------------------
+#' @title Change active parameter set
+#'   
+#' @description Change the active parameter set within an rmaverick project.
+#'   
+#' @param project an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param set which set to make the new active set
+#'   
+#' @export
+
+change_set <- function(project, set) {
+  
+  # check inputs
+  assert_custom_class(project, "mavproject")
+  assert_single_pos_int(set)
+  assert_leq(set, length(project$parameter_sets))
+  
+  # change active set
+  project$active_set <- set
+  
+  # return
+  return(project)
+}
+
+#------------------------------------------------
 #' @title Run main MCMC
 #'   
 #' @description Run the main rmaverick MCMC. Model parameters are taken from the
@@ -439,7 +474,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   t0 <- Sys.time()
   
   # check inputs
-  assert_mavproject(project)
+  assert_custom_class(project, "mavproject")
   assert_pos_int(K, zero_allowed = FALSE)
   assert_single_pos_int(burnin, zero_allowed = FALSE)
   assert_single_pos_int(samples, zero_allowed = FALSE)
@@ -702,7 +737,6 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
 
 #------------------------------------------------
 # extract GTI_logevidence from all K within a given parameter set
-# (not exported)
 #' @noRd
 get_GTI_logevidence_K <- function(proj, s) {
   
@@ -736,7 +770,6 @@ get_GTI_logevidence_K <- function(proj, s) {
 
 #------------------------------------------------
 # compute posterior over several log-evidence estimates
-# (not exported)
 #' @noRd
 get_GTI_posterior <- function(x) {
   
@@ -760,7 +793,6 @@ get_GTI_posterior <- function(x) {
 
 #------------------------------------------------
 # call get_GTI_posterior over values of K
-# (not exported)
 #' @noRd
 get_GTI_posterior_K <- function(proj, s) {
   
@@ -779,7 +811,6 @@ get_GTI_posterior_K <- function(proj, s) {
 
 #------------------------------------------------
 # call get_GTI_posterior over models
-# (not exported)
 #' @noRd
 get_GTI_posterior_model <- function(proj) {
   
@@ -798,7 +829,6 @@ get_GTI_posterior_model <- function(proj) {
 
 #------------------------------------------------
 # integrate multiple log-evidence estimates by simulation
-# (not exported)
 #' @noRd
 integrate_GTI_logevidence <- function(x) {
   
@@ -820,7 +850,6 @@ integrate_GTI_logevidence <- function(x) {
 
 #------------------------------------------------
 # log-evidence estimates over K
-# (not exported)
 #' @noRd
 integrate_GTI_logevidence_K <- function(proj, s) {
   
@@ -837,8 +866,7 @@ integrate_GTI_logevidence_K <- function(proj, s) {
 }
 
 #------------------------------------------------
-# align qmatrices
-# (not exported)
+# align qmatrices over all K
 #' @noRd
 align_qmatrix <- function(proj) {
   
@@ -895,34 +923,62 @@ align_qmatrix <- function(proj) {
 #'
 #' @description When a new value of K is added in to the analysis it affects all downstream evidence estimates that depend on this K - for example the overall model evidence integrated over K. This function therefore looks through all values of K in the active set and recalculates all downstream elements as needed.
 #'
-#' @param project an rmaverick project, as produced by the function 
+#' @param proj an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' 
 #' @export
 
-recalculate_evidence <- function(project) {
+recalculate_evidence <- function(proj) {
   
   # check inputs
-  assert_mavproject(project)
+  assert_custom_class(proj, "mavproject")
   
   # get active set
-  s <- project$active_set
-  if (s==0) {
+  s <- proj$active_set
+  if (s == 0) {
     stop("no active parameter set")
   }
   
   # get log-evidence over all K and load into project
-  project <- get_GTI_logevidence_K(project, s)
+  proj <- get_GTI_logevidence_K(proj, s)
   
   # produce posterior estimates of K by simulation and load into project
-  project <- get_GTI_posterior_K(project, s)
+  proj <- get_GTI_posterior_K(proj, s)
   
   # get log-evidence over all parameter sets
-  project <- integrate_GTI_logevidence_K(project, s)
+  proj <- integrate_GTI_logevidence_K(proj, s)
   
   # get posterior over all parameter sets
-  project <- get_GTI_posterior_model(project)
+  proj <- get_GTI_posterior_model(proj)
   
   # return modified project
-  return(project)
+  return(proj)
+}
+
+#------------------------------------------------
+#' @title Extract q-matrix for a given analysis
+#'
+#' @description Simple function for extracting the q-matrix output from a given
+#'   parameter set (defaults to the active set) and value of K.
+#'
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to extract
+#' @param s which set to extract from. Defaults to the current active set
+#'
+#' @export
+
+get_qmatrix <- function(proj, K, s = NULL) {
+  
+  # check inputs
+  assert_custom_class(proj, "mavproject")
+  
+  # default to active set
+  s <- define_default(s, proj$active_set)
+  if (s == 0) {
+    stop("no active parameter set")
+  }
+  
+  # return q-matrix
+  return(proj$output$single_set[[s]]$single_K[[K]]$summary$qmatrix_ind)
 }

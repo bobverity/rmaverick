@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Produce diagnostic plots of parameter alpha — plot_alpha • rmaverick</title>
+<title>Change active parameter set — change_set • rmaverick</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Produce diagnostic plots of parameter alpha — plot_alpha" />
+<meta property="og:title" content="Change active parameter set — change_set" />
 
-<meta property="og:description" content="Produce diagnostic plots of parameter alpha" />
+<meta property="og:description" content="Change the active parameter set within an rmaverick project." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -115,34 +115,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Produce diagnostic plots of parameter alpha</h1>
+    <h1>Change active parameter set</h1>
     
-    <div class="hidden name"><code>plot_alpha.Rd</code></div>
+    <div class="hidden name"><code>change_set.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Produce diagnostic plots of parameter alpha</p>
+    <p>Change the active parameter set within an rmaverick project.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plot_alpha</span>(<span class='no'>proj</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"black"</span>)</pre>
+    <pre class="usage"><span class='fu'>change_set</span>(<span class='no'>project</span>, <span class='no'>set</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>proj</th>
+      <th>project</th>
       <td><p>an rmaverick project, as produced by the function 
 <code><a href='mavproject.html'>mavproject()</a></code></p></td>
     </tr>
     <tr>
-      <th>K</th>
-      <td><p>which value of K to produce the plot for</p></td>
-    </tr>
-    <tr>
-      <th>col</th>
-      <td><p>colour of the trace</p></td>
+      <th>set</th>
+      <td><p>which set to make the new active set</p></td>
     </tr>
     </table>
     

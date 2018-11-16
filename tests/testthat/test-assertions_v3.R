@@ -1,4 +1,4 @@
-context("assertions_v1")
+context("assertions_v3")
 
 #------------------------------------------------
 test_that("nice_format working correctly", {
@@ -20,6 +20,33 @@ test_that("assert_non_null working correctly", {
   expect_true(assert_non_null(5))
   
   expect_error(assert_non_null(NULL))
+})
+
+#------------------------------------------------
+test_that("assert_atomic correctly", {
+  expect_true(assert_atomic(TRUE))
+  expect_true(assert_atomic(1))
+  expect_true(assert_atomic(seq(0,5,0.5)))
+  expect_true(assert_atomic(0i))
+  expect_true(assert_atomic("foo"))
+  expect_true(assert_atomic(raw(8)))
+  expect_true(assert_atomic(matrix(0,3,3)))
+  
+  expect_error(assert_atomic(list(1:5)))
+  expect_error(assert_atomic(data.frame(1:5)))
+})
+
+#------------------------------------------------
+test_that("assert_single correctly", {
+  expect_true(assert_single(TRUE))
+  expect_true(assert_single(1))
+  expect_true(assert_single("foo"))
+
+  expect_error(assert_single(NULL))
+  expect_error(assert_single(1:5))
+  expect_error(assert_single(list(0)))
+  expect_error(assert_single(matrix(0,3,3)))
+  expect_error(assert_single(data.frame(0)))
 })
 
 #------------------------------------------------
@@ -87,7 +114,9 @@ test_that("assert_single_numeric working correctly", {
 #------------------------------------------------
 test_that("assert_int working correctly", {
   expect_true(assert_int(5))
+  expect_true(assert_int(-5))
   expect_true(assert_int(-5:5))
+  expect_true(assert_int(c(a = 5)))
   
   expect_error(assert_int(NULL))
   expect_error(assert_int(0.5))
@@ -98,6 +127,7 @@ test_that("assert_int working correctly", {
 #------------------------------------------------
 test_that("assert_single_int working correctly", {
   expect_true(assert_single_int(5))
+  expect_true(assert_single_int(-5))
   
   expect_error(assert_single_int(-5:5))
   expect_error(assert_single_int(NULL))
@@ -165,6 +195,17 @@ test_that("assert_single_pos_int working correctly", {
 })
 
 #------------------------------------------------
+test_that("assert_vector working correctly", {
+  expect_true(assert_vector(1))
+  expect_true(assert_vector(1:5))
+  
+  expect_error(assert_vector(NULL))
+  expect_error(assert_vector(matrix(5,3,3)))
+  expect_error(assert_vector(list(1:5, 1:10)))
+  expect_error(assert_vector(data.frame(1:5, 2:6)))
+})
+
+#------------------------------------------------
 test_that("assert_matrix working correctly", {
   expect_true(assert_matrix(matrix(NA,1,1)))
   expect_true(assert_matrix(matrix(5,3,3)))
@@ -199,10 +240,20 @@ test_that("assert_dataframe working correctly", {
 })
 
 #------------------------------------------------
+test_that("assert_custom_class working correctly", {
+  expect_true(assert_custom_class(NULL, "NULL"))
+  expect_true(assert_custom_class(data.frame(1:5), "data.frame"))
+  
+  expect_error(assert_custom_class(NULL, "foo"))
+  expect_error(assert_custom_class(data.frame(1:5), "foo"))
+})
+
+#------------------------------------------------
 test_that("assert_eq working correctly", {
   expect_true(assert_eq(5,5))
   expect_true(assert_eq(1:5,1:5))
   expect_true(assert_eq("foo","foo"))
+  expect_true(assert_eq(c(a = 5), c(b = 5)))
   
   expect_error(assert_eq(NULL,5))
   expect_error(assert_eq(5,NULL))
@@ -210,6 +261,20 @@ test_that("assert_eq working correctly", {
   expect_error(assert_eq(4,5))
   expect_error(assert_eq(1:4,1:5))
   expect_error(assert_eq("foo","bar"))
+})
+
+#------------------------------------------------
+test_that("assert_neq working correctly", {
+  expect_true(assert_neq(4,5))
+  expect_true(assert_neq(2:6,1:5))
+  expect_true(assert_neq("foo","bar"))
+  
+  expect_error(assert_neq(NULL,5))
+  expect_error(assert_neq(5,NULL))
+  expect_error(assert_neq(NULL,NULL))
+  expect_error(assert_neq(5,5))
+  expect_error(assert_neq(1:5,1:5))
+  expect_error(assert_neq("foo","foo"))
 })
 
 #------------------------------------------------
@@ -293,6 +358,19 @@ test_that("assert_in working correctly", {
   expect_error(assert_in(NULL, NULL))
   expect_error(assert_in(1:5, 1:4))
   expect_error(assert_in("foo", c("bar", "roo")))
+})
+
+#------------------------------------------------
+test_that("assert_not_in working correctly", {
+  expect_true(assert_not_in(3, 4))
+  expect_true(assert_not_in(1:5, 6:10))
+  expect_true(assert_not_in("foo", c("bar", "roo")))
+  
+  expect_error(assert_not_in(NULL, 5))
+  expect_error(assert_not_in(5, NULL))
+  expect_error(assert_not_in(NULL, NULL))
+  expect_error(assert_not_in(1:5, 5:10))
+  expect_error(assert_not_in("foo", c("foo", "bar")))
 })
 
 #------------------------------------------------

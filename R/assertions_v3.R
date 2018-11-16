@@ -40,6 +40,29 @@ assert_non_null <- function(x, message = "%s cannot be null", name = deparse(sub
 }
 
 #------------------------------------------------
+# x is atomic
+#' @noRd
+assert_atomic <- function(x, message = "%s must be atomic (see ?is.atomic)", name = deparse(substitute(x))) {
+  if (!is.atomic(x)) {
+    stop(sprintf(message, name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
+# x is atomic and single valued (has length 1)
+#' @noRd
+assert_single <- function(x, message = "%s must be a single value", name = deparse(substitute(x))) {
+  assert_non_null(x, name = name)
+  assert_atomic(x, name = name)
+  assert_length(x, 1, name = name)
+  if (!is.null(dim(x))) {
+    stop(sprintf(message, name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
 # x is character string
 #' @noRd
 assert_string <- function(x, message = "%s must be character string", name = deparse(substitute(x))) {
@@ -101,7 +124,7 @@ assert_single_numeric <- function(x, name = deparse(substitute(x))) {
 #' @noRd
 assert_int <- function(x, message = "%s must be integer valued", name = deparse(substitute(x))) {
   assert_numeric(x, name = name)
-  if (!isTRUE(all.equal(x, as.integer(x)))) {
+  if (!isTRUE(all.equal(x, as.integer(x), check.attributes = FALSE))) {
     stop(sprintf(message, name), call. = FALSE)
   }
   return(TRUE)
@@ -161,6 +184,16 @@ assert_single_pos_int <- function(x, zero_allowed = TRUE, name = deparse(substit
 }
 
 #------------------------------------------------
+# x is a vector (and is not a list or another recursive type)
+#' @noRd
+assert_vector <- function(x, message = "%s must be a non-recursive vector", name = deparse(substitute(x))) {
+  if (!is.vector(x) || is.recursive(x)) {
+    stop(sprintf(message, name), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
 # x is a matrix
 #' @noRd
 assert_matrix <- function(x, message = "%s must be a matrix", name = deparse(substitute(x))) {
@@ -188,6 +221,15 @@ assert_dataframe <- function(x, message = "%s must be a data frame", name = depa
   return(TRUE)
 }
 
+#------------------------------------------------
+# x inherits from custom class c
+assert_custom_class <- function(x, c, message = "%s must inherit from class '%s'", name = deparse(substitute(x))) {
+  if (!inherits(x, c)) {
+    stop(sprintf(message, name, c), call. = FALSE)
+  }
+  return(TRUE)
+}
+
 
 #### VALUE COMPARISONS ####################################################################
 
@@ -199,7 +241,21 @@ assert_eq <- function(x, y, message = "%s must equal %s",
   assert_non_null(x, name = name_x)
   assert_non_null(y, name = name_y)
   assert_same_length(x, y, name_x = name_x, name_y = name_y)
-  if (!isTRUE(all.equal(x,y))) {
+  if (!isTRUE(all.equal(x, y, check.attributes = FALSE))) {
+    stop(sprintf(message, name_x, name_y), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
+# x and y are unequal in all matched comparisons. x and y can be any type
+#' @noRd
+assert_neq <- function(x, y, message = "%s cannot equal %s",
+                      name_x = deparse(substitute(x)), name_y = nice_format(y)) {
+  assert_non_null(x, name = name_x)
+  assert_non_null(y, name = name_y)
+  assert_same_length(x, y, name_x = name_x, name_y = name_y)
+  if (any(x == y)) {
     stop(sprintf(message, name_x, name_y), call. = FALSE)
   }
   return(TRUE)
@@ -295,6 +351,19 @@ assert_in <- function(x, y, message = "all %s must be in %s",
   assert_non_null(x, name = name_x)
   assert_non_null(y, name = name_y)
   if (!all(x %in% y)) {
+    stop(sprintf(message, name_x, name_y), call. = FALSE)
+  }
+  return(TRUE)
+}
+
+#------------------------------------------------
+# none of x are in y
+#' @noRd
+assert_not_in <- function(x, y, message = "none of %s can be in %s",
+                          name_x = deparse(substitute(x)), name_y = nice_format(y)) {
+  assert_non_null(x, name = name_x)
+  assert_non_null(y, name = name_y)
+  if (any(x %in% y)) {
     stop(sprintf(message, name_x, name_y), call. = FALSE)
   }
   return(TRUE)

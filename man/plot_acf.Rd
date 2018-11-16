@@ -4,7 +4,8 @@
 \alias{plot_acf}
 \title{Produce MCMC autocorrelation plot}
 \usage{
-plot_acf(proj, K = NULL, rung = NULL, param = "alpha", col = "black")
+plot_acf(proj, K = NULL, rung = NULL, param = "alpha",
+  col = "black")
 }
 \arguments{
 \item{proj}{an rmaverick project, as produced by the function 

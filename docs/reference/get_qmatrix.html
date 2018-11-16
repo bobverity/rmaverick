@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Produce diagnostic plots of parameter alpha — plot_alpha • rmaverick</title>
+<title>Extract q-matrix for a given analysis — get_qmatrix • rmaverick</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Produce diagnostic plots of parameter alpha — plot_alpha" />
+<meta property="og:title" content="Extract q-matrix for a given analysis — get_qmatrix" />
 
-<meta property="og:description" content="Produce diagnostic plots of parameter alpha" />
+<meta property="og:description" content="Simple function for extracting the q-matrix output from a given
+  parameter set (defaults to the active set) and value of K." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -115,18 +116,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Produce diagnostic plots of parameter alpha</h1>
+    <h1>Extract q-matrix for a given analysis</h1>
     
-    <div class="hidden name"><code>plot_alpha.Rd</code></div>
+    <div class="hidden name"><code>get_qmatrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Produce diagnostic plots of parameter alpha</p>
+    <p>Simple function for extracting the q-matrix output from a given
+  parameter set (defaults to the active set) and value of K.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plot_alpha</span>(<span class='no'>proj</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"black"</span>)</pre>
+    <pre class="usage"><span class='fu'>get_qmatrix</span>(<span class='no'>proj</span>, <span class='no'>K</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -138,11 +140,11 @@
     </tr>
     <tr>
       <th>K</th>
-      <td><p>which value of K to produce the plot for</p></td>
+      <td><p>which value of K to extract</p></td>
     </tr>
     <tr>
-      <th>col</th>
-      <td><p>colour of the trace</p></td>
+      <th>s</th>
+      <td><p>which set to extract from. Defaults to the current active set</p></td>
     </tr>
     </table>
     

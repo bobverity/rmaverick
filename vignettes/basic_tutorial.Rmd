@@ -192,7 +192,7 @@ plot_logevidence_model(myproj)
 plot_posterior_model(myproj)
 ```
 
-It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. The data suggests that whatever admixture is present is minimal, and should be taken alongside other biological considerations.
+It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. The data suggests that whatever admixture is present is minimal, and this should be taken alongside other biological considerations.
 
 At this point our basic analysis is complete, but see [this](https://bobverity.github.io/rmaverick/articles/parallel.html) vignette on how to speed up the analysis by running in parallel over multiple cores.
 
