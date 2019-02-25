@@ -468,7 +468,7 @@ change_set <- function(project, set) {
 #' 
 #' @export
 
-run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
+run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = FALSE) {
   
   # start timer
   t0 <- Sys.time()
@@ -521,7 +521,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                       solve_label_switching_on = solve_label_switching_on,
                       coupling_on = coupling_on,
                       pb_markdown = pb_markdown,
-                      silent = silent)
+                      silent = !is.null(cluster))
   
   # combine model parameters list with input arguments
   args_model <- c(project$parameter_sets[[s]], args_inputs)
@@ -569,6 +569,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   
   # loop through K
   ret <- list()
+  all_converged <- TRUE
   for (i in 1:length(K)) {
     
     # create name lists
@@ -600,6 +601,12 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                                     SE = 0)
       coupling_accept <- NULL
       
+      # all rungs converged by definition
+      converged <- rep(TRUE, rungs)
+      
+      # get run time
+      run_time <- output_raw[[i]]$run_time
+      
     } else { # extract output if K>1
       
       # ---------- raw mcmc results ----------
@@ -613,6 +620,15 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       if (admix_on) {
         alpha <- mcmc(output_raw[[i]]$alpha_store)
       }
+      
+      # get whether rungs have converged
+      converged <- output_raw[[i]]$rung_converged
+      if (all_converged && any(!converged)) {
+        all_converged <- FALSE
+      }
+      
+      # get run time
+      run_time <- output_raw[[i]]$run_time
       
       # ---------- summary results ----------
       
@@ -699,7 +715,9 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                                                                     loglike_quantiles = loglike_quantiles,
                                                                     ESS = ESS,
                                                                     GTI_path = GTI_path,
-                                                                    GTI_logevidence = GTI_logevidence)
+                                                                    GTI_logevidence = GTI_logevidence,
+                                                                    converged = converged,
+                                                                    run_time = run_time)
     
     project$output$single_set[[s]]$single_K[[K[i]]]$raw <- list(loglike_burnin = loglike_burnin,
                                                                 loglike_sampling = loglike_sampling,
@@ -724,11 +742,18 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   project <- recalculate_evidence(project)
   
   # end timer
-  tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-  if (tdiff<60) {
-    message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
-  } else {
-    message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+  if (!silent) {
+    tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+    if (tdiff<60) {
+      message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
+    } else {
+      message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+    }
+  }
+  
+  # warning if any rungs in any MCMCs did not converge
+  if (!all_converged && !silent) {
+    message("\n**WARNING** at least one MCMC run did not converge within specified burn-in\n")
   }
   
   # return invisibly

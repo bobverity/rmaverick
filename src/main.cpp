@@ -33,6 +33,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
   vector<vector<double>> loglike_sampling;
   vector<double> alpha_store;
   vector<int> coupling_accept;
+  vector<bool> rung_converged;
   
   // run MCMC and store results
   if (admix_on) { // admixture model
@@ -53,6 +54,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
     loglike_sampling = get_loglike_sampling(m);
     alpha_store = get_alpha_store(m);
     coupling_accept = get_coupling_accept(m);
+    rung_converged = get_rung_converged(m);
     
   } else { // no-admixture model
     
@@ -71,6 +73,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
     loglike_burnin = get_loglike_burnin(m);
     loglike_sampling = get_loglike_sampling(m);
     coupling_accept = get_coupling_accept(m);
+    rung_converged = get_rung_converged(m);
   }
   
   // end timer
@@ -86,6 +89,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
   ret.push_back(Rcpp::wrap( qmatrix_ind ));
   ret.push_back(Rcpp::wrap( alpha_store ));
   ret.push_back(Rcpp::wrap( coupling_accept ));
+  ret.push_back(Rcpp::wrap( rung_converged ));
   ret.push_back(Rcpp::wrap( time_span.count() ));
   
   Rcpp::StringVector ret_names;
@@ -94,6 +98,7 @@ Rcpp::List run_mcmc_cpp(Rcpp::List args) {
   ret_names.push_back("qmatrix_ind");
   ret_names.push_back("alpha_store");
   ret_names.push_back("coupling_accept");
+  ret_names.push_back("rung_converged");
   ret_names.push_back("run_time");
   
   ret.names() = ret_names;

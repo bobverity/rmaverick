@@ -66,6 +66,9 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
   // objects for storing acceptance rates
   coupling_accept = vector<int>(rungs-1);
   
+  // store convergence
+  rung_converged = vector<bool>(rungs, false);
+  
 }
 
 //------------------------------------------------
@@ -197,6 +200,7 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
         if (!convergence_reached[r]) {
           convergence_reached[r] = rcpp_to_bool(test_convergence(loglike_burnin[r], rep+1));
           if (convergence_reached[r]) {
+            rung_converged[r] = true;
             loglike_burnin[r].resize(rep+1);
           }
         }

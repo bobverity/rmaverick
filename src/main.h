@@ -44,6 +44,13 @@ std::vector<double> get_alpha_store(TYPE x) {
 }
 
 //------------------------------------------------
+// get rung_converged
+template<class TYPE>
+std::vector<bool> get_rung_converged(TYPE x) {
+  return x.rung_converged;
+}
+
+//------------------------------------------------
 // estimate evidence quantiles by simulation
 Rcpp::List GTI_evidence_sim_cpp(Rcpp::List args);
 

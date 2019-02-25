@@ -123,16 +123,25 @@ geweke_pvalue <- function(x) {
 }
 
 #------------------------------------------------
-# check that geweke p-value non-significant on values x[1:n]
+# check convergence on values x[1:n]
 #' @noRd
 test_convergence <- function(x, n) {
-  if (n==1) {
+  # fail if n = 1
+  if (n == 1) {
     return(FALSE)
   }
+  
+  # fail if ESS too small
+  ESS <- coda::effectiveSize(x[1:n])
+  if (ESS < 10) {
+    return(FALSE)
+  }
+  
+  # fail if geweke p-value < threshold
   g <- geweke_pvalue(mcmc(x[1:n]))
-  ret <- (g>0.01)
+  ret <- (g > 0.01)
   if (is.na(ret)) {
-    ret <- TRUE;
+    ret <- FALSE;
   }
   return(ret)
 }
