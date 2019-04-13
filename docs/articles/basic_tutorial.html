@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rmaverick</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.5</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Basic tutorial</h1>
                         <h4 class="author">Bob Verity</h4>
             
-            <h4 class="date">2019-02-25</h4>
+            <h4 class="date">2019-04-13</h4>
       
       
       <div class="hidden name"><code>basic_tutorial.Rmd</code></div>
@@ -95,7 +95,14 @@
 
     
     
-<p>This vignette demonstrates the complete <em>rmaverick</em> analysis pipeline, including: * importing data * running the main MCMC * diagnosing good and bad MCMC behaviour * comparing different models * producing basic outputs.</p>
+<p>This vignette demonstrates the complete <em>rmaverick</em> analysis pipeline, including:</p>
+<ul>
+<li>importing data</li>
+<li>running the main MCMC</li>
+<li>diagnosing good and bad MCMC behaviour</li>
+<li>comparing different models</li>
+<li>producing basic outputs.</li>
+</ul>
 <div id="simulate-some-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#simulate-some-data" class="anchor"></a>Simulate some data</h3>
@@ -128,7 +135,7 @@
 ## 4       1       1       2
 ## 5       1       3       2
 ## 6       4       1       2</code></pre>
-<p>Samples are in rows and loci are in columns, meaning for polyploid individuals multiple rows must be used for the same individual (here two rows per individual). There are also several meta-data columns, including the sample ID, the population of origin, and the ploidy. These meta-data columns are optional and can be turned on or off when loading the data into a project.</p>
+<p>Samples are in rows and loci are in columns, meaning for polyploid individuals multiple rows must be used for the same individual (here two rows per individual). There are also several meta-data columns, including the sample ID, the population of origin, and the ploidy - these meta-data columns are optional and can be turned on or off when loading the data into a project. Note that any ploidy level is supported by <em>rmaverick</em>, including mixed ploidy which can be specified using the ploidy column.</p>
 <p>Data can also be arranged in wide format, with one row per sample and several columns per locus. If using this format there should be no ploidy column, as the ploidy is dictated by the number of columns per locus.</p>
 </div>
 <div id="create-a-project-and-read-in-data" class="section level3">
@@ -174,7 +181,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 <p>Now we are ready to run a basic MCMC. We will start by exploring values of K from 1 to 5, using 1000 burn-in iterations and 1000 sampling iterations. By default the MCMC has <code>auto_converge</code> turned on, meaning it will test for convergence every <code>convergence_test</code> iterations and will exit if convergence is reached (<code>convergence_test = burnin/10</code> by default). Hence, it is generally a good idea to set <code>burnin</code> to be higher than expected, as the MCMC will adjust this number down if needed. The number of sampling iterations can also be tuned. Our aim when choosing the number of sampling iterations should be to obtain enough samples that our posterior estimates are accurate to an acceptable tolerance level, but not so many that we waste time running the MCMC for long periods past this point. We will look into this parameter again once the MCMC has completed. The most unfamiliar parameter for most users will be the number of “rungs”. <em>rmaverick</em> runs multiple MCMC chains simultaneously, each at a different rung on a “temperature ladder”. The cold chain is our ordinary MCMC chain, and the hot chains serve two purposes: 1) they improve MCMC mixing, 2) they are central to the GTI method of estimating the evidence for different models. Finally, for the sake of this document we will run with <code>pb_markdown = TRUE</code> to avoid printing large amounts of output, but you should run without this argument.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e3</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Calculating exact solution for K = 1
-##    completed in 0.00260441 seconds
+##    completed in 0.00346396 seconds
 ## 
 ## Running MCMC for K = 2
 ## Burn-in phase
@@ -186,7 +193,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 0.902561 seconds
+##    completed in 0.918466 seconds
 ## 
 ## Running MCMC for K = 3
 ## Burn-in phase
@@ -198,7 +205,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 1.24628 seconds
+##    completed in 1.26872 seconds
 ## 
 ## Running MCMC for K = 4
 ## Burn-in phase
@@ -210,7 +217,7 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 1.30359 seconds
+##    completed in 1.32509 seconds
 ## 
 ## Running MCMC for K = 5
 ## Burn-in phase
@@ -222,10 +229,10 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 1.4958 seconds
+##    completed in 1.50992 seconds
 ## 
 ## Processing results</code></pre>
-<pre><code>## Total run-time: 5.87 seconds</code></pre>
+<pre><code>## Total run-time: 5.96 seconds</code></pre>
 <pre><code>## 
 ## **WARNING** at least one MCMC run did not converge within specified burn-in</code></pre>
 <p>Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. If any values of K failed to converge then we can use the same <code><a href="../reference/run_mcmc.html">run_mcmc()</a></code> function to re-run the MCMC for just a single value of K and with a longer maximum burn-in. This will overwrite the existing output for the specified value of K, but will leave all other values untouched:</p>
@@ -240,10 +247,10 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 1.4986 seconds
+##    completed in 1.50484 seconds
 ## 
 ## Processing results</code></pre>
-<pre><code>## Total run-time: 2.35 seconds</code></pre>
+<pre><code>## Total run-time: 2.38 seconds</code></pre>
 </div>
 <div id="comparing-values-of-k" class="section level3">
 <h3 class="hasAnchor">
@@ -297,7 +304,7 @@ myproj</code></pre></div>
 <p>We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the <code>pb_markdown = TRUE</code> argument ordinarily.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e4</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">2e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Calculating exact solution for K = 1
-##    completed in 0.084847 seconds
+##    completed in 0.0907722 seconds
 ## 
 ## Running MCMC for K = 2
 ## Burn-in phase
@@ -309,7 +316,7 @@ myproj</code></pre></div>
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 27.8242 seconds
+##    completed in 28.0424 seconds
 ## 
 ## Running MCMC for K = 3
 ## Burn-in phase
@@ -321,7 +328,7 @@ myproj</code></pre></div>
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 32.8161 seconds
+##    completed in 31.1131 seconds
 ## 
 ## Running MCMC for K = 4
 ## Burn-in phase
@@ -333,7 +340,7 @@ myproj</code></pre></div>
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 36.6744 seconds
+##    completed in 34.1998 seconds
 ## 
 ## Running MCMC for K = 5
 ## Burn-in phase
@@ -345,10 +352,10 @@ myproj</code></pre></div>
 ## 
   |                                                                       
   |=================================================================| 100%
-##    completed in 40.1476 seconds
+##    completed in 39.5092 seconds
 ## 
 ## Processing results</code></pre>
-<pre><code>## Total run-time: 2.31 minutes</code></pre>
+<pre><code>## Total run-time: 2.23 minutes</code></pre>
 <p>As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter <em>alpha</em> to check. We can produce a summary plot of this parameter as follows:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_alpha.html">plot_alpha</a></span>(myproj, <span class="dt">K =</span> <span class="dv">3</span>)</code></pre></div>
 <p><img src="basic_tutorial_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>

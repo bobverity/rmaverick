@@ -132,7 +132,10 @@ test_convergence <- function(x, n) {
   }
   
   # fail if ESS too small
-  ESS <- coda::effectiveSize(x[1:n])
+  ESS <- try(coda::effectiveSize(x[1:n]), silent = TRUE)
+  if (class(ESS) == "try-error") {
+    return(FALSE)
+  }
   if (ESS < 10) {
     return(FALSE)
   }

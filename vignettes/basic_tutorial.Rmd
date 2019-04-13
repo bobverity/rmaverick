@@ -10,6 +10,7 @@ vignette: >
 ---
 
 This vignette demonstrates the complete *rmaverick* analysis pipeline, including:
+
 * importing data
 * running the main MCMC
 * diagnosing good and bad MCMC behaviour
@@ -43,7 +44,7 @@ Data must be in dataframe format. When using real data, any function that reads 
 head(mysim$data)
 ```
 
-Samples are in rows and loci are in columns, meaning for polyploid individuals multiple rows must be used for the same individual (here two rows per individual). There are also several meta-data columns, including the sample ID, the population of origin, and the ploidy. These meta-data columns are optional and can be turned on or off when loading the data into a project.
+Samples are in rows and loci are in columns, meaning for polyploid individuals multiple rows must be used for the same individual (here two rows per individual). There are also several meta-data columns, including the sample ID, the population of origin, and the ploidy - these meta-data columns are optional and can be turned on or off when loading the data into a project. Note that any ploidy level is supported by *rmaverick*, including mixed ploidy which can be specified using the ploidy column.
 
 Data can also be arranged in wide format, with one row per sample and several columns per locus. If using this format there should be no ploidy column, as the ploidy is dictated by the number of columns per locus.
 

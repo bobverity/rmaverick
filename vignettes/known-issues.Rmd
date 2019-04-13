@@ -29,5 +29,5 @@ Warning in system(cmd) : 'make' not found
 ERROR: compilation failed for package 'rmaverick'
 ```
 
-This can be caused by a mismatch between versions R and RTools. Make sure you have the correct version of [RTools](https://cran.r-project.org/bin/windows/Rtools/) installed for your version of R, then restart RStudio (or whatever IDE you are using) and try again.
+This can be caused by a mismatch between versions of R and RTools. Make sure you have the correct version of [RTools](https://cran.r-project.org/bin/windows/Rtools/) installed for your version of R, then restart RStudio (or whatever IDE you are using) and try again.
 
