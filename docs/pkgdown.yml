@@ -1,5 +1,5 @@
-pandoc: 1.19.2.1
-pkgdown: 1.3.0
+pandoc: 2.11.4
+pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   basic_tutorial: basic_tutorial.html
@@ -7,4 +7,5 @@ articles:
   installation: installation.html
   known-issues: known-issues.html
   parallel: parallel.html
+last_built: 2022-01-06T13:08Z
 

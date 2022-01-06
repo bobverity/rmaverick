@@ -1,20 +1,5 @@
 
 #------------------------------------------------
-# The following commands ensure that package dependencies are listed in the NAMESPACE file.
-
-#' @useDynLib rmaverick
-#' @import parallel
-#' @import coda
-#' @import ggplot2
-#' @import gridExtra
-#' @importFrom Rcpp evalCpp
-#' @import graphics
-#' @import stats
-#' @import utils
-#' @importFrom grDevices colorRampPalette
-NULL
-
-#------------------------------------------------
 #' @title Check that rmaverick package has loaded successfully
 #'
 #' @description Simple function to check that rmaverick package has loaded
@@ -64,7 +49,9 @@ check_rmaverick_loaded <- function() {
 #'
 #' @export
 
-bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE, name = NULL, check_delete_output = TRUE) {
+bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL,
+                      ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE,
+                      name = NULL, check_delete_output = TRUE) {
   
   # check inputs (further checks carried out in process_data() function)
   assert_custom_class(project, "mavproject")
@@ -72,7 +59,7 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
   assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
   
   # check before overwriting existing output
-  if (project$active_set>0 && check_delete_output) {
+  if ((project$active_set > 0) && check_delete_output) {
     
     # ask before overwriting. On abort, return original project
     if (!user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")) {

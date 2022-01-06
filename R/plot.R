@@ -175,7 +175,7 @@ plot.maverick_qmatrix_ind <- function(x, y, ...) {
   # add legends
   plot1 <- plot1 + scale_fill_manual(values = default_colours(K), name = "group")
   plot1 <- plot1 + scale_colour_manual(values = "white")
-  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + guides(colour = "none")
   
   # add border
   plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
@@ -254,7 +254,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   # add legends
   plot1 <- plot1 + scale_fill_manual(values = default_colours(max(K)), name = "group")
   plot1 <- plot1 + scale_colour_manual(values = "white")
-  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + guides(colour = "none")
   
   # add border
   plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
@@ -287,13 +287,13 @@ plot.maverick_GTI_path <- function(x, y, ...) {
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
-  if (y==1) {
-    q_x <- 1:(n+1)
+  if (y == 1) {
+    q_x <- 1:(n + 1)
     width <- 0.1
     plot1 <- plot1 + geom_line(aes_(x = ~as.factor(0:n), y = ~q_mid, group = 1))
     plot1 <- plot1 + xlab("rung")
   } else {
-    q_x <- seq(0,1,l=n+1)
+    q_x <- seq(0, 1, l = n + 1)
     width <- 0.01
     plot1 <- plot1 + geom_line(aes_(x = ~q_x, y = ~q_mid))
     plot1 <- plot1 + xlab(parse(text = "beta"))
@@ -307,7 +307,7 @@ plot.maverick_GTI_path <- function(x, y, ...) {
   
   plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
   plot1 <- plot1 + scale_colour_manual(values = "black")
-  plot1 <- plot1 + guides(fill = FALSE, colour = FALSE, alpha = FALSE)
+  plot1 <- plot1 + guides(fill = "none", colour = "none", alpha = "none")
   plot1 <- plot1 + ylab("weighted log-likelihood")
   
   # return plot object
@@ -338,7 +338,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
+  if (s == 0) {
     stop("no active parameter set")
   }
   
@@ -385,8 +385,8 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
   width <- 0.1
   plot1 <- plot1 + geom_point(aes_(x = ~as.factor(K), y = ~q_mid), na.rm = TRUE)
   plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x - width, y = ~q_min, xend = ~q_x + width, yend = ~q_min), na.rm = TRUE)
+  plot1 <- plot1 + geom_segment(aes_(x = ~q_x - width, y = ~q_max, xend = ~q_x + width, yend = ~q_max), na.rm = TRUE)
   plot1 <- plot1 + xlab("K") + ylab("log-evidence")
   
   # return plot object
@@ -446,7 +446,7 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
   
   # add legends
   plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
-  plot1 <- plot1 + guides(fill = FALSE)
+  plot1 <- plot1 + guides(fill = "none")
   
   # modify scales etc.
   plot1 <- plot1 + coord_cartesian(ylim = c(-0.05,1.05))
@@ -567,7 +567,7 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   
   # add legends
   plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
-  plot1 <- plot1 + guides(fill = FALSE)
+  plot1 <- plot1 + guides(fill = "none")
   
   # modify scales etc.
   plot1 <- plot1 + scale_x_discrete(labels = df$name, breaks = 1:n)
@@ -700,7 +700,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
   plot1 <- plot1 + coord_cartesian(xlim = c(0,nrow(df)))
   plot1 <- plot1 + scale_x_continuous(expand = c(0,0))
   plot1 <- plot1 + scale_colour_manual(values = col)
-  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + guides(colour = "none")
   plot1 <- plot1 + xlab("iteration")
   
   # return plot object
@@ -803,7 +803,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   plot1 <- ggplot(df) + theme_bw()
   plot1 <- plot1 + geom_segment(aes_(x = ~lag, y = 0, xend = ~lag, yend = ~ACF, colour = "col1"))
   plot1 <- plot1 + scale_colour_manual(values = col)
-  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + guides(colour = "none")
   plot1 <- plot1 + xlab("lag") + ylab("ACF")
   
   # return plot object
@@ -902,7 +902,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
   #plot1 <- ggplot(df) + theme_bw()
   plot1 <- plot1 + geom_histogram(aes_(x = ~v, y = ~..density.., fill = "col1"), bins = 50)
   plot1 <- plot1 + scale_fill_manual(values = col)
-  plot1 <- plot1 + guides(fill = FALSE)
+  plot1 <- plot1 + guides(fill = "none")
   plot1 <- plot1 + ylab("density")
   
   # return plot object

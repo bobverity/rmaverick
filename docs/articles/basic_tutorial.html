@@ -6,18 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Basic tutorial • rmaverick</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Basic tutorial">
-<meta property="og:description" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="rmaverick">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -30,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rmaverick</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
       </span>
     </div>
 
@@ -80,15 +81,16 @@
 <!--/.navbar -->
 
       
-      </header><div class="row">
+
+      </header><script src="basic_tutorial_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Basic tutorial</h1>
+      <h1 data-toc-skip>Basic tutorial</h1>
                         <h4 class="author">Bob Verity</h4>
             
-            <h4 class="date">2019-04-13</h4>
+            <h4 class="date">2022-01-06</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/bobverity/rmaverick/blob/master/vignettes/basic_tutorial.Rmd"><code>vignettes/basic_tutorial.Rmd</code></a></small>
       <div class="hidden name"><code>basic_tutorial.Rmd</code></div>
 
     </div>
@@ -101,52 +103,63 @@
 <li>running the main MCMC</li>
 <li>diagnosing good and bad MCMC behaviour</li>
 <li>comparing different models</li>
-<li>producing basic outputs.</li>
+<li>producing basic outputs</li>
 </ul>
 <div id="simulate-some-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#simulate-some-data" class="anchor"></a>Simulate some data</h3>
 <p><em>rmverick</em> comes with built-in functions for simulating data from different evolutionary models. The models used in simulation are exactly the same as the models used in the inference step, allowing us to test the power of the program without worrying about discrepancies between the data and the assumed model. We will simulate a data set of 100 diploid individuals, each genotyped at 20 loci and originating from 3 distinct subpopulations. We will assume no admixture between populations:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mysim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/sim_data.html">sim_data</a></span>(<span class="dt">n =</span> <span class="dv">100</span>, <span class="dt">loci =</span> <span class="dv">20</span>, <span class="dt">K =</span> <span class="dv">3</span>, <span class="dt">admix_on =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<p>Running <code><a href="https://www.rdocumentation.org/packages/base/topics/names">names(mysim)</a></code> we can see that the simulated data contains several elements:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(mysim)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">mysim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_data.html">sim_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span>, loci <span class="op">=</span> <span class="fl">20</span>, K <span class="op">=</span> <span class="fl">3</span>, admix_on <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p>The simulated data takes the form of a list, and running <code><a href="https://rdrr.io/r/base/names.html">names(mysim)</a></code> we can see that it contains several elements:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">mysim</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "data"         "allele_freqs" "admix_freqs"  "group"</code></pre>
-<p>The raw data is stored in the “data” element. In addition, we have a record of the allele frequencies, admixture frequencies and grouping that were used in generating these data. These additional records can be useful in ground-truthing our estimated values later on, but are not actually used by the program - all that is needed for <em>rmaverick</em> analysis is the “data” element.</p>
-<p>Data must be in dataframe format. When using real data, any function that reads in a values in a dataframe can be used - for example the <code><a href="https://www.rdocumentation.org/packages/utils/topics/read.table">read.csv()</a></code> and <code><a href="https://www.rdocumentation.org/packages/utils/topics/read.table">read.table()</a></code> functions. Running <code><a href="https://www.rdocumentation.org/packages/utils/topics/head">head(mysim$data)</a></code> we can see the general data format required by <em>rmaverick</em>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(mysim<span class="op">$</span>data)</code></pre></div>
+<p>The raw data is stored in the “data” element - this is the part that is equivalent to what we would see in real data. In addition, we have a record of the allele frequencies, admixture frequencies and grouping that were used in generating the data. These additional records can be useful in ground-truthing our estimated values later on, but are not actually used by the program, all that is needed for <em>rmaverick</em> analysis is the “data” element.</p>
+<p>Data input into <em>rmaverick</em> must be in dataframe format. When using real data, any function that reads in a values in a dataframe can be used - for example the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html">read.table()</a></code> functions. Running <code><a href="https://rdrr.io/r/utils/head.html">head(mysim$data)</a></code> we can see the general data format required by <em>rmaverick</em>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">mysim</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></code></pre></div>
 <pre><code>##     ID pop ploidy locus1 locus2 locus3 locus4 locus5 locus6 locus7 locus8
-## 1 ind1   1      2      2      1      5      5      3      3      4      3
-## 2 ind1   1      2      5      2      5      2      2      1      5      3
-## 3 ind2   1      2      2      3      4      5      3      3      4      4
-## 4 ind2   1      2      4      2      1      2      4      1      2      3
-## 5 ind3   1      2      2      1      1      1      2      4      4      5
-## 6 ind3   1      2      3      3      5      2      1      4      2      4
+## 1 ind1   1      2      4      1      4      4      3      4      2      3
+## 2 ind1   1      2      3      1      4      4      4      3      4      3
+## 3 ind2   1      2      2      1      4      5      2      3      5      3
+## 4 ind2   1      2      2      1      2      5      3      4      4      4
+## 5 ind3   1      2      2      2      5      1      1      3      4      3
+## 6 ind3   1      2      2      1      1      2      3      4      4      3
 ##   locus9 locus10 locus11 locus12 locus13 locus14 locus15 locus16 locus17
-## 1      5       1       3       5       2       1       5       3       2
-## 2      5       1       5       1       3       1       4       3       2
-## 3      5       1       3       1       3       3       4       3       2
-## 4      3       1       3       5       1       2       4       3       1
-## 5      3       1       5       4       3       5       4       2       4
-## 6      2       1       2       1       5       5       4       3       3
+## 1      5       2       3       4       2       4       4       3       2
+## 2      5       1       5       5       3       5       4       3       4
+## 3      1       2       5       3       5       3       5       1       4
+## 4      1       1       3       1       3       4       5       3       2
+## 5      2       2       2       3       2       2       5       3       5
+## 6      3       1       5       5       3       1       4       2       5
 ##   locus18 locus19 locus20
-## 1       4       1       2
-## 2       4       1       2
-## 3       1       1       2
-## 4       1       1       2
-## 5       1       3       2
-## 6       4       1       2</code></pre>
-<p>Samples are in rows and loci are in columns, meaning for polyploid individuals multiple rows must be used for the same individual (here two rows per individual). There are also several meta-data columns, including the sample ID, the population of origin, and the ploidy - these meta-data columns are optional and can be turned on or off when loading the data into a project. Note that any ploidy level is supported by <em>rmaverick</em>, including mixed ploidy which can be specified using the ploidy column.</p>
+## 1       1       1       3
+## 2       1       1       4
+## 3       1       3       2
+## 4       2       1       2
+## 5       1       1       2
+## 6       4       1       1</code></pre>
+<p>Samples are in rows and loci are in columns, meaning for polyploid individuals multiple rows must be used for the same individual (here two rows per individual). There are also several meta-data columns, including the sample ID, the population of origin, and the ploidy. These meta-data columns are optional and can be turned on or off when loading the data into a project. Note that any ploidy level is supported by <em>rmaverick</em>, including mixed ploidy which can be specified using the ploidy column.</p>
 <p>Data can also be arranged in wide format, with one row per sample and several columns per locus. If using this format there should be no ploidy column, as the ploidy is dictated by the number of columns per locus.</p>
 </div>
 <div id="create-a-project-and-read-in-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#create-a-project-and-read-in-data" class="anchor"></a>Create a project and read in data</h3>
-<p><em>rmaverick</em> works with projects, which are essentially just simple lists containing all the inputs and outputs of a given analysis. We start by creating a project and loading in our data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mavproject.html">mavproject</a></span>()
-myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind_data.html">bind_data</a></span>(myproj, mysim<span class="op">$</span>data, <span class="dt">ID_col =</span> <span class="dv">1</span>, <span class="dt">pop_col =</span> <span class="dv">2</span>, <span class="dt">ploidy_col =</span> <span class="dv">3</span>)</code></pre></div>
-<p>Notice the general format of the <code><a href="../reference/bind_data.html">bind_data()</a></code> function, which takes the same project as both input and output. This is the format that most <em>rmaverick</em> functions will take, as it allows a function to modify the project before overwriting the original version. In the input arguments we have also specified which columns are meta-data, and all other columns are assumed to contain genetic data. If using wide format data then the argument <code>wide_format = TRUE</code> should be used, and ploidy should be specified using the <code>ploidy</code> argument.</p>
+<p><em>rmaverick</em> works with projects, which are essentially just lists containing all the inputs and outputs of a given analysis. We start by creating a project and loading in our data:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mavproject.html">mavproject</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bind_data.html">bind_data</a></span><span class="op">(</span><span class="va">myproj</span>, df <span class="op">=</span> <span class="va">mysim</span><span class="op">$</span><span class="va">data</span>, ID_col <span class="op">=</span> <span class="fl">1</span>, pop_col <span class="op">=</span> <span class="fl">2</span>, ploidy_col <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
+<p>Alternatively, if you are familiar with the pipe operator <code><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></code> from the <code>magrittr</code> package then you can use this to chain together multiple commands:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+
+<span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mavproject.html">mavproject</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="../reference/bind_data.html">bind_data</a></span><span class="op">(</span>df <span class="op">=</span> <span class="va">mysim</span><span class="op">$</span><span class="va">data</span>, ID_col <span class="op">=</span> <span class="fl">1</span>, pop_col <span class="op">=</span> <span class="fl">2</span>, ploidy_col <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
+<p>In the input arguments we have specified which columns are meta-data, and all other columns are assumed to contain genetic data. If using wide format data then the argument <code>wide_format = TRUE</code> should be used, and ploidy should be specified using the <code>ploidy</code> argument (mixed ploidy is not allowed in wide format).</p>
 <p>We can view the project to check that the data have been loaded in correctly:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span></code></pre></div>
 <pre><code>## DATA:
 ##    individuals = 100
 ##    loci = 20
@@ -156,15 +169,17 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## 
 ## PARAMETER SETS:
 ##    (none defined)</code></pre>
-<p>If there have been mistakes in reading in the data, for example if meta-data columns have not been specified and so have been interpreted as genetic data (a common mistake) then this should be visible at this stage.</p>
+<p>If there have been any mistakes in reading in the data, for example if meta-data columns have not been specified and so have been interpreted as genetic data (a common mistake), then this should be visible at this stage.</p>
 </div>
 <div id="define-parameters-and-run-basic-mcmc" class="section level3">
 <h3 class="hasAnchor">
 <a href="#define-parameters-and-run-basic-mcmc" class="anchor"></a>Define parameters and run basic MCMC</h3>
-<p>We can define different evolutionary models by using different parameter sets. Our first parameter set will represent a simple no-admixture model - the same model that was used to generate the data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/new_set.html">new_set</a></span>(myproj, <span class="dt">name =</span> <span class="st">"correct model (no admixture)"</span>, <span class="dt">admix_on =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<p>We can define different evolutionary models by using different parameter sets. Our first parameter set will represent a simple no-admixture model, i.e. the same model that was used to generate the data.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_set.html">new_set</a></span><span class="op">(</span><span class="va">myproj</span>, name <span class="op">=</span> <span class="st">"correct model (no admixture)"</span>, admix_on <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p>Producing a summary of the project we can now see additional properties, including the current active set and the parameters of this set.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span></code></pre></div>
 <pre><code>## DATA:
 ##    individuals = 100
 ##    loci = 20
@@ -178,113 +193,136 @@ myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bind
 ## ACTIVE SET: SET1
 ##    model = no-admixture
 ##    lambda = 1</code></pre>
-<p>Now we are ready to run a basic MCMC. We will start by exploring values of K from 1 to 5, using 1000 burn-in iterations and 1000 sampling iterations. By default the MCMC has <code>auto_converge</code> turned on, meaning it will test for convergence every <code>convergence_test</code> iterations and will exit if convergence is reached (<code>convergence_test = burnin/10</code> by default). Hence, it is generally a good idea to set <code>burnin</code> to be higher than expected, as the MCMC will adjust this number down if needed. The number of sampling iterations can also be tuned. Our aim when choosing the number of sampling iterations should be to obtain enough samples that our posterior estimates are accurate to an acceptable tolerance level, but not so many that we waste time running the MCMC for long periods past this point. We will look into this parameter again once the MCMC has completed. The most unfamiliar parameter for most users will be the number of “rungs”. <em>rmaverick</em> runs multiple MCMC chains simultaneously, each at a different rung on a “temperature ladder”. The cold chain is our ordinary MCMC chain, and the hot chains serve two purposes: 1) they improve MCMC mixing, 2) they are central to the GTI method of estimating the evidence for different models. Finally, for the sake of this document we will run with <code>pb_markdown = TRUE</code> to avoid printing large amounts of output, but you should run without this argument.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e3</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)</code></pre></div>
+<p>Now we are ready to run a basic MCMC. We will start by exploring values of <em>K</em> from 1 to 5, using 1000 burn-in iterations and 1000 sampling iterations. By default the MCMC has <code>auto_converge</code> turned on, meaning it will test for convergence every <code>convergence_test</code> iterations and will exit if convergence is reached (<code>convergence_test = burnin/10</code> by default). Hence, it is generally a good idea to set <code>burnin</code> to be higher than expected, as the MCMC will adjust this number down if needed. The number of sampling iterations can also be tuned. Our aim when choosing the number of sampling iterations should be to obtain enough samples that our posterior estimates are accurate to an acceptable tolerance level, but not so many that we waste time running the MCMC for long periods past this point. We will look into this parameter again once the MCMC has completed. The most unfamiliar parameter for most users will be the number of “rungs”. <em>rmaverick</em> runs multiple MCMC chains simultaneously, each at a different rung on a “temperature ladder”. The cold chain is our ordinary MCMC chain, and the hot chains serve two purposes: 1) they improve MCMC mixing, 2) they are central to the GTI method of estimating the evidence for different models. Finally, for the sake of this document we will run with <code>pb_markdown = TRUE</code> to avoid printing large amounts of output, but you should run without this argument.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc.html">run_mcmc</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, burnin <span class="op">=</span> <span class="fl">1e3</span>, samples <span class="op">=</span> <span class="fl">1e3</span>,
+                   rungs <span class="op">=</span> <span class="fl">10</span>, pb_markdown <span class="op">=</span>  <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## Calculating exact solution for K = 1
-##    completed in 0.00346396 seconds
+##    completed in 0.00205429 seconds
 ## 
 ## Running MCMC for K = 2
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    Warning: convergence still not reached within 1000 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    converged within 400 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 0.918466 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 0.725801 seconds
 ## 
 ## Running MCMC for K = 3
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    Warning: convergence still not reached within 1000 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    converged within 400 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 1.26872 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 0.97263 seconds
 ## 
 ## Running MCMC for K = 4
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    converged within 300 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    Warning: convergence still not reached within 1000 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 1.32509 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 1.24491 seconds
 ## 
 ## Running MCMC for K = 5
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    converged within 200 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    Warning: convergence still not reached within 1000 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 1.50992 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 1.51816 seconds
 ## 
 ## Processing results</code></pre>
-<pre><code>## Total run-time: 5.96 seconds</code></pre>
+<pre><code>## Total run-time: 5.26 seconds</code></pre>
 <pre><code>## 
 ## **WARNING** at least one MCMC run did not converge within specified burn-in</code></pre>
-<p>Notice that the solution for K=1 is almost instantaneous, as no MCMC is required in this case. If any values of K failed to converge then we can use the same <code><a href="../reference/run_mcmc.html">run_mcmc()</a></code> function to re-run the MCMC for just a single value of K and with a longer maximum burn-in. This will overwrite the existing output for the specified value of K, but will leave all other values untouched:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e4</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">1e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span>  <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>## Running MCMC for K = 5
+<p>Notice that the solution for <em>K</em>=1 is almost instantaneous, as no MCMC is required in this case. If any values of <em>K</em> failed to converge then we can use the same <code><a href="../reference/run_mcmc.html">run_mcmc()</a></code> function to re-run the MCMC for just a single value of <em>K</em> and with a longer maximum burn-in. This will overwrite the existing output for the specified value of <em>K</em>, but will leave all other values untouched:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc.html">run_mcmc</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">4</span><span class="op">:</span><span class="fl">5</span>, burnin <span class="op">=</span> <span class="fl">1e4</span>, converge_test <span class="op">=</span> <span class="fl">100</span>, samples <span class="op">=</span> <span class="fl">1e3</span>,
+                   rungs <span class="op">=</span> <span class="fl">10</span>, pb_markdown <span class="op">=</span>  <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<pre><code>## Running MCMC for K = 4
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
+  |                                                                            
+  |======================================================================| 100%
+##    converged within 400 iterations
+## Sampling phase
+## 
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 1.1492 seconds
+## 
+## Running MCMC for K = 5
+## Burn-in phase
+## 
+  |                                                                            
+  |======================================================================| 100%
 ##    converged within 200 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 1.50484 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 1.38987 seconds
 ## 
 ## Processing results</code></pre>
-<pre><code>## Total run-time: 2.38 seconds</code></pre>
+<pre><code>## Total run-time: 3.3 seconds</code></pre>
 </div>
 <div id="comparing-values-of-k" class="section level3">
 <h3 class="hasAnchor">
-<a href="#comparing-values-of-k" class="anchor"></a>Comparing values of K</h3>
+<a href="#comparing-values-of-k" class="anchor"></a>Comparing values of <em>K</em>
+</h3>
 <p>The GTI method estimates the evidence for a given model by combining information across multiple temperature rungs. These rungs provide a series of point estimates that together make a “path”, and the final evidence estimate is computed from the area between this path and the zero-line. We can visualise this path using the <code><a href="../reference/plot_GTI_path.html">plot_GTI_path()</a></code> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_GTI_path.html">plot_GTI_path</a></span>(myproj, <span class="dt">K =</span> <span class="dv">3</span>)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<p>All plots produced by <em>rmaverick</em> are produced using <a href="https://ggplot2.tidyverse.org/">ggplot</a>, meaning they can be stored and modified later on - for example adding titles, legends etc.</p>
-<p>In order for our evidence estimate to be unbiased it is important that the GTI path is relatively smooth. We can modify the smoothness of the path in two ways: 1) by increasing the number of <code>rungs</code> used in the MCMC, 2) by changing the value of <code>GTI_pow</code> which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. <strong>This check should be performed on every value of K</strong>.</p>
-<p>Once we are happy with our GTI paths we can look at our evidence estimates, first of all in log space:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_logevidence_K.html">plot_logevidence_K</a></span>(myproj)</code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_GTI_path.html">plot_GTI_path</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="basic_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
-<p>We can see a clear signal for K=3 or higher, and the 95% credible intervals are nice and tight. If we needed tighter credible intervals at this stage then we could re-run the MCMC (for the problem values of K only) with a larger number of <code>samples</code>.</p>
-<p>We can also plot the full posterior distribution of K, which is obtained by transforming these values out of log space and normalising to sum to one:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_posterior_K.html">plot_posterior_K</a></span>(myproj)</code></pre></div>
+<p>All plots produced by <em>rmaverick</em> are produced using <a href="https://ggplot2.tidyverse.org/">ggplot</a>, meaning they can be stored and modified later on - for example adding titles, legends etc.</p>
+<p>In order for our evidence estimate to be unbiased it is important that the GTI path is relatively smooth. We can modify the smoothness of the path in two ways: 1) by increasing the number of <code>rungs</code>, 2) by changing the value of <code>GTI_pow</code> which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. <strong>This check should be performed on every value of K</strong>.</p>
+<p>Once we are happy with our GTI paths we can look at our evidence estimates, first of all in log space:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_logevidence_K.html">plot_logevidence_K</a></span><span class="op">(</span><span class="va">myproj</span><span class="op">)</span></code></pre></div>
 <p><img src="basic_tutorial_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
-<p>This second plot is usually more straightforward to interpret, as it is in linear space and so can be understood in terms of ordinary probability. In this example we can see strong evidence for K=3, with a posterior probability of &gt;0.99. Again, if we had seen wide credible intervals at this stage then it would have been worth repeating the MCMC with a larger number of <code>samples</code>, but in this case the result is clear and so there is no need.</p>
+<p>We can see a clear signal for <em>K</em>=3 or higher, and the 95% credible intervals are nice and tight. If we needed tighter credible intervals at this stage then we could re-run the MCMC (for the problem values of <em>K</em> only) with a larger number of <code>samples</code>.</p>
+<p>We can also plot the full posterior distribution of <em>K</em>, which is obtained by transforming these values out of log space and normalising to sum to one:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_posterior_K.html">plot_posterior_K</a></span><span class="op">(</span><span class="va">myproj</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p>This second plot is usually more straightforward to interpret, as it is in linear space and so can be understood in terms of ordinary probability. In this example we can see strong evidence for <em>K</em>=3, with a posterior probability of &gt;0.99. Again, if we had seen wide credible intervals at this stage then it would have been worth repeating the MCMC with a larger number of <code>samples</code>, but in this case the result is clear and so there is no need.</p>
 </div>
 <div id="structure-plots" class="section level3">
 <h3 class="hasAnchor">
 <a href="#structure-plots" class="anchor"></a>Structure plots</h3>
-<p>The main result of interest from this sort of analysis is usually the posterior allocation or “structure” plot. This plot contains one bar for each individual, with the proportion of each colour giving the posterior probability of belonging to each of the K subpopulations. We can use the <code><a href="../reference/plot_qmatrix.html">plot_qmatrix()</a></code> function to produce posterior allocation plots for different values of K. The <code>divide_ind_on</code> argument adds white lines between individuals, and can be turned off if these lines start getting in the way.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_qmatrix.html">plot_qmatrix</a></span>(myproj, <span class="dt">K =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">divide_ind_on =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-14-1.png" width="768"></p>
-<p>We can see that for K=3 (the most highly supported value of K) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at <code>mysim$group</code>, although obviously this is not possible for real data.</p>
-<p>When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of K so that the reader has the option of visualising structure at multiple levels, and ideally this should also be backed up by a plot of the model evidence to give some idea of the model fit at each level. At this stage it is worth stressing the point made by many previous authors - <strong>the model used by rmaverick and similar programs is just a cartoon of reality, and there is no strict K in the real world</strong>. Instead, each K captures a different level of population structure, and while the evidence can help guide us towards values of K that fit the data well, it is just a guide and should be taken alongside other biological considerations.</p>
+<p>The main result of interest from this sort of analysis is usually the posterior allocation or “structure” plot. This plot contains one bar for each individual, with the proportion of each colour giving the posterior probability of belonging to each of the <em>K</em> subpopulations. We can use the <code><a href="../reference/plot_qmatrix.html">plot_qmatrix()</a></code> function to produce posterior allocation plots for different values of <em>K</em>. The <code>divide_ind_on</code> argument adds white lines between individuals, and can be turned off if these lines start getting in the way.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_qmatrix.html">plot_qmatrix</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, divide_ind_on <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-15-1.png" width="768"></p>
+<p>We can see that for <em>K</em>=3 (the most highly supported value of <em>K</em>) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at <code>mysim$group</code>, although obviously this is not possible for real data.</p>
+<p>When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of <em>K</em> so that the reader has the option of visualising structure at multiple levels, and ideally this should also be backed up by a plot of the model evidence to give some idea of the model support at each level. At this stage it is worth stressing the point made by many previous authors - <strong>the model used by rmaverick and similar programs is just a cartoon of reality, and there is no strict <em>K</em> in the real world</strong>. Instead, each <em>K</em> captures a different level of population structure, and while the evidence can help guide us towards values of <em>K</em> that fit the data well, it is just a guide and should be taken alongside other biological considerations.</p>
 </div>
 <div id="admixture-model" class="section level3">
 <h3 class="hasAnchor">
 <a href="#admixture-model" class="anchor"></a>Admixture model</h3>
-<p>We will also run the simulated data through the admixture model, partly to explore how this model differs in implementation from the simpler no-admixture model, and partly to test whether <em>rmaverick</em> can detect that this model is poorly supported based on the model evidence.</p>
-<p>We start by creating a new parameter set, this time under the admixture model with the parameter <em>alpha</em> free to be estimated by the MCMC. <em>Alpha</em> controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple subpopulations, and arriving back at the no-admixture model when it equals zero.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/new_set.html">new_set</a></span>(myproj, <span class="dt">name =</span> <span class="st">"incorrect model (admixture)"</span>, <span class="dt">admix_on =</span> <span class="ot">TRUE</span>, <span class="dt">estimate_alpha =</span> <span class="ot">TRUE</span>)
-myproj</code></pre></div>
+<p>We will also run the simulated data through the admixture model, partly to explore how this model differs in implementation from the simpler no-admixture model, and partly to test whether <em>rmaverick</em> can detect that this model is inappropriate for the current data (recall that data were generated from the no-admixture model).</p>
+<p>We start by creating a new parameter set, this time under the admixture model with the parameter <em>alpha</em> free to be estimated by the MCMC. <em>Alpha</em> controls the level of admixture, with larger values indicating a greater probability of inheriting genes from multiple subpopulations. We arrive back at the no-admixture model when <em>alpha</em> equals zero.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/new_set.html">new_set</a></span><span class="op">(</span><span class="va">myproj</span>, name <span class="op">=</span> <span class="st">"incorrect model (admixture)"</span>, admix_on <span class="op">=</span> <span class="cn">TRUE</span>,
+                  estimate_alpha <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">myproj</span></code></pre></div>
 <pre><code>## DATA:
 ##    individuals = 100
 ##    loci = 20
@@ -300,109 +338,122 @@ myproj</code></pre></div>
 ##    model = admixture
 ##    estimate alpha = TRUE
 ##    lambda = 1</code></pre>
-<p>The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy separately, and also has additional parameters to estimate. For this reason we suggest that <strong>if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only</strong>.</p>
+<p>The admixture model tends to take considerably longer to run than the no-admixture model, and mixes more poorly. This is because the MCMC now has to consider the population assignment of each gene copy separately rather than moving all genes within an individual in a single block, and also the model has additional parameters to estimate. For this reason we suggest that <strong>if there is no prior biological reason to expect admixture between populations then consider running the simpler non-admixture model only</strong>.</p>
 <p>We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the <code>pb_markdown = TRUE</code> argument ordinarily.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myproj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_mcmc.html">run_mcmc</a></span>(myproj, <span class="dt">K =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">burnin =</span> <span class="fl">1e4</span>, <span class="dt">converge_test =</span> <span class="dv">100</span>, <span class="dt">samples =</span> <span class="fl">2e3</span>, <span class="dt">rungs =</span> <span class="dv">10</span>, <span class="dt">pb_markdown =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">myproj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc.html">run_mcmc</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, burnin <span class="op">=</span> <span class="fl">1e4</span>, converge_test <span class="op">=</span> <span class="fl">100</span>, samples <span class="op">=</span> <span class="fl">2e3</span>,
+                   rungs <span class="op">=</span> <span class="fl">10</span>, pb_markdown <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## Calculating exact solution for K = 1
-##    completed in 0.0907722 seconds
+##    completed in 0.0789283 seconds
 ## 
 ## Running MCMC for K = 2
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    converged within 400 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    converged within 500 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 28.0424 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 24.2992 seconds
 ## 
 ## Running MCMC for K = 3
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    converged within 600 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    converged within 200 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 31.1131 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 26.162 seconds
 ## 
 ## Running MCMC for K = 4
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
+  |                                                                            
+  |======================================================================| 100%
 ##    converged within 300 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 34.1998 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 29.4715 seconds
 ## 
 ## Running MCMC for K = 5
 ## Burn-in phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    converged within 900 iterations
+  |                                                                            
+  |======================================================================| 100%
+##    converged within 3400 iterations
 ## Sampling phase
 ## 
-  |                                                                       
-  |=================================================================| 100%
-##    completed in 39.5092 seconds
+  |                                                                            
+  |======================================================================| 100%
+##    completed in 43.7119 seconds
 ## 
 ## Processing results</code></pre>
-<pre><code>## Total run-time: 2.23 minutes</code></pre>
+<pre><code>## Total run-time: 2.08 minutes</code></pre>
 <p>As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter <em>alpha</em> to check. We can produce a summary plot of this parameter as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_alpha.html">plot_alpha</a></span>(myproj, <span class="dt">K =</span> <span class="dv">3</span>)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
-<p>The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~40 draws), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the admixture model is essentially converging on this simpler model.</p>
-<p>As before, we need to check that our GTI path is smooth and straight <strong>for all values of K</strong>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_GTI_path.html">plot_GTI_path</a></span>(myproj, <span class="dt">K =</span> <span class="dv">3</span>)</code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_alpha.html">plot_alpha</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="basic_tutorial_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
-<p>Assuming we are happy with these paths, we can visualise the evidence for each value of K in log space and linear space:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_logevidence_K.html">plot_logevidence_K</a></span>(myproj)</code></pre></div>
+<p>The MCMC trace shows the actual value of alpha at each iteration of the MCMC, the autocorrelation plot shows how far apart draws need to be before they are approximately independent (here ~40 draws), and the density plot gives the posterior distribution of alpha. Notice that the estimated value of alpha is very small (~0.01). This is an early indication that the no-admixture model may be more appropriate here, as the admixture model is essentially converging on this simpler model.</p>
+<p>As before, we need to check that our GTI path is smooth and straight. Do this <strong>for all values of K</strong>:</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_GTI_path.html">plot_GTI_path</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="basic_tutorial_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_posterior_K.html">plot_posterior_K</a></span>(myproj)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-19-2.png" width="700"></p>
-<p>Again, there is clear evidence for K=3 under this model, despite the fact that this model is technically incorrect for the simulated data.</p>
-<p>Producing posterior allocation plots for a range of values of K we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_qmatrix.html">plot_qmatrix</a></span>(myproj, <span class="dt">K =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">divide_ind_on =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-20-1.png" width="768"></p>
+<p>Assuming we are happy with these paths, we can visualise the evidence for each value of <em>K</em> in log space and linear space:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_logevidence_K.html">plot_logevidence_K</a></span><span class="op">(</span><span class="va">myproj</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_posterior_K.html">plot_posterior_K</a></span><span class="op">(</span><span class="va">myproj</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-20-2.png" width="700"></p>
+<p>Again, there is clear evidence for <em>K</em>=3 under this model, despite the fact that this model is technically not appropriate for the simulated data.</p>
+<p>Producing posterior allocation plots for a range of values of <em>K</em> we see results similar to the no-admixture model, with most individuals assigned to just a single subpopulation.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_qmatrix.html">plot_qmatrix</a></span><span class="op">(</span><span class="va">myproj</span>, K <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, divide_ind_on <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-21-1.png" width="768"></p>
 </div>
 <div id="comparing-evolutionary-models" class="section level3">
 <h3 class="hasAnchor">
 <a href="#comparing-evolutionary-models" class="anchor"></a>Comparing evolutionary models</h3>
-<p>Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of K under that model. We can plot the overall model evidence in log space using the <code><a href="../reference/plot_logevidence_model.html">plot_logevidence_model()</a></code> function, and in the form of a posterior distribution using the <code><a href="../reference/plot_posterior_model.html">plot_posterior_model()</a></code> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_logevidence_model.html">plot_logevidence_model</a></span>(myproj)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-21-1.png" width="384"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_posterior_model.html">plot_posterior_model</a></span>(myproj)</code></pre></div>
-<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-21-2.png" width="384"></p>
-<p>It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. The data suggests that whatever admixture is present is minimal, and this should be taken alongside other biological considerations.</p>
-<p>At this point our basic analysis is complete, but see <a href="https://bobverity.github.io/rmaverick/articles/parallel.html">this</a> vignette on how to speed up the analysis by running in parallel over multiple cores.</p>
+<p>Finally, we can make use of one of the major advantages of the model evidence - the ability to compare between different evolutionary models. The overall evidence of a model is taken as the average over all values of <em>K</em> under that model. We can plot the overall model evidence in log space using the <code><a href="../reference/plot_logevidence_model.html">plot_logevidence_model()</a></code> function, and in the form of a posterior distribution using the <code><a href="../reference/plot_posterior_model.html">plot_posterior_model()</a></code> function:</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_logevidence_model.html">plot_logevidence_model</a></span><span class="op">(</span><span class="va">myproj</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-22-1.png" width="384"></p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_posterior_model.html">plot_posterior_model</a></span><span class="op">(</span><span class="va">myproj</span><span class="op">)</span></code></pre></div>
+<p><img src="basic_tutorial_files/figure-html/unnamed-chunk-22-2.png" width="384"></p>
+<p>It is clear from these plots that there is far greater support for the no-admixture model, therefore we would be perfectly justified in ignoring the output from the admixture model and only reporting results of the no-admixture model. In other words, the data suggests that whatever admixture is present is minimal, which should be taken alongside other biological considerations.</p>
+<p>At this point our basic analysis is complete. See <a href="https://bobverity.github.io/rmaverick/articles/parallel.html">this</a> vignette on how to speed up the analysis by running in parallel over multiple cores.</p>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+
       </div>
 
 </div>
 
 
+
       <footer><div class="copyright">
-  <p>Developed by Robert Verity.</p>
+  <p>Developed by Bob Verity.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
