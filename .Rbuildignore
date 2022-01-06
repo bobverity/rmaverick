@@ -10,3 +10,4 @@ R_ignore/
 ^README\.Rmd$
 ^README-.*\.png$
 index.md
+^\.github$

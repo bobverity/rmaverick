@@ -1,9 +1,10 @@
 # *rmaverick*
-### Version 1.0.5
-[![Build Status](https://travis-ci.org/bobverity/rmaverick.png?branch=develop)](https://travis-ci.org/bobverity/rmaverick)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/bobverity/rmaverick?branch=develop&svg=true)](https://ci.appveyor.com/project/bobverity/rmaverick)
-[![Coverage status](https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg)](https://codecov.io/github/bobverity/rmaverick?branch=develop)
-[![Documentation](https://github.com/bobverity/rmaverick/blob/master/R_ignore/images/documentation-click%20here!-blue.png)](https://bobverity.github.io/rmaverick/)
+### Version 1.0.6
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/bobverity/rmaverick/workflows/R-CMD-check/badge.svg)](https://github.com/bobverity/rmaverick/actions)
+  [![Coverage status](https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg)](https://codecov.io/github/bobverity/rmaverick?branch=develop)
+  [![Documentation](https://github.com/bobverity/rmaverick/blob/master/R_ignore/images/documentation-click%20here!-blue.png)](https://bobverity.github.io/rmaverick/)
+  <!-- badges: end -->
 
 --------------------------------------------------------------------------------------------------------------------------------
 
