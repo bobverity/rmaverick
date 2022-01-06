@@ -4,10 +4,10 @@
 \alias{recalculate_evidence}
 \title{Recalculate evidence and posterior estimates}
 \usage{
-recalculate_evidence(project)
+recalculate_evidence(proj)
 }
 \arguments{
-\item{project}{an rmaverick project, as produced by the function 
+\item{proj}{an rmaverick project, as produced by the function 
 \code{mavproject()}}
 }
 \description{

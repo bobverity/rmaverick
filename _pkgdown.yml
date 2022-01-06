@@ -1,0 +1,26 @@
+
+title: rmaverick
+template:
+  params:
+    bootswatch: flatly
+    
+navbar:
+  title: "rmaverick"
+  left:
+    - text: "Vignettes"
+      menu:
+        - text: "Installation"
+          href: articles/installation.html
+        - text: "Basic tutorial"
+          href: articles/basic_tutorial.html
+        - text: "Running in parallel"
+          href: articles/parallel.html
+    - text: "Functions"
+      href: reference/index.html
+    - text: "FAQ"
+      href: articles/faq.html
+    - text: "Known issues"
+      href: articles/known-issues.html
+  right:
+   - icon: fa-github
+     href: https://github.com/bobverity/rmaverick

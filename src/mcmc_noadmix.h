@@ -61,6 +61,10 @@ public:
   // objects for storing acceptance rates
   std::vector<int> coupling_accept;
   
+  // store convergence
+  std::vector<bool> rung_converged;
+  
+  
   // PUBLIC FUNCTIONS
   
   // constructors

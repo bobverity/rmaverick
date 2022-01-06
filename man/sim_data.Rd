@@ -4,9 +4,9 @@
 \alias{sim_data}
 \title{Simulate data}
 \usage{
-sim_data(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1,
-  admix_on = FALSE, alpha = 1, K = 3, pop_col_on = TRUE,
-  ploidy_col_on = TRUE)
+sim_data(n = 10, ploidy = 2, loci = 10, allele_num = 5,
+  lambda = 1, admix_on = FALSE, alpha = 1, K = 3,
+  pop_col_on = TRUE, ploidy_col_on = TRUE)
 }
 \arguments{
 \item{n}{number of samples}

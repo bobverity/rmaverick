@@ -12,8 +12,8 @@
 \item{...}{other arguments (ignored)}
 }
 \description{
-Custom print function for class mavproject, printing a summary
-  of the key elements (also equivalent to \code{summary(x)}). To do an
-  ordinary \code{print()} of all elements of the project, use the
+Custom print function for class mavproject, printing a summary 
+  of the key elements (also equivalent to \code{summary(x)}). To do an 
+  ordinary \code{print()} of all elements of the project, use the 
   \code{print_full()} function.
 }

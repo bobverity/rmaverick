@@ -1,7 +1,6 @@
 
 #------------------------------------------------
 # default rmaverick colours
-# (not exported)
 #' @noRd
 default_colours <- function(K) {
   
@@ -39,7 +38,6 @@ default_colours <- function(K) {
 
 #------------------------------------------------
 # ggplot theme with minimal objects
-# (not exported)
 #' @noRd
 theme_empty <- function() {
   theme(axis.line=element_blank(),
@@ -54,17 +52,8 @@ theme_empty <- function() {
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_loglike_quantiles
-#'   
-#' @description Default plot for class maverick_loglike_quantiles
-#'   
-#' @param x an object of class \code{maverick_loglike_quantiles}
-#' @param y a vector of x-axis values corresponding to each loglikelihood
-#'   quantile
-#' @param ... other arguments (ignored)
-#'   
-#' @export
-
+# Default plot for class maverick_loglike_quantiles
+#' @noRd
 plot.maverick_loglike_quantiles <- function(x, y, ...) {
   
   # get data into ggplot format
@@ -100,13 +89,13 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
 plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points = FALSE, connect_whiskers = FALSE) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   assert_in(axis_type, 1:3)
-  assert_scalar_logical(connect_points)
-  assert_scalar_logical(connect_whiskers)
+  assert_single_logical(connect_points)
+  assert_single_logical(connect_whiskers)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -167,16 +156,8 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_qmatrix_ind
-#'
-#' @description Default plot for class maverick_qmatrix_ind
-#'
-#' @param x an object of class \code{maverick_qmatrix_ind}
-#' @param y (ignored)
-#' @param ... other arguments (ignored)
-#'
-#' @export
-
+# Default plot for class maverick_qmatrix_ind
+#' @noRd
 plot.maverick_qmatrix_ind <- function(x, y, ...) {
   
   # get data into ggplot format
@@ -218,11 +199,11 @@ plot.maverick_qmatrix_ind <- function(x, y, ...) {
 plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_pos_int(K)
   }
-  assert_scalar_logical(divide_ind_on)
+  assert_single_logical(divide_ind_on)
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -287,17 +268,8 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_GTI_path
-#'
-#' @description Default plot for class maverick_GTI_path
-#'
-#' @param x an object of class \code{maverick_GTI_path}
-#' @param y how to format the x-axis. 1 = integer rungs, 2 = values of
-#'   beta
-#' @param ... other arguments (ignored)
-#'
-#' @export
-
+# Default plot for class maverick_GTI_path
+#' @noRd
 plot.maverick_GTI_path <- function(x, y, ...) {
   
   # check inputs
@@ -358,9 +330,9 @@ plot.maverick_GTI_path <- function(x, y, ...) {
 plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   assert_in(axis_type, 1:2)
   
@@ -394,16 +366,8 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_GTI_logevidence
-#'
-#' @description Default plot for class maverick_GTI_logevidence
-#'
-#' @param x an object of class \code{maverick_GTI_logevidence}
-#' @param y (ignored)
-#' @param ... other arguments (ignored)
-#'
-#' @export
-
+# Default plot for class maverick_GTI_logevidence
+#' @noRd
 plot.maverick_GTI_logevidence <- function(x, y, ...) {
   
   # get data into ggplot format
@@ -442,7 +406,7 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
 plot_logevidence_K <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -464,16 +428,8 @@ plot_logevidence_K <- function(proj) {
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_GTI_posterior
-#'
-#' @description Default plot for class maverick_GTI_posterior
-#'
-#' @param x an object of class \code{maverick_GTI_posterior}
-#' @param y (ignored)
-#' @param ... other arguments (ignored)
-#'
-#' @export
-
+# Default plot for class maverick_GTI_posterior
+#' @noRd
 plot.maverick_GTI_posterior <- function(x, y, ...) {
   
   # get data into ggplot format
@@ -514,7 +470,7 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
 plot_posterior_K <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # get active set and check non-zero
   s <- proj$active_set
@@ -536,16 +492,8 @@ plot_posterior_K <- function(proj) {
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_GTI_logevidence_model
-#'
-#' @description Default plot for class maverick_GTI_logevidence_model
-#'
-#' @param x an object of class \code{maverick_GTI_logevidence_model}
-#' @param y (ignored)
-#' @param ... other arguments (ignored)
-#'
-#' @export
-
+# Default plot for class maverick_GTI_logevidence_model
+#' @noRd
 plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
   
   # get data into ggplot format
@@ -585,7 +533,7 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
 plot_logevidence_model <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # check output exists
   GTI_logevidence_model <- proj$output$all_sets$GTI_logevidence_model
@@ -601,16 +549,8 @@ plot_logevidence_model <- function(proj) {
 }
 
 #------------------------------------------------
-#' @title Default plot for class maverick_GTI_posterior_model
-#'
-#' @description Default plot for class maverick_GTI_posterior_model
-#'
-#' @param x an object of class \code{maverick_GTI_logevidence_model}
-#' @param y (ignored)
-#' @param ... other arguments (ignored)
-#'
-#' @export
-
+# Default plot for class maverick_GTI_posterior_model
+#' @noRd
 plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   
   # get data into ggplot format
@@ -652,7 +592,7 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
 plot_posterior_model <- function(proj) {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   
   # check output exists
   GTI_posterior_model <- proj$output$all_sets$GTI_posterior_model
@@ -675,7 +615,7 @@ plot_posterior_model <- function(proj) {
 #' @param proj an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' @param K which value of K to produce the plot for
-#' @param rung which value of K to produce the plot for. Defaults to cold rung
+#' @param rung which value of K to produce the plot for. Defaults to the cold rung
 #' @param param whether to produce trace plot of admixture parameter
 #'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
 #' @param col colour of the trace
@@ -685,12 +625,12 @@ plot_posterior_model <- function(proj) {
 plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   if (!is.null(rung)) {
-    assert_scalar_pos_int(rung)
+    assert_single_pos_int(rung)
   }
   assert_in(param, c("alpha", "loglike"))
   
@@ -775,7 +715,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
 #' @param proj an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' @param K which value of K to produce the plot for
-#' @param rung which value of K to produce the plot for. Defaults to cold rung
+#' @param rung which value of K to produce the plot for. Defaults to the cold rung
 #' @param param whether to produce trace plot of admixture parameter
 #'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
 #' @param col colour of the trace
@@ -785,12 +725,12 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
 plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   if (!is.null(rung)) {
-    assert_scalar_pos_int(rung)
+    assert_single_pos_int(rung)
   }
   assert_in(param, c("alpha", "loglike"))
   
@@ -856,7 +796,8 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   
   # get into ggplot format
   a <- acf(v, lag.max = lag_max, plot = FALSE)
-  df <- data.frame(lag = 0:lag_max, ACF = as.vector(a$acf))
+  acf <- as.vector(a$acf)
+  df <- data.frame(lag = (1:length(acf))-1, ACF = acf)
   
   # produce plot
   plot1 <- ggplot(df) + theme_bw()
@@ -877,7 +818,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
 #' @param proj an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' @param K which value of K to produce the plot for
-#' @param rung which value of K to produce the plot for. Defaults to cold rung
+#' @param rung which value of K to produce the plot for. Defaults to the cold rung
 #' @param param whether to produce trace plot of admixture parameter
 #'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
 #' @param col colour of the trace
@@ -887,12 +828,12 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
 plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_mavproject(proj)
+  assert_custom_class(proj, "mavproject")
   if (!is.null(K)) {
-    assert_scalar_pos_int(K)
+    assert_single_pos_int(K)
   }
   if (!is.null(rung)) {
-    assert_scalar_pos_int(rung)
+    assert_single_pos_int(rung)
   }
   assert_in(param, c("alpha", "loglike"))
   
@@ -990,6 +931,34 @@ plot_alpha <- function(proj, K = NULL, col = "black") {
   plot2 <- plot2 + ggtitle("autocorrelation")
   
   plot3 <- plot_density(proj, K = K, col = col)
+  plot3 <- plot3 + ggtitle("density")
+  
+  # produce grid of plots
+  ret <- grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
+}
+
+#------------------------------------------------
+#' @title Produce diagnostic plots of log-likelihood
+#'
+#' @description Produce diagnostic plots of the log-likelihood.
+#'
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param col colour of the trace
+#'
+#' @export
+
+plot_loglike <- function(proj, K = NULL, col = "black") {
+  
+  # produce individual diagnostic plots and add features
+  plot1 <- plot_trace(proj, K = K, param = "loglike", col = col)
+  plot1 <- plot1 + ggtitle("MCMC trace")
+  
+  plot2 <- plot_acf(proj, K = K, param = "loglike", col = col)
+  plot2 <- plot2 + ggtitle("autocorrelation")
+  
+  plot3 <- plot_density(proj, K = K, param = "loglike", col = col)
   plot3 <- plot3 + ggtitle("density")
   
   # produce grid of plots

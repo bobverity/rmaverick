@@ -23,17 +23,17 @@
 sim_data <- function(n = 10, ploidy = 2, loci = 10, allele_num = 5, lambda = 1.0, admix_on = FALSE, alpha = 1, K = 3, pop_col_on = TRUE, ploidy_col_on = TRUE) {
   
   # check inputs
-  assert_scalar_pos_int(n);
+  assert_single_pos_int(n);
   assert_pos_int(ploidy, zero_allowed = FALSE)
   assert_in(length(ploidy), c(1,n))
-  assert_scalar_pos_int(loci);
-  assert_scalar_pos_int(allele_num);
-  assert_scalar_pos(lambda)
-  assert_scalar_logical(admix_on)
-  assert_scalar_pos(alpha);
-  assert_scalar_pos_int(K);
-  assert_scalar_logical(pop_col_on)
-  assert_scalar_logical(ploidy_col_on)
+  assert_single_pos_int(loci);
+  assert_single_pos_int(allele_num);
+  assert_single_pos(lambda)
+  assert_single_logical(admix_on)
+  assert_single_pos(alpha);
+  assert_single_pos_int(K);
+  assert_single_logical(pop_col_on)
+  assert_single_logical(ploidy_col_on)
   
   # expand ploidy to vector
   ploidy <- force_vector(ploidy, n)

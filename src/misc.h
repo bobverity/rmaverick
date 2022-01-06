@@ -12,39 +12,39 @@
 // basic sum over elements in a vector (templated for different data types).
 template<class TYPE>
 TYPE sum(std::vector<TYPE> &x) {
-    TYPE output = 0;
-    for (int i=0; i<int(x.size()); i++) {
-        output += x[i];
-    }
-    return output;
+  TYPE output = 0;
+  for (int i=0; i<int(x.size()); i++) {
+    output += x[i];
+  }
+  return output;
 }
 
 //------------------------------------------------
 // mean of vector (templated for different data types)
 template<class TYPE>
 double mean(std::vector<TYPE> &x) {
-    return sum(x)/double(x.size());
+  return sum(x)/double(x.size());
 }
 
 //------------------------------------------------
 // min of vector (templated for different data types)
 template<class TYPE>
 TYPE min(std::vector<TYPE> x) {
-    return *min_element(x.begin(), x.end());
+  return *min_element(x.begin(), x.end());
 }
 
 //------------------------------------------------
 // max of vector (templated for different data types)
 template<class TYPE>
 TYPE max(std::vector<TYPE> x) {
-    return *max_element(x.begin(), x.end());
+  return *max_element(x.begin(), x.end());
 }
 
 //------------------------------------------------
 // push back multiple values to vector
 template<class TYPE>
 void push_back_multiple(std::vector<TYPE> &lhs, std::vector<TYPE> &rhs) {
-    lhs.insert(lhs.end(), rhs.begin(), rhs.end());
+  lhs.insert(lhs.end(), rhs.begin(), rhs.end());
 }
 
 //------------------------------------------------
@@ -81,76 +81,76 @@ double log_sum(double logA, double logB);
 // helper function for printing a single value or series of values (templated for different data types)
 template<class TYPE>
 void print(TYPE x) {
-    Rcpp::Rcout << x << "\n";
-    R_FlushConsole();
+  Rcpp::Rcout << x << "\n";
+  R_FlushConsole();
 }
 template<class TYPE1, class TYPE2>
 void print(TYPE1 x1, TYPE2 x2) {
-    Rcpp::Rcout << x1 << " " << x2 << "\n";
-    R_FlushConsole();
+  Rcpp::Rcout << x1 << " " << x2 << "\n";
+  R_FlushConsole();
 }
 template<class TYPE1, class TYPE2, class TYPE3>
 void print(TYPE1 x1, TYPE2 x2, TYPE3 x3) {
-    Rcpp::Rcout << x1 << " " << x2 << " " << x3 << "\n";
-    R_FlushConsole();
+  Rcpp::Rcout << x1 << " " << x2 << " " << x3 << "\n";
+  R_FlushConsole();
 }
 template<class TYPE1, class TYPE2, class TYPE3, class TYPE4>
 void print(TYPE1 x1, TYPE2 x2, TYPE3 x3, TYPE4 x4) {
-    Rcpp::Rcout << x1 << " " << x2 << " " << x3 << " " << x4 << "\n";
-    R_FlushConsole();
+  Rcpp::Rcout << x1 << " " << x2 << " " << x3 << " " << x4 << "\n";
+  R_FlushConsole();
 }
 template<class TYPE1, class TYPE2, class TYPE3, class TYPE4, class TYPE5>
 void print(TYPE1 x1, TYPE2 x2, TYPE3 x3, TYPE4 x4, TYPE5 x5) {
-    Rcpp::Rcout << x1 << " " << x2 << " " << x3 << " " << x4 << " " << x5 << "\n";
-    R_FlushConsole();
+  Rcpp::Rcout << x1 << " " << x2 << " " << x3 << " " << x4 << " " << x5 << "\n";
+  R_FlushConsole();
 }
 template<class TYPE1, class TYPE2, class TYPE3, class TYPE4, class TYPE5, class TYPE6>
 void print(TYPE1 x1, TYPE2 x2, TYPE3 x3, TYPE4 x4, TYPE5 x5, TYPE6 x6) {
-    Rcpp::Rcout << x1 << " " << x2 << " " << x3 << " " << x4 << " " << x5 << " " << x6 << "\n";
-    R_FlushConsole();
+  Rcpp::Rcout << x1 << " " << x2 << " " << x3 << " " << x4 << " " << x5 << " " << x6 << "\n";
+  R_FlushConsole();
 }
 
 //------------------------------------------------
 // helper function for printing contents of a vector (templated for different data types)
 template<class TYPE>
 void print_vector(std::vector<TYPE> &x) {
-    for (int i=0; i<x.size(); i++) {
-        Rcpp::Rcout << x[i] << " ";
-    }
-    Rcpp::Rcout << "\n";
-    R_FlushConsole();
+  for (int i=0; i<x.size(); i++) {
+    Rcpp::Rcout << x[i] << " ";
+  }
+  Rcpp::Rcout << "\n";
+  R_FlushConsole();
 }
 
 //------------------------------------------------
 // helper function for printing contents of a matrix (templated for different data types)
 template<class TYPE>
 void print_matrix(std::vector< std::vector<TYPE> > &x) {
-    for (int i=0; i<x.size(); i++) {
-        for (int j=0; j<x[i].size(); j++) {
-            Rcpp::Rcout << x[i][j] << " ";
-        }
-        Rcpp::Rcout << "\n";
+  for (int i=0; i<x.size(); i++) {
+    for (int j=0; j<x[i].size(); j++) {
+      Rcpp::Rcout << x[i][j] << " ";
     }
     Rcpp::Rcout << "\n";
-    R_FlushConsole();
+  }
+  Rcpp::Rcout << "\n";
+  R_FlushConsole();
 }
 
 //------------------------------------------------
 // helper function for printing contents of a 3D array (templated for different data types)
 template<class TYPE>
 void print_array(std::vector< std::vector< std::vector<TYPE> > > &x) {
-    for (int i=0; i<x.size(); i++) {
-        Rcpp::Rcout << "--- slice " << i+1 << " ---\n";
-        for (int j=0; j<x[i].size(); j++) {
-            for (int k=0; k<x[i][j].size(); k++) {
-                Rcpp::Rcout << x[i][j][k] << " ";
-            }
-            Rcpp::Rcout << "\n";
-        }
-        Rcpp::Rcout << "\n";
+  for (int i=0; i<x.size(); i++) {
+    Rcpp::Rcout << "--- slice " << i+1 << " ---\n";
+    for (int j=0; j<x[i].size(); j++) {
+      for (int k=0; k<x[i][j].size(); k++) {
+        Rcpp::Rcout << x[i][j][k] << " ";
+      }
+      Rcpp::Rcout << "\n";
     }
     Rcpp::Rcout << "\n";
-    R_FlushConsole();
+  }
+  Rcpp::Rcout << "\n";
+  R_FlushConsole();
 }
 
 //------------------------------------------------

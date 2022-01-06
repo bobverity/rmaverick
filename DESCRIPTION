@@ -1,7 +1,7 @@
 Package: rmaverick
 Type: Package
 Title: Analysis of population structure
-Version: 1.0
+Version: 1.0.5
 Date: 2018-04-06
 URL: https://bobverity.github.io/rmaverick/
 Authors@R: person("Robert", "Verity", email = "r.verity@imperial.ac.uk",
@@ -9,18 +9,21 @@ Authors@R: person("Robert", "Verity", email = "r.verity@imperial.ac.uk",
 Maintainer: Robert Verity <maverick.help@bobverity.com>
 Description: Carries out analysis of genetic population structure with thermodynamic integration.
 License: MIT + file LICENSE
+BugReports: https://github.com/bobverity/rmaverick/issues
 Imports:
     Rcpp (>= 0.12.14),
-    assertthat,
+    parallel,
     coda,
     ggplot2,
     gridExtra
 LinkingTo:
     Rcpp
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Suggests: 
     testthat,
-    covr
+    knitr,
+    rmarkdown
 SystemRequirements:
     C++11
-
+VignetteBuilder: knitr
+Encoding: UTF-8

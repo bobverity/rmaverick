@@ -3,7 +3,6 @@
 # The following commands ensure that package dependencies are listed in the NAMESPACE file.
 
 #' @useDynLib rmaverick
-#' @import assertthat
 #' @import parallel
 #' @import coda
 #' @import ggplot2
@@ -14,6 +13,18 @@
 #' @import utils
 #' @importFrom grDevices colorRampPalette
 NULL
+
+#------------------------------------------------
+#' @title Check that rmaverick package has loaded successfully
+#'
+#' @description Simple function to check that rmaverick package has loaded
+#'   successfully. Prints "rmaverick loaded successfully!" if so.
+#'
+#' @export
+
+check_rmaverick_loaded <- function() {
+  message("rmaverick loaded successfully!")
+}
 
 #------------------------------------------------
 #' @title Bind data to project
@@ -43,16 +54,25 @@ NULL
 #'   be a scalar, in which case the same value is used for all samples, or a 
 #'   vector specifying the ploidy seperately for each sample.
 #' @param missing_data which value represents missing data
-#' @param name optional name of the data set, to aid in record keeping
+#' @param wide_format if \code{TRUE} then uses one line per sample, with loci
+#'   stacked side-by-side in columns. When using this format the ploidy must be
+#'   the same for all samples, and must be specified using the \code{ploidy}
+#'   variable rather than as a seperate column
+#' @param name optional name of the data set to aid in record keeping
 #' @param check_delete_output whether to prompt the user before overwriting 
 #'   existing data
 #'
 #' @export
 
-bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, name = NULL, check_delete_output = TRUE) {
+bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE, name = NULL, check_delete_output = TRUE) {
+  
+  # check inputs (further checks carried out in process_data() function)
+  assert_custom_class(project, "mavproject")
+  assert_dataframe(df)
+  assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
   
   # check before overwriting existing output
-  if (project$active_set>0 & check_delete_output) {
+  if (project$active_set>0 && check_delete_output) {
     
     # ask before overwriting. On abort, return original project
     if (!user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")) {
@@ -64,48 +84,75 @@ bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL
   }
   
   # process and perform checks on data
-  dat_proc <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data)
-  dat_proc$name <- name
+  dat_processed <- process_data(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format)
+  dat_processed$name <- name
   
   # add data to project
   project$data <- df
-  project$data_processed <- dat_proc
+  project$data_processed <- dat_processed
   
   return(project)
 }
 
 #------------------------------------------------
 # process data
-# (not exported)
 #' @noRd
-process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
+process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data, wide_format) {
   
-  # checks on input
-  assert_dataframe(df)
-  assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
+  # process differently in wide vs. long format
+  if (wide_format) {
+    ret <- process_data_wide(df = df,
+                             ID_col = ID_col,
+                             pop_col = pop_col,
+                             ploidy_col = ploidy_col,
+                             data_cols = data_cols,
+                             ID = ID,
+                             pop = pop,
+                             ploidy = ploidy,
+                             missing_data = missing_data)
+  } else {
+    ret <- process_data_long(df = df,
+                             ID_col = ID_col,
+                             pop_col = pop_col,
+                             ploidy_col = ploidy_col,
+                             data_cols = data_cols,
+                             ID = ID,
+                             pop = pop,
+                             ploidy = ploidy,
+                             missing_data = missing_data)
+  }
+  
+  return(ret)
+}
+
+#------------------------------------------------
+# process data in long format
+#' @noRd
+process_data_long <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
   
   # get ploidy in final form
   if (is.null(ploidy_col)) {
     if (is.null(ploidy)) {
       message("using default value of ploidy = 1")
+      ploidy <- 1
     }
-    if (length(ploidy)==1) {
-      assert_that((nrow(df)%%ploidy)==0)
+    if (length(ploidy) == 1) {
+      assert_eq((nrow(df)%%ploidy), 0)
       ploidy <- rep(ploidy, nrow(df)/ploidy)
     }
   } else {
-    assert_scalar_pos_int(ploidy_col, zero_allowed = FALSE)
+    assert_single_pos_int(ploidy_col, zero_allowed = FALSE)
     assert_leq(ploidy_col, ncol(df))
     ploidy_raw <- df[,ploidy_col]
     ploidy <- NULL
     i <- 1
-    while (i<=nrow(df)) {
+    while (i <= nrow(df)) {
       ploidy <- c(ploidy, ploidy_raw[i])
       i <- i + ploidy_raw[i]
     }
   }
   assert_pos_int(ploidy)
-  assert_that(nrow(df)==sum(ploidy))
+  assert_nrow(df, sum(ploidy))
   ind_first_row <- cumsum(ploidy) - ploidy + 1
   n <- length(ploidy)
   
@@ -113,7 +160,7 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
   if (is.null(ID_col)) {
     ID <- define_default(ID, paste0("sample", 1:n))
   } else {
-    assert_scalar_pos_int(ID_col, zero_allowed = FALSE)
+    assert_single_pos_int(ID_col, zero_allowed = FALSE)
     assert_leq(ID_col, ncol(df))
     ID <- df[ind_first_row, ID_col]
   }
@@ -123,7 +170,7 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
   if (is.null(pop_col)) {
     pop <- define_default(pop, rep(1,n))
   } else {
-    assert_scalar_pos_int(pop_col, zero_allowed = FALSE)
+    assert_single_pos_int(pop_col, zero_allowed = FALSE)
     assert_leq(pop_col, ncol(df))
     pop <- df[ind_first_row,pop_col]
   }
@@ -140,10 +187,8 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
   
   dat <- as.matrix(df[,data_cols,drop = FALSE])
   L <- ncol(dat)
-  assert_that(n>0)
-  assert_that(L>0)
-  assert_that(all(apply(dat, 1, is.numeric)))
-  dat[dat==missing_data] <- NA
+  apply(dat, 1, assert_numeric)
+  dat[dat == missing_data] <- NA
   
   # recode to remove redundancy
   Jl <- rep(NA, L)
@@ -161,6 +206,65 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
               ind_first_row = ind_first_row,
               pop = pop,
               ploidy = ploidy)
+  
+  return(ret)
+}
+
+#------------------------------------------------
+# process data in wide format
+#' @noRd
+process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, ploidy, missing_data) {
+  
+  # check inputs
+  assert_null(ploidy_col, message = "ploidy_col must be null when using wide_format")
+  assert_non_null(ploidy, message = "ploidy must be specified when using wide format")
+  assert_single_pos_int(ploidy)
+  
+  # get genetic data columns
+  if (is.null(data_cols)) {
+    data_cols <- setdiff(1:ncol(df), c(ID_col, pop_col, ploidy_col))
+  }
+  assert_pos_int(data_cols, zero_allowed = FALSE)
+  assert_leq(data_cols, ncol(df))
+  assert_noduplicates(data_cols)
+  
+  # check ploidy compatible with data dimensions
+  assert_eq((length(data_cols)%%ploidy), 0)
+  
+  # get genetic data into long format
+  dat <- as.matrix(df[,data_cols,drop = FALSE])
+  n <- nrow(dat)
+  L <- ncol(dat)/ploidy
+  tmp <- apply(dat, 1, function(x){matrix(x, ncol = ploidy, byrow = TRUE)})
+  dat_long <- matrix(tmp, ncol = L, byrow = TRUE)
+  
+  # add meta-data columns back in
+  if (is.null(ID_col)) {
+    ID <- define_default(ID, paste0("sample", 1:n))
+  } else {
+    assert_single_pos_int(ID_col, zero_allowed = FALSE)
+    assert_leq(ID_col, ncol(df))
+    ID <- df[, ID_col]
+  }
+  assert_length(ID,n)
+  df_out <- data.frame(ID = rep(ID, each = ploidy), stringsAsFactors = FALSE)
+  if (!is.null(pop_col)) {
+    assert_single_pos_int(pop_col, zero_allowed = FALSE)
+    assert_leq(pop_col, ncol(df))
+    df_out <- cbind(df_out, pop = rep(df[,pop_col], each = ploidy))
+  }
+  df_out <- cbind(df_out, dat_long)
+  
+  # now can process data in long format
+  ret <- process_data_long(df = df_out,
+                           ID_col = ID_col,
+                           pop_col = pop_col,
+                           ploidy_col = ploidy_col,
+                           data_cols = NULL,
+                           ID = ID,
+                           pop = pop,
+                           ploidy = ploidy,
+                           missing_data = missing_data)
   
   return(ret)
 }
@@ -191,12 +295,12 @@ process_data <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, pop, pl
 new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE, alpha = 0.1, estimate_alpha = TRUE) {
   
   # check inputs
-  assert_mavproject(project)
-  assert_character(name)
-  assert_scalar_pos(lambda)
-  assert_scalar_logical(admix_on)
-  assert_scalar_pos(alpha)
-  assert_scalar_logical(estimate_alpha)
+  assert_custom_class(project, "mavproject")
+  assert_string(name)
+  assert_single_pos(lambda)
+  assert_single_logical(admix_on)
+  assert_single_pos(alpha)
+  assert_single_logical(estimate_alpha)
   
   # count current parameter sets and add one
   s <- length(project$parameter_sets) + 1
@@ -260,14 +364,14 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
 delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # check inputs
-  assert_mavproject(project)
-  assert_scalar_logical(check_delete_output)
+  assert_custom_class(project, "mavproject")
+  assert_single_logical(check_delete_output)
   
   # set index to active_set by default
   set <- define_default(set, project$active_set)
   
   # further checks
-  assert_scalar_pos_int(set, zero_allowed = FALSE)
+  assert_single_pos_int(set, zero_allowed = FALSE)
   assert_leq(set, length(project$parameter_sets))
   
   # check before overwriting existing output
@@ -300,6 +404,31 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   if (project$active_set>0) {
     project <- recalculate_evidence(project)
   }
+  
+  # return
+  return(project)
+}
+
+#------------------------------------------------
+#' @title Change active parameter set
+#'   
+#' @description Change the active parameter set within an rmaverick project.
+#'   
+#' @param project an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param set which set to make the new active set
+#'   
+#' @export
+
+change_set <- function(project, set) {
+  
+  # check inputs
+  assert_custom_class(project, "mavproject")
+  assert_single_pos_int(set)
+  assert_leq(set, length(project$parameter_sets))
+  
+  # change active set
+  project$active_set <- set
   
   # return
   return(project)
@@ -339,28 +468,28 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
 #' 
 #' @export
 
-run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = !is.null(cluster)) {
+run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = FALSE) {
   
   # start timer
-  #t0 <- Sys.time()
+  t0 <- Sys.time()
   
   # check inputs
-  assert_mavproject(project)
+  assert_custom_class(project, "mavproject")
   assert_pos_int(K, zero_allowed = FALSE)
-  assert_scalar_pos_int(burnin, zero_allowed = FALSE)
-  assert_scalar_pos_int(samples, zero_allowed = FALSE)
-  assert_scalar_pos_int(rungs, zero_allowed = FALSE)
-  assert_scalar_pos(GTI_pow)
+  assert_single_pos_int(burnin, zero_allowed = FALSE)
+  assert_single_pos_int(samples, zero_allowed = FALSE)
+  assert_single_pos_int(rungs, zero_allowed = FALSE)
+  assert_single_pos(GTI_pow)
   assert_gr(GTI_pow, 1.1)
-  assert_scalar_logical(auto_converge)
-  assert_scalar_pos_int(converge_test, zero_allowed = FALSE)
-  assert_scalar_logical(solve_label_switching_on)
-  assert_scalar_logical(coupling_on)
+  assert_single_logical(auto_converge)
+  assert_single_pos_int(converge_test, zero_allowed = FALSE)
+  assert_single_logical(solve_label_switching_on)
+  assert_single_logical(coupling_on)
   if (!is.null(cluster)) {
     assert_cluster(cluster)
   }
-  assert_scalar_logical(pb_markdown)
-  assert_scalar_logical(silent)
+  assert_single_logical(pb_markdown)
+  assert_single_logical(silent)
   
   # get active set
   s <- project$active_set
@@ -392,7 +521,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                       solve_label_switching_on = solve_label_switching_on,
                       coupling_on = coupling_on,
                       pb_markdown = pb_markdown,
-                      silent = silent)
+                      silent = !is.null(cluster))
   
   # combine model parameters list with input arguments
   args_model <- c(project$parameter_sets[[s]], args_inputs)
@@ -431,7 +560,6 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
     output_raw <- lapply(parallel_args, run_mcmc_cpp)
   }
   
-  
   #------------------------
   
   # begin processing results
@@ -441,6 +569,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   
   # loop through K
   ret <- list()
+  all_converged <- TRUE
   for (i in 1:length(K)) {
     
     # create name lists
@@ -472,12 +601,18 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                                     SE = 0)
       coupling_accept <- NULL
       
+      # all rungs converged by definition
+      converged <- rep(TRUE, rungs)
+      
+      # get run time
+      run_time <- output_raw[[i]]$run_time
+      
     } else { # extract output if K>1
       
       # ---------- raw mcmc results ----------
       
       # get loglikelihood in coda::mcmc format
-      loglike_burnin <- mcmc(t(rcpp_to_mat(output_raw[[i]]$loglike_burnin)))
+      loglike_burnin <- mapply(function(x){mcmc(x)}, output_raw[[i]]$loglike_burnin)
       loglike_sampling <- mcmc(t(rcpp_to_mat(output_raw[[i]]$loglike_sampling)))
       
       # alpha
@@ -485,6 +620,15 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       if (admix_on) {
         alpha <- mcmc(output_raw[[i]]$alpha_store)
       }
+      
+      # get whether rungs have converged
+      converged <- output_raw[[i]]$rung_converged
+      if (all_converged && any(!converged)) {
+        all_converged <- FALSE
+      }
+      
+      # get run time
+      run_time <- output_raw[[i]]$run_time
       
       # ---------- summary results ----------
       
@@ -503,8 +647,8 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       
       # get ESS
       ESS <- effectiveSize(loglike_sampling)
-      ESS[ESS==0] <- samples # if no variation then assume zero autocorrelation
-      ESS[ESS>samples] <- samples # ESS cannot exceed actual number of samples taken
+      ESS[ESS == 0] <- samples # if no variation then assume zero autocorrelation
+      ESS[ESS > samples] <- samples # ESS cannot exceed actual number of samples taken
       names(ESS) <- rung_names
       
       # weight likelihood according to GTI_pow
@@ -571,7 +715,9 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
                                                                     loglike_quantiles = loglike_quantiles,
                                                                     ESS = ESS,
                                                                     GTI_path = GTI_path,
-                                                                    GTI_logevidence = GTI_logevidence)
+                                                                    GTI_logevidence = GTI_logevidence,
+                                                                    converged = converged,
+                                                                    run_time = run_time)
     
     project$output$single_set[[s]]$single_K[[K[i]]]$raw <- list(loglike_burnin = loglike_burnin,
                                                                 loglike_sampling = loglike_sampling,
@@ -596,12 +742,19 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   project <- recalculate_evidence(project)
   
   # end timer
-  #tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-  #if (tdiff<60) {
-  #  message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
-  #} else {
-  #  message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
-  #}
+  if (!silent) {
+    tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+    if (tdiff<60) {
+      message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
+    } else {
+      message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+    }
+  }
+  
+  # warning if any rungs in any MCMCs did not converge
+  if (!all_converged && !silent) {
+    message("\n**WARNING** at least one MCMC run did not converge within specified burn-in\n")
+  }
   
   # return invisibly
   invisible(project)
@@ -609,7 +762,6 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
 
 #------------------------------------------------
 # extract GTI_logevidence from all K within a given parameter set
-# (not exported)
 #' @noRd
 get_GTI_logevidence_K <- function(proj, s) {
   
@@ -643,7 +795,6 @@ get_GTI_logevidence_K <- function(proj, s) {
 
 #------------------------------------------------
 # compute posterior over several log-evidence estimates
-# (not exported)
 #' @noRd
 get_GTI_posterior <- function(x) {
   
@@ -667,7 +818,6 @@ get_GTI_posterior <- function(x) {
 
 #------------------------------------------------
 # call get_GTI_posterior over values of K
-# (not exported)
 #' @noRd
 get_GTI_posterior_K <- function(proj, s) {
   
@@ -686,7 +836,6 @@ get_GTI_posterior_K <- function(proj, s) {
 
 #------------------------------------------------
 # call get_GTI_posterior over models
-# (not exported)
 #' @noRd
 get_GTI_posterior_model <- function(proj) {
   
@@ -705,7 +854,6 @@ get_GTI_posterior_model <- function(proj) {
 
 #------------------------------------------------
 # integrate multiple log-evidence estimates by simulation
-# (not exported)
 #' @noRd
 integrate_GTI_logevidence <- function(x) {
   
@@ -727,7 +875,6 @@ integrate_GTI_logevidence <- function(x) {
 
 #------------------------------------------------
 # log-evidence estimates over K
-# (not exported)
 #' @noRd
 integrate_GTI_logevidence_K <- function(proj, s) {
   
@@ -744,8 +891,7 @@ integrate_GTI_logevidence_K <- function(proj, s) {
 }
 
 #------------------------------------------------
-# align qmatrices
-# (not exported)
+# align qmatrices over all K
 #' @noRd
 align_qmatrix <- function(proj) {
   
@@ -802,34 +948,62 @@ align_qmatrix <- function(proj) {
 #'
 #' @description When a new value of K is added in to the analysis it affects all downstream evidence estimates that depend on this K - for example the overall model evidence integrated over K. This function therefore looks through all values of K in the active set and recalculates all downstream elements as needed.
 #'
-#' @param project an rmaverick project, as produced by the function 
+#' @param proj an rmaverick project, as produced by the function 
 #'   \code{mavproject()}
 #' 
 #' @export
 
-recalculate_evidence <- function(project) {
+recalculate_evidence <- function(proj) {
   
   # check inputs
-  assert_mavproject(project)
+  assert_custom_class(proj, "mavproject")
   
   # get active set
-  s <- project$active_set
-  if (s==0) {
+  s <- proj$active_set
+  if (s == 0) {
     stop("no active parameter set")
   }
   
   # get log-evidence over all K and load into project
-  project <- get_GTI_logevidence_K(project, s)
+  proj <- get_GTI_logevidence_K(proj, s)
   
   # produce posterior estimates of K by simulation and load into project
-  project <- get_GTI_posterior_K(project, s)
+  proj <- get_GTI_posterior_K(proj, s)
   
   # get log-evidence over all parameter sets
-  project <- integrate_GTI_logevidence_K(project, s)
+  proj <- integrate_GTI_logevidence_K(proj, s)
   
   # get posterior over all parameter sets
-  project <- get_GTI_posterior_model(project)
+  proj <- get_GTI_posterior_model(proj)
   
   # return modified project
-  return(project)
+  return(proj)
+}
+
+#------------------------------------------------
+#' @title Extract q-matrix for a given analysis
+#'
+#' @description Simple function for extracting the q-matrix output from a given
+#'   parameter set (defaults to the active set) and value of K.
+#'
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to extract
+#' @param s which set to extract from. Defaults to the current active set
+#'
+#' @export
+
+get_qmatrix <- function(proj, K, s = NULL) {
+  
+  # check inputs
+  assert_custom_class(proj, "mavproject")
+  
+  # default to active set
+  s <- define_default(s, proj$active_set)
+  if (s == 0) {
+    stop("no active parameter set")
+  }
+  
+  # return q-matrix
+  return(proj$output$single_set[[s]]$single_K[[K]]$summary$qmatrix_ind)
 }

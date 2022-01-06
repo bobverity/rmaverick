@@ -13,7 +13,7 @@ plot_density(proj, K = NULL, rung = NULL, param = "alpha",
 
 \item{K}{which value of K to produce the plot for}
 
-\item{rung}{which value of K to produce the plot for. Defaults to cold rung}
+\item{rung}{which value of K to produce the plot for. Defaults to the cold rung}
 
 \item{param}{whether to produce trace plot of admixture parameter
 (\code{"alpha"}) or the log-likelihood (\code{"loglike"})}

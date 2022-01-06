@@ -1,0 +1,63 @@
+---
+title: "Running in parallel"
+author: "Bob Verity"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette demonstrates how to run *rmaverick* in parallel, making use of multiple cores if they are available.
+
+```{r, echo=FALSE}
+set.seed(1)
+library(rmaverick)
+```
+
+First, we must install and load the "parallel" package:
+
+```{r, eval = FALSE}
+install.packages("parallel")
+library(parallel)
+```
+
+We will need some data to work with, so lets simulate some data and load it into a new project. We will also create a simple parameter set to work with:
+
+```{r}
+mysim <- sim_data(n = 50, loci = 10, K = 3, admix_on = FALSE)
+
+myproj <- mavproject()
+myproj <- bind_data(myproj, mysim$data, ID_col = 1, pop_col = 2, ploidy_col = 3)
+myproj <- new_set(myproj, admix_on = FALSE)
+myproj
+```
+
+Before running anything in parallel we need to know how many cores our machine has. You may know this number already, but if you don't then the parallel package has a handy function for detecting the number of cores for you:
+
+```{r, eval = FALSE}
+cores <- detectCores()
+```
+
+Next we make a cluster object, which creates multiple copies of R running in parallel over different cores. Here we are using all available cores, but if you want to hold some back for other intensive tasks then simply use a smaller number of cores when specifying this cluster.
+
+```{r, eval = FALSE}
+cl <- makeCluster(cores)
+```
+
+We then run the usual `run_mcmc()` function, this time passing in the cluster as an argument. This causes *rmaverick* to use a `clusterApplyLB()` call rather than an ordinary `lapply()` call over different values of K. Each value of K is added to a queue over the specified number of cores - when the first job completes, the next job is placed on the node that has become free and this continues until all jobs are complete.
+
+Note that output is supressed when running in parallel to avoid sending print commands to multiple cores, so you will not see the usual progress bars.
+
+```{r, eval = FALSE}
+myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e3, samples = 1e3, rungs = 10, cluster = cl)
+```
+
+Finally, it is good practice to shut down the workers once we are finished:
+
+```{r, eval = FALSE}
+stopCluster(cl)
+```
+
+

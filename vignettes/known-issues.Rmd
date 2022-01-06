@@ -1,0 +1,33 @@
+---
+title: "Known Issues"
+author: "Bob Verity"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+### Timezone warning on installation
+
+```
+Warning message:
+In strptime(x, fmt, tz = "GMT") :
+  unknown timezone 'default/Europe/Brussels'
+```
+
+*rmaverick* appears to take issue with certain timezones. This prevents various timers from working, which stops the package from being installed.
+
+A known solution is to use the `Sys.setenv()` function to set the timezone manually at the beginning of a script. The "Europe/Berlin" is known to work.
+
+
+### Make not found
+
+```
+Warning in system(cmd) : 'make' not found
+ERROR: compilation failed for package 'rmaverick'
+```
+
+This can be caused by a mismatch between versions of R and RTools. Make sure you have the correct version of [RTools](https://cran.r-project.org/bin/windows/Rtools/) installed for your version of R, then restart RStudio (or whatever IDE you are using) and try again.
+

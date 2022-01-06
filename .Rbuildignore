@@ -9,3 +9,4 @@ R_ignore/
 ^docs$
 ^README\.Rmd$
 ^README-.*\.png$
+index.md

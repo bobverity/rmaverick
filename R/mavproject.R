@@ -41,9 +41,9 @@ mavproject <- function() {
 #------------------------------------------------
 #' @title Custom print function for class mavproject
 #'   
-#' @description Custom print function for class mavproject, printing a summary
-#'   of the key elements (also equivalent to \code{summary(x)}). To do an
-#'   ordinary \code{print()} of all elements of the project, use the
+#' @description Custom print function for class mavproject, printing a summary 
+#'   of the key elements (also equivalent to \code{summary(x)}). To do an 
+#'   ordinary \code{print()} of all elements of the project, use the 
 #'   \code{print_full()} function.
 #'   
 #' @param x object of class \code{mavproject}
@@ -63,7 +63,10 @@ print.mavproject <- function(x, ...) {
 #------------------------------------------------
 #' @title Ordinary print function for class mavproject
 #'
-#' @description Calling \code{print()} on an object of class mavproject results in custom output. This function therefore stands in for the base \code{print()} function, and is equivalent to running \code{print(unclass(x))}.
+#' @description Calling \code{print()} on an object of class mavproject results
+#'   in custom output. This function therefore stands in for the base
+#'   \code{print()} function, and is equivalent to running
+#'   \code{print(unclass(x))}.
 #'
 #' @param x object of class \code{mavproject}
 #' @param ... other arguments passed to \code{print()}
