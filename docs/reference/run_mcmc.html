@@ -139,11 +139,21 @@
   arguments. All output is stored within the project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>run_mcmc</span><span class='op'>(</span><span class='va'>project</span>, K <span class='op'>=</span> <span class='fl'>3</span>, burnin <span class='op'>=</span> <span class='fl'>100</span>, samples <span class='op'>=</span> <span class='fl'>1000</span>, rungs <span class='op'>=</span> <span class='fl'>10</span>,
-  GTI_pow <span class='op'>=</span> <span class='fl'>2</span>, auto_converge <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  converge_test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>ceiling</a></span><span class='op'>(</span><span class='va'>burnin</span><span class='op'>/</span><span class='fl'>10</span><span class='op'>)</span>, solve_label_switching_on <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  coupling_on <span class='op'>=</span> <span class='cn'>TRUE</span>, cluster <span class='op'>=</span> <span class='cn'>NULL</span>, pb_markdown <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  silent <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>run_mcmc</span><span class='op'>(</span>
+  <span class='va'>project</span>,
+  K <span class='op'>=</span> <span class='fl'>3</span>,
+  burnin <span class='op'>=</span> <span class='fl'>100</span>,
+  samples <span class='op'>=</span> <span class='fl'>1000</span>,
+  rungs <span class='op'>=</span> <span class='fl'>10</span>,
+  GTI_pow <span class='op'>=</span> <span class='fl'>2</span>,
+  auto_converge <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  converge_test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>ceiling</a></span><span class='op'>(</span><span class='va'>burnin</span><span class='op'>/</span><span class='fl'>10</span><span class='op'>)</span>,
+  solve_label_switching_on <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  coupling_on <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  cluster <span class='op'>=</span> <span class='cn'>NULL</span>,
+  pb_markdown <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  silent <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

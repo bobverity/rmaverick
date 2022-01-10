@@ -4,8 +4,14 @@
 \alias{new_set}
 \title{Create new parameter set}
 \usage{
-new_set(project, name = "(no name)", lambda = 1, admix_on = FALSE,
-  alpha = 0.1, estimate_alpha = TRUE)
+new_set(
+  project,
+  name = "(no name)",
+  lambda = 1,
+  admix_on = FALSE,
+  alpha = 0.1,
+  estimate_alpha = TRUE
+)
 }
 \arguments{
 \item{project}{an rmaverick project, as produced by the function 

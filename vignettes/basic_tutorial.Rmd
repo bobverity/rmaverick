@@ -163,8 +163,10 @@ The admixture model tends to take considerably longer to run than the no-admixtu
 
 We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the `pb_markdown = TRUE` argument ordinarily.
 ```{r}
-myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3,
-                   rungs = 10, pb_markdown = TRUE)
+#myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3,
+#                   rungs = 10, pb_markdown = TRUE)
+myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e2, converge_test = 100, samples = 1e2,
+                   rungs = 5, pb_markdown = TRUE)
 ```
 
 As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter *alpha* to check. We can produce a summary plot of this parameter as follows:
