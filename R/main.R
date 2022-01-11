@@ -487,11 +487,12 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10,
   assert_single_logical(pb_markdown)
   assert_single_logical(silent)
   
-  # get active set
+  # check that data is loaded
+  assert_non_null(project$data_processed, message = "data must be loaded before running MCMC")
+  
+  # check that parameter set defined and get active set
   s <- project$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "at least one parameter set must be defined before running MCMC")
   
   # get useful quantities
   ploidy <- project$data_processed$ploidy
@@ -499,6 +500,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10,
   n <- length(ploidy)
   L <- length(Jl)
   admix_on <- project$parameter_sets[[s]]$admix_on
+  
   
   # ---------- create argument lists ----------
   
@@ -740,10 +742,10 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10,
   # end timer
   if (!silent) {
     tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-    if (tdiff<60) {
+    if (tdiff < 60) {
       message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
     } else {
-      message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+      message(sprintf("Total run-time: %s minutes", round(tdiff / 60, 2)))
     }
   }
   

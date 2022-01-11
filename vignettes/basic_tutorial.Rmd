@@ -57,7 +57,7 @@ myproj <- mavproject()
 myproj <- bind_data(myproj, df = mysim$data, ID_col = 1, pop_col = 2, ploidy_col = 3)
 ```
 
-Alternatively, if you are familiar with the pipe operator `%>%` from the `magrittr` package then you can use this to chain together multiple commands:
+Alternatively, if you are familiar with the pipe operator `%>%` from the `magrittr` package (often imported via `dplyr`) then you can use this to chain together multiple commands:
 
 ```{r, warning = FALSE, message = FALSE}
 library(dplyr)
@@ -105,17 +105,51 @@ myproj <- run_mcmc(myproj, K = 4:5, burnin = 1e4, converge_test = 100, samples =
                    rungs = 10, pb_markdown =  TRUE)
 ```
 
+### Checking MCMC performance
+
+Before going any further with our analysis, it is critical that we check our MCMC performance. Without this stage we may end up reading into a particular set of results when in fact they are junk because the posterior has not been well explored. Fortunately, the temperature-based MCMC method inside *rmaverick* can help in producing reliable results as well as being used to estimate the evidence for a particular model. It does this by linking different heated chains together - the hotter chains explore a more diffuse version of the posterior and can then pass this information to the colder chains. We can check that information is being passed up and down the "rungs" of the temperature ladder by looking at the acceptance rate of these proposed moves, i.e. what proportion of swaps between adjacent rungs are accepted. This proportion needs to be non-zero for all pairs of rungs, otherwise information is not passing freely from the bottom of the ladder all the way to the top.
+
+We can use the function `plot_mc_acceptance()` to explore the acceptance rate between all pairs of rungs:
+
+```{r}
+plot_mc_acceptance(myproj, K = 2)
+```
+
+As a side note, all plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on - for example adding titles, legends etc.
+
+We can see that acceptance rates drop in the middle of our temperature ladder, meaning the hottest chains are unable to pass information up to the coldest chains. The simplest way to remedy this is to re-run with a larger number of temperature rungs. **This check should be performed on every value of K**:
+
+```{r}
+myproj <- run_mcmc(myproj, K = 2:5, burnin = 1e4, converge_test = 100, samples = 1e3,
+                   rungs = 50, pb_markdown =  TRUE)
+```
+
+Repeating the plot we can see that acceptance rates are now acceptable:
+
+```{r}
+plot_mc_acceptance(myproj, K = 2)
+```
+
+Run-time scales approximately linearly with the number of rungs, so adding more rungs like this can slow down the analysis quite considerably. However, this is the closest thing that you can get in the MCMC world to a guarantee that the full posterior has been explored. This is very important when there are multiple plausible ways of subdividing the population, and unfortunately we don't know this without fully exploring the posterior distribution (a classic catch-22) hence the argument for using this method as standard.
+
+There is another way to improve acceptance rates without increasing the number of rungs, and that is to change the distribution of rungs on the ladder. The parameter `GTI_pow` dictates how concentrated rungs are towards the left of the plot above. We can see this by re-plotting, but this time with the true thermodynamic power on the x-axis:
+
+```{r}
+plot_mc_acceptance(myproj, K = 2, x_axis_type = 2)
+```
+
+Concentrating rungs together increases the acceptance rate between them. This MCMC was run with `GTI_pow=2`, hence rungs are slightly squashed to the left, which will improve acceptance rates near 0 and will worsen acceptance rates near 1. If we were to re-run with a higher value we would see values even more concentrated near 0, which may have a slight beneficial effect in this case, although increasing the number of rungs has already done most of the heavy lifting in this example.
+
+
 ### Comparing values of *K*
 
-The GTI method estimates the evidence for a given model by combining information across multiple temperature rungs. These rungs provide a series of point estimates that together make a "path", and the final evidence estimate is computed from the area between this path and the zero-line. We can visualise this path using the `plot_GTI_path()` function:
+The GTI method estimates the evidence for a given model by combining information across the different temperature rungs. These rungs provide a series of point estimates that together make a "path", and the final evidence estimate is computed from the area between this path and the zero-line. We can visualise this path using the `plot_GTI_path()` function:
 
 ```{r}
 plot_GTI_path(myproj, K = 3)
 ```
 
-All plots produced by *rmaverick* are produced using [ggplot](https://ggplot2.tidyverse.org/), meaning they can be stored and modified later on - for example adding titles, legends etc.
-
-In order for our evidence estimate to be unbiased it is important that the GTI path is relatively smooth. We can modify the smoothness of the path in two ways: 1) by increasing the number of `rungs`, 2) by changing the value of `GTI_pow` which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. **This check should be performed on every value of K**.
+In order for our evidence estimate to be unbiased it is important that the GTI path is relatively smooth. As before, we can modify the smoothness of the path in two ways: 1) by increasing the number of `rungs`, 2) by changing the value of `GTI_pow` which controls the curvature of the path (higher values lead to more steep curvature). Ideally we want a straight path, i.e. we want as little curvature as possible. In the example above we have a good number of rungs and a nice straight path, so there is no need to re-run the MCMC. As with the acceptance rates analysis, **this check should be performed on every value of K**.
 
 Once we are happy with our GTI paths we can look at our evidence estimates, first of all in log space:
 
@@ -141,7 +175,6 @@ The main result of interest from this sort of analysis is usually the posterior 
 plot_qmatrix(myproj, K = 2:5, divide_ind_on = TRUE)
 ```
 
-
 We can see that for *K*=3 (the most highly supported value of *K*) there is a clear split into three distinct subpopulations. The advantage of simulated data is that we can verify that this is the correct grouping by looking at `mysim$group`, although obviously this is not possible for real data.
 
 When reporting and publishing results it is a good idea to produce posterior allocation plots for a range of values of *K* so that the reader has the option of visualising structure at multiple levels, and ideally this should also be backed up by a plot of the model evidence to give some idea of the model support at each level. At this stage it is worth stressing the point made by many previous authors - **the model used by rmaverick and similar programs is just a cartoon of reality, and there is no strict *K* in the real world**. Instead, each *K* captures a different level of population structure, and while the evidence can help guide us towards values of *K* that fit the data well, it is just a guide and should be taken alongside other biological considerations.
@@ -163,13 +196,17 @@ The admixture model tends to take considerably longer to run than the no-admixtu
 
 We run the MCMC the same way as before, this time anticipating that we might need a greater number of burn-in and sampling iterations. Again, this should be run without the `pb_markdown = TRUE` argument ordinarily.
 ```{r}
-#myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3,
-#                   rungs = 10, pb_markdown = TRUE)
-myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e2, converge_test = 100, samples = 1e2,
-                   rungs = 5, pb_markdown = TRUE)
+myproj <- run_mcmc(myproj, K = 1:5, burnin = 1e4, converge_test = 100, samples = 2e3,
+                   rungs = 50, pb_markdown = FALSE)
 ```
 
-As before, we need to check the behaviour of our MCMC. Under the admixture model we have the additional parameter *alpha* to check. We can produce a summary plot of this parameter as follows:
+As before, we need to check the behaviour of our MCMC, starting with acceptance rates between rungs. **This should be done for all values of K**:
+
+```{r}
+plot_mc_acceptance(myproj, K = 2)
+```
+
+Under the admixture model we have the additional parameter *alpha* to check. We can produce a summary plot of this parameter as follows:
 
 ```{r}
 plot_alpha(myproj, K = 3)

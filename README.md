@@ -1,5 +1,5 @@
 # *rmaverick*
-### Version 1.0.6
+### Version 1.1.0
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/bobverity/rmaverick/workflows/R-CMD-check/badge.svg)](https://github.com/bobverity/rmaverick/actions)
   [![Coverage status](https://codecov.io/gh/bobverity/rmaverick/branch/develop/graph/badge.svg)](https://codecov.io/github/bobverity/rmaverick?branch=develop)

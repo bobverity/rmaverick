@@ -10,7 +10,7 @@ default_colours <- function(K) {
   my_palette <- grDevices::colorRampPalette(raw_cols)
   
   # simple case if small K
-  if (K<=2) {
+  if (K <= 2) {
     return(my_palette(K))
   }
   
@@ -103,9 +103,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # set default K to first value with output
   null_output <- mapply(function(x) {is.null(x$summary$loglike_quantiles)}, proj$output$single_set[[s]]$single_K)
@@ -118,6 +116,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
   }
   
   # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
   loglike_quantiles <- proj$output$single_set[[s]]$single_K[[K]]$summary$loglike_quantiles
   if (is.null(loglike_quantiles)) {
     stop(sprintf("no loglike_quantiles output for K = %s of active set", K))
@@ -213,9 +212,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # set default K to all values with output
   null_output <- mapply(function(x) {is.null(x$summary$qmatrix_ind)}, proj$output$single_set[[s]]$single_K)
@@ -225,6 +222,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   K <- define_default(K, which(!null_output))
   
   # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
   qmatrix_ind_list <- list()
   for (i in 1:length(K)) {
     qmatrix_ind_list[[i]] <- proj$output$single_set[[s]]$single_K[[K[i]]]$summary$qmatrix_ind
@@ -345,9 +343,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # set default K to first value with output
   null_output <- mapply(function(x) {is.null(x$summary$GTI_path)}, proj$output$single_set[[s]]$single_K)
@@ -360,6 +356,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   }
   
   # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
   GTI_path <- proj$output$single_set[[s]]$single_K[[K]]$summary$GTI_path
   if (is.null(GTI_path)) {
     stop(sprintf("no GTI_path output for K = %s of active set", K))
@@ -418,9 +415,7 @@ plot_logevidence_K <- function(proj) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # check output exists for chosen K
   GTI_logevidence <- proj$output$single_set[[s]]$all_K$GTI_logevidence
@@ -483,9 +478,7 @@ plot_posterior_K <- function(proj) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # check output exists for chosen K
   GTI_posterior <- proj$output$single_set[[s]]$all_K$GTI_posterior
@@ -648,9 +641,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # split analysis between alpha and loglikelihood
   if (param == "alpha") {
@@ -666,6 +657,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
     if (is.null(alpha)) {
       stop(sprintf("no alpha output for K = %s of active set", K))
@@ -690,6 +682,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
     if (is.null(loglike_sampling)) {
       stop(sprintf("no loglike_sampling output for K = %s of active set", K))
@@ -750,9 +743,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # split analysis between alpha and loglikelihood
   if (param=="alpha") {
@@ -768,6 +759,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
     if (is.null(alpha)) {
       stop(sprintf("no alpha output for K = %s of active set", K))
@@ -789,6 +781,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
     if (is.null(loglike_sampling)) {
       stop(sprintf("no loglike_sampling output for K = %s of active set", K))
@@ -854,9 +847,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s == 0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # split analysis between alpha and loglikelihood
   if (param == "alpha") {
@@ -872,6 +863,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
     if (is.null(alpha)) {
       stop(sprintf("no alpha output for K = %s of active set", K))
@@ -896,6 +888,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
     if (is.null(loglike_sampling)) {
       stop(sprintf("no loglike_sampling output for K = %s of active set", K))
@@ -980,4 +973,94 @@ plot_loglike <- function(proj, K = NULL, col = "black") {
   
   # produce grid of plots
   ret <- gridExtra::grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
+}
+
+#------------------------------------------------
+#' @title Plot Metropolis coupling acceptance rates
+#'
+#' @description Plot Metropolis coupling acceptance rates between all adjacent
+#'   rungs. It is important that acceptance rates are greater than zero between
+#'   all pairs of rungs in order to give confidence that the MCMC has thoroughly
+#'   explored the full posterior distribution. If there are any points in this
+#'   plot where acceptance rates drop close to zero then consider changing the
+#'   number of rungs or their distribution (see \code{rungs} and \code{GTI_pow}
+#'   arguments in \code{run_mcmc()}, respectively).
+#'
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param x_axis_type how to format the x-axis. 1 = integer rungs, 2 = values of
+#'   the thermodynamic power.
+#'
+#' @importFrom grDevices grey
+#' @export
+
+plot_mc_acceptance <- function(proj, K = NULL, x_axis_type = 1) {
+  
+  # check inputs
+  assert_class(proj, "mavproject")
+  if (!is.null(K)) {
+    assert_single_pos_int(K)
+  }
+  assert_single_pos_int(x_axis_type)
+  assert_in(x_axis_type, 1:2)
+  
+  # get active set and check non-zero
+  s <- proj$active_set
+  assert_neq(s, 0, message = "no active parameter set")
+  
+  # set default K to first value with output
+  null_output <- mapply(function(x) {is.null(x$raw$coupling_accept)}, proj$output$single_set[[s]]$single_K)
+  if (all(null_output)) {
+    stop("no coupling acceptance rate output for active parameter set")
+  }
+  if (is.null(K)) {
+    K <- which(!null_output)[1]
+    message(sprintf("using K = %s by default", K))
+  }
+  
+  # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
+  mc_accept <- proj$output$single_set[[s]]$single_K[[K]]$raw$coupling_accept
+  if (is.null(mc_accept)) {
+    stop(sprintf("no metropolis coupling output for K = %s of active set", K))
+  }
+  
+  # get acceptance rates and thermodynamic powers
+  GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
+  rungs <- length(mc_accept) + 1
+  thermo_power <- seq(0, 1.0, l = rungs)^GTI_pow
+  thermo_power_mid <- thermo_power[-1] - diff(thermo_power)/2
+  
+  # exit if rungs = 1
+  if (rungs == 1) {
+    stop("no metropolis coupling when rungs = 1")
+  }
+  
+  # define x-axis type
+  if (x_axis_type == 1) {
+    breaks_vec <- 1:rungs
+    x_vec <- (2:rungs) - 0.5
+    x_lab <- "rung"
+  } else {
+    breaks_vec <- thermo_power
+    x_vec <- thermo_power_mid
+    x_lab <- "thermodynamic power"
+  }
+  
+  # get data into ggplot format and define temperature colours
+  df <- data.frame(x_vec = x_vec, mc_accept = mc_accept, col = thermo_power_mid)
+  
+  # produce plot
+  plot1 <- ggplot2::ggplot(df) + 
+    ggplot2::geom_vline(ggplot2::aes(xintercept = .data$x), col = grey(0.9), data = data.frame(x = breaks_vec)) +
+    ggplot2::scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
+    ggplot2::geom_point(ggplot2::aes(x = x_vec, y = mc_accept, color = col)) + 
+    ggplot2::xlab(x_lab) + ggplot2::ylab("coupling acceptance rate") + 
+    ggplot2::scale_colour_gradientn(colours = c("red", "blue"), name = "thermodynamic\npower", limits = c(0,1)) +
+    ggplot2::theme_bw() + 
+    ggplot2::theme(panel.grid.minor.x = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_blank())
+  
+  return(plot1)
 }

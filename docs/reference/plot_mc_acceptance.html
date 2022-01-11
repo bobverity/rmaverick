@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot log-evidence estimates over parameter sets — plot_logevidence_model • rmaverick</title>
+<title>Plot Metropolis coupling acceptance rates — plot_mc_acceptance • rmaverick</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,14 @@
 
 
 
-<meta property="og:title" content="Plot log-evidence estimates over parameter sets — plot_logevidence_model" />
-<meta property="og:description" content="Plot log-evidence estimates over parameter sets" />
+<meta property="og:title" content="Plot Metropolis coupling acceptance rates — plot_mc_acceptance" />
+<meta property="og:description" content="Plot Metropolis coupling acceptance rates between all adjacent
+  rungs. It is important that acceptance rates are greater than zero between
+  all pairs of rungs in order to give confidence that the MCMC has thoroughly
+  explored the full posterior distribution. If there are any points in this
+  plot where acceptance rates drop close to zero then consider changing the
+  number of rungs or their distribution (see rungs and GTI_pow
+  arguments in run_mcmc(), respectively)." />
 
 
 
@@ -126,16 +132,22 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot log-evidence estimates over parameter sets</h1>
+    <h1>Plot Metropolis coupling acceptance rates</h1>
     <small class="dont-index">Source: <a href='https://github.com/bobverity/rmaverick/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
-    <div class="hidden name"><code>plot_logevidence_model.Rd</code></div>
+    <div class="hidden name"><code>plot_mc_acceptance.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plot log-evidence estimates over parameter sets</p>
+    <p>Plot Metropolis coupling acceptance rates between all adjacent
+  rungs. It is important that acceptance rates are greater than zero between
+  all pairs of rungs in order to give confidence that the MCMC has thoroughly
+  explored the full posterior distribution. If there are any points in this
+  plot where acceptance rates drop close to zero then consider changing the
+  number of rungs or their distribution (see <code>rungs</code> and <code>GTI_pow</code>
+  arguments in <code><a href='run_mcmc.html'>run_mcmc()</a></code>, respectively).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plot_logevidence_model</span><span class='op'>(</span><span class='va'>proj</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>plot_mc_acceptance</span><span class='op'>(</span><span class='va'>proj</span>, K <span class='op'>=</span> <span class='cn'>NULL</span>, x_axis_type <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -144,6 +156,15 @@
       <th>proj</th>
       <td><p>an rmaverick project, as produced by the function 
 <code><a href='mavproject.html'>mavproject()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>K</th>
+      <td><p>which value of K to produce the plot for</p></td>
+    </tr>
+    <tr>
+      <th>x_axis_type</th>
+      <td><p>how to format the x-axis. 1 = integer rungs, 2 = values of
+the thermodynamic power.</p></td>
     </tr>
     </table>
 
