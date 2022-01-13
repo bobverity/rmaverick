@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // run_mcmc_cpp
 Rcpp::List run_mcmc_cpp(Rcpp::List args);
 RcppExport SEXP _rmaverick_run_mcmc_cpp(SEXP argsSEXP) {

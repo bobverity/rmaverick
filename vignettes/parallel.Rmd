@@ -4,7 +4,7 @@ author: "Bob Verity"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Running in parallel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,12 +25,17 @@ library(parallel)
 
 We will need some data to work with, so lets simulate some data and load it into a new project. We will also create a simple parameter set to work with:
 
+```{r, warning = FALSE, message = FALSE}
+library(dplyr)
+```
+
 ```{r}
 mysim <- sim_data(n = 50, loci = 10, K = 3, admix_on = FALSE)
 
-myproj <- mavproject()
-myproj <- bind_data(myproj, mysim$data, ID_col = 1, pop_col = 2, ploidy_col = 3)
-myproj <- new_set(myproj, admix_on = FALSE)
+myproj <- mavproject() %>%
+  bind_data(df = mysim$data, ID_col = 1, pop_col = 2, ploidy_col = 3) %>%
+  new_set(admix_on = FALSE)
+
 myproj
 ```
 
@@ -40,13 +45,13 @@ Before running anything in parallel we need to know how many cores our machine h
 cores <- detectCores()
 ```
 
-Next we make a cluster object, which creates multiple copies of R running in parallel over different cores. Here we are using all available cores, but if you want to hold some back for other intensive tasks then simply use a smaller number of cores when specifying this cluster.
+Next, we make a cluster object, which creates multiple copies of R running in parallel over different cores. Here we are using all available cores, but if you want to hold some back for other intensive tasks then simply use a smaller number of cores when specifying this cluster.
 
 ```{r, eval = FALSE}
 cl <- makeCluster(cores)
 ```
 
-We then run the usual `run_mcmc()` function, this time passing in the cluster as an argument. This causes *rmaverick* to use a `clusterApplyLB()` call rather than an ordinary `lapply()` call over different values of K. Each value of K is added to a queue over the specified number of cores - when the first job completes, the next job is placed on the node that has become free and this continues until all jobs are complete.
+We then run the usual `run_mcmc()` function, this time passing in the cluster as an argument. This causes *rmaverick* to use a `clusterApplyLB()` call rather than an ordinary `lapply()` call over different values of *K*. Each value of *K* is added to a queue over the specified number of cores - when the first job completes, the next job is placed on the node that has become free and this continues until all jobs are complete.
 
 Note that output is supressed when running in parallel to avoid sending print commands to multiple cores, so you will not see the usual progress bars.
 

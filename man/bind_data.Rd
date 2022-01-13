@@ -4,10 +4,21 @@
 \alias{bind_data}
 \title{Bind data to project}
 \usage{
-bind_data(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL,
-  data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL,
-  missing_data = -9, wide_format = FALSE, name = NULL,
-  check_delete_output = TRUE)
+bind_data(
+  project,
+  df,
+  ID_col = 1,
+  pop_col = NULL,
+  ploidy_col = NULL,
+  data_cols = NULL,
+  ID = NULL,
+  pop = NULL,
+  ploidy = NULL,
+  missing_data = -9,
+  wide_format = FALSE,
+  name = NULL,
+  check_delete_output = TRUE
+)
 }
 \arguments{
 \item{project}{an rmaverick project, as produced by the function 

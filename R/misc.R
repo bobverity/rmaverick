@@ -70,9 +70,10 @@ user_yes_no <- function(x = "continue? (Y/N): ") {
 
 # -----------------------------------
 # draw from dirichlet distribution with vector of parameter inputs
+#' @importFrom stats rgamma
 #' @noRd
 rdirichlet <- function(alpha_vec) {
-  z <- rgamma(length(alpha_vec), shape = alpha_vec, scale = 1)
+  z <- stats::rgamma(length(alpha_vec), shape = alpha_vec, scale = 1)
   ret <- z/sum(z)
   return(ret)
 }
@@ -94,9 +95,10 @@ rcpp_to_mat <- function(x) {
 
 #------------------------------------------------
 # return 95% quantile
+#' @importFrom stats quantile
 #' @noRd
 quantile_95 <- function(x) {
-  ret <- quantile(x, probs=c(0.025, 0.5, 0.975))
+  ret <- stats::quantile(x, probs=c(0.025, 0.5, 0.975))
   names(ret) <- c("Q2.5", "Q50", "Q97.5")
   return(ret)
 }
@@ -116,14 +118,17 @@ log_sum <- function(x) {
 #------------------------------------------------
 # geweke_pvalue
 # return p-value of Geweke's diagnostic convergence statistic, estimated from package coda
+#' @importFrom stats pnorm
+#' @importFrom coda geweke.diag
 #' @noRd
 geweke_pvalue <- function(x) {
-  ret <- 2*pnorm(abs(geweke.diag(x)$z), lower.tail=FALSE)
+  ret <- 2*stats::pnorm(abs(coda::geweke.diag(x)$z), lower.tail=FALSE)
   return(ret)
 }
 
 #------------------------------------------------
 # check convergence on values x[1:n]
+#' @importFrom coda effectiveSize mcmc
 #' @noRd
 test_convergence <- function(x, n) {
   # fail if n = 1
@@ -141,7 +146,7 @@ test_convergence <- function(x, n) {
   }
   
   # fail if geweke p-value < threshold
-  g <- geweke_pvalue(mcmc(x[1:n]))
+  g <- geweke_pvalue(coda::mcmc(x[1:n]))
   ret <- (g > 0.01)
   if (is.na(ret)) {
     ret <- FALSE;
@@ -151,10 +156,11 @@ test_convergence <- function(x, n) {
 
 #------------------------------------------------
 # update progress bar
+#' @importFrom utils setTxtProgressBar
 #' @noRd
 update_progress <- function(pb_list, name, i, max_i) {
-  setTxtProgressBar(pb_list[[name]], i)
-  if (i==max_i) {
+  utils::setTxtProgressBar(pb_list[[name]], i)
+  if (i == max_i) {
     close(pb_list[[name]])
   }
 }

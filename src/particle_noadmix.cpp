@@ -241,7 +241,7 @@ void particle_noadmix::EM_allele_freqs() {
 void particle_noadmix::solve_label_switching(const vector<vector<double>> &log_qmatrix_ind_running) {
   
   // TODO - re-instantiate this method, rather than label switching at mcmc level? Profile first.
-  foo();
+  Rcpp::stop("TODO point stop");
   
   // fill in cost matrix
   for (int k1=0; k1<K; k1++) {
