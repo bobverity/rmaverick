@@ -4,8 +4,7 @@
 \alias{plot_density}
 \title{Produce MCMC density plot}
 \usage{
-plot_density(proj, K = NULL, rung = NULL, param = "alpha",
-  col = "black")
+plot_density(proj, K = NULL, rung = NULL, param = "alpha", col = "black")
 }
 \arguments{
 \item{proj}{an rmaverick project, as produced by the function 

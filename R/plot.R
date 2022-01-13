@@ -1,15 +1,16 @@
 
 #------------------------------------------------
 # default rmaverick colours
+#' @importFrom grDevices colorRampPalette
 #' @noRd
 default_colours <- function(K) {
   
   # generate palette and colours
   raw_cols <- c("#D73027", "#FC8D59", "#FEE090", "#E0F3F8", "#91BFDB", "#4575B4")
-  my_palette <- colorRampPalette(raw_cols)
+  my_palette <- grDevices::colorRampPalette(raw_cols)
   
   # simple case if small K
-  if (K<=2) {
+  if (K <= 2) {
     return(my_palette(K))
   }
   
@@ -38,21 +39,23 @@ default_colours <- function(K) {
 
 #------------------------------------------------
 # ggplot theme with minimal objects
+#' @import ggplot2
 #' @noRd
 theme_empty <- function() {
-  theme(axis.line=element_blank(),
-        axis.text.x=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks=element_blank(),
-        panel.background=element_blank(),
-        panel.border=element_blank(),
-        panel.grid.major=element_blank(),
-        panel.grid.minor=element_blank(),
-        plot.background=element_blank())
+  ggplot2::theme(axis.line = ggplot2::element_blank(),
+                 axis.text.x = ggplot2::element_blank(),
+                 axis.text.y = ggplot2::element_blank(),
+                 axis.ticks = ggplot2::element_blank(),
+                 panel.background = ggplot2::element_blank(),
+                 panel.border = ggplot2::element_blank(),
+                 panel.grid.major = ggplot2::element_blank(),
+                 panel.grid.minor = ggplot2::element_blank(),
+                 plot.background = ggplot2::element_blank())
 }
 
 #------------------------------------------------
 # Default plot for class maverick_loglike_quantiles
+#' @import ggplot2
 #' @noRd
 plot.maverick_loglike_quantiles <- function(x, y, ...) {
   
@@ -62,10 +65,10 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
   x_vec <- y
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_segment(aes_(x = ~x_vec, y = ~Q2.5, xend = ~x_vec, yend = ~Q97.5))
-  plot1 <- plot1 + geom_point(aes_(x = ~x_vec, y = ~Q50))
-  plot1 <- plot1 + xlab("rung") + ylab("log-likelihood")
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~x_vec, y = ~Q2.5, xend = ~x_vec, yend = ~Q97.5))
+  plot1 <- plot1 + ggplot2::geom_point(ggplot2::aes_(x = ~x_vec, y = ~Q50))
+  plot1 <- plot1 + ggplot2::xlab("rung") + ggplot2::ylab("log-likelihood")
   
   # return plot object
   return(plot1)
@@ -84,12 +87,13 @@ plot.maverick_loglike_quantiles <- function(x, y, ...) {
 #' @param connect_points whether to connect points in the middle of quantiles
 #' @param connect_whiskers whether to connect points at the ends of the whiskers
 #'
+#' @import ggplot2
 #' @export
 
 plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points = FALSE, connect_whiskers = FALSE) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -99,9 +103,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # set default K to first value with output
   null_output <- mapply(function(x) {is.null(x$summary$loglike_quantiles)}, proj$output$single_set[[s]]$single_K)
@@ -114,6 +116,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
   }
   
   # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
   loglike_quantiles <- proj$output$single_set[[s]]$single_K[[K]]$summary$loglike_quantiles
   if (is.null(loglike_quantiles)) {
     stop(sprintf("no loglike_quantiles output for K = %s of active set", K))
@@ -121,34 +124,34 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
   
   # produce plot with different axis options
   rungs <- nrow(loglike_quantiles)
-  if (axis_type==1) {
+  if (axis_type == 1) {
     x_vec <- 1:rungs
     plot1 <- plot(loglike_quantiles, as.factor(x_vec))
     
-  } else if (axis_type==2) {
-    x_vec <- (1:rungs)/rungs
+  } else if (axis_type == 2) {
+    x_vec <- (1:rungs) / rungs
     plot1 <- plot(loglike_quantiles, x_vec)
-    plot1 <- plot1 + xlab(parse(text = "beta"))
-    plot1 <- plot1 + coord_cartesian(xlim = c(0,1))
+    plot1 <- plot1 + ggplot2::xlab(parse(text = "beta"))
+    plot1 <- plot1 + ggplot2::coord_cartesian(xlim = c(0,1))
     
   } else {
     GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
-    x_vec <- ((1:rungs)/rungs)^GTI_pow
+    x_vec <- ((1:rungs) / rungs)^GTI_pow
     plot1 <- plot(loglike_quantiles, x_vec)
-    plot1 <- plot1 + xlab(parse(text = "beta^gamma"))
-    plot1 <- plot1 + coord_cartesian(xlim = c(0,1))
+    plot1 <- plot1 + ggplot2::xlab(parse(text = "beta^gamma"))
+    plot1 <- plot1 + ggplot2::coord_cartesian(xlim = c(0,1))
   }
   
   # optionally add central line
   if (connect_points) {
     df <- as.data.frame(unclass(loglike_quantiles))
-    plot1 <- plot1 + geom_line(aes(x = x_vec, y = df$Q50))
+    plot1 <- plot1 + ggplot2::geom_line(ggplot2::aes(x = x_vec, y = df$Q50))
   }
   
   # optionally connect whiskers
   if (connect_whiskers) {
     df <- as.data.frame(unclass(loglike_quantiles))
-    plot1 <- plot1 + geom_line(aes(x = x_vec, y = df$Q2.5), linetype = "dotted") + geom_line(aes(x = x_vec, y = df$Q97.5), linetype = "dotted")
+    plot1 <- plot1 + ggplot2::geom_line(ggplot2::aes(x = x_vec, y = df$Q2.5), linetype = "dotted") + ggplot2::geom_line(ggplot2::aes(x = x_vec, y = df$Q97.5), linetype = "dotted")
   }
   
   # return plot object
@@ -157,6 +160,7 @@ plot_loglike_quantiles <- function(proj, K = NULL, axis_type = 1, connect_points
 
 #------------------------------------------------
 # Default plot for class maverick_qmatrix_ind
+#' @import ggplot2
 #' @noRd
 plot.maverick_qmatrix_ind <- function(x, y, ...) {
   
@@ -167,18 +171,18 @@ plot.maverick_qmatrix_ind <- function(x, y, ...) {
   df <- data.frame(ind = rep(1:n,each=K), k = as.factor(rep(1:K,times=n)), val = as.vector(t(m)))
   
   # produce basic plot
-  plot1 <- ggplot(df) + theme_empty()
-  plot1 <- plot1 + geom_bar(aes_(x = ~ind, y = ~val, fill = ~k), width = 1, stat = "identity")
-  plot1 <- plot1 + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0))
-  plot1 <- plot1 + xlab("sample") + ylab("probability")
+  plot1 <- ggplot2::ggplot(df) + theme_empty()
+  plot1 <- plot1 + ggplot2::geom_bar(ggplot2::aes_(x = ~ind, y = ~val, fill = ~k), width = 1, stat = "identity")
+  plot1 <- plot1 + ggplot2::scale_x_continuous(expand = c(0,0)) + ggplot2::scale_y_continuous(expand = c(0,0))
+  plot1 <- plot1 + ggplot2::xlab("sample") + ggplot2::ylab("probability")
   
   # add legends
-  plot1 <- plot1 + scale_fill_manual(values = default_colours(K), name = "group")
-  plot1 <- plot1 + scale_colour_manual(values = "white")
-  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + ggplot2::scale_fill_manual(values = default_colours(K), name = "group")
+  plot1 <- plot1 + ggplot2::scale_colour_manual(values = "white")
+  plot1 <- plot1 + ggplot2::guides(colour = "none")
   
   # add border
-  plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
+  plot1 <- plot1 + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "black", size = 2, fill = NA))
   
   # return plot object
   return(plot1)
@@ -194,12 +198,13 @@ plot.maverick_qmatrix_ind <- function(x, y, ...) {
 #' @param K which value of K to produce the plot for
 #' @param divide_ind_on whether to add dividing lines between bars
 #'
+#' @import ggplot2
 #' @export
 
 plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_pos_int(K)
   }
@@ -207,9 +212,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # set default K to all values with output
   null_output <- mapply(function(x) {is.null(x$summary$qmatrix_ind)}, proj$output$single_set[[s]]$single_K)
@@ -219,6 +222,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   K <- define_default(K, which(!null_output))
   
   # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
   qmatrix_ind_list <- list()
   for (i in 1:length(K)) {
     qmatrix_ind_list[[i]] <- proj$output$single_set[[s]]$single_K[[K[i]]]$summary$qmatrix_ind
@@ -236,32 +240,32 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
   }
   
   # produce basic plot
-  plot1 <- ggplot(df) + theme_empty()
-  plot1 <- plot1 + geom_bar(aes_(x = ~ind, y = ~val, fill = ~k), width = 1, stat = "identity")
-  plot1 <- plot1 + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0))
+  plot1 <- ggplot2::ggplot(df) + theme_empty()
+  plot1 <- plot1 + ggplot2::geom_bar(ggplot2::aes_(x = ~ind, y = ~val, fill = ~k), width = 1, stat = "identity")
+  plot1 <- plot1 + ggplot2::scale_x_continuous(expand = c(0,0)) + ggplot2::scale_y_continuous(expand = c(0,0))
   
   # arrange in rows
   if (length(K)==1) {
-    plot1 <- plot1 + facet_wrap(~K, ncol = 1)
-    plot1 <- plot1 + theme(strip.background = element_blank(), strip.text = element_blank())
-    plot1 <- plot1 + xlab("sample") + ylab("probability")
+    plot1 <- plot1 + ggplot2::facet_wrap(~K, ncol = 1)
+    plot1 <- plot1 + ggplot2::theme(strip.background = ggplot2::element_blank(), strip.text = ggplot2::element_blank())
+    plot1 <- plot1 + ggplot2::xlab("sample") + ggplot2::ylab("probability")
   } else {
-    plot1 <- plot1 + facet_wrap(~K, ncol = 1, strip.position = "left")
-    plot1 <- plot1 + theme(strip.background = element_blank())
-    plot1 <- plot1 + xlab("sample") + ylab("K")
+    plot1 <- plot1 + ggplot2::facet_wrap(~K, ncol = 1, strip.position = "left")
+    plot1 <- plot1 + ggplot2::theme(strip.background = ggplot2::element_blank())
+    plot1 <- plot1 + ggplot2::xlab("sample") + ggplot2::ylab("K")
   }
   
   # add legends
-  plot1 <- plot1 + scale_fill_manual(values = default_colours(max(K)), name = "group")
-  plot1 <- plot1 + scale_colour_manual(values = "white")
-  plot1 <- plot1 + guides(colour = FALSE)
+  plot1 <- plot1 + ggplot2::scale_fill_manual(values = default_colours(max(K)), name = "group")
+  plot1 <- plot1 + ggplot2::scale_colour_manual(values = "white")
+  plot1 <- plot1 + ggplot2::guides(colour = "none")
   
   # add border
-  plot1 <- plot1 + theme(panel.border = element_rect(colour = "black", size = 2, fill = NA))
+  plot1 <- plot1 + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "black", size = 2, fill = NA))
   
   # optionally add dividing lines
   if (divide_ind_on) {
-    plot1 <- plot1 + geom_segment(aes_(x = ~x, y = ~y, xend = ~x, yend = ~y+1, col = "white"), size = 0.3, data = data.frame(x = 1:n-0.5, y = rep(0,n)))
+    plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~x, y = ~y, xend = ~x, yend = ~y+1, col = "white"), size = 0.3, data = data.frame(x = 1:n-0.5, y = rep(0,n)))
   }
   
   return(plot1)
@@ -269,6 +273,7 @@ plot_qmatrix <- function(proj, K = NULL, divide_ind_on = FALSE) {
 
 #------------------------------------------------
 # Default plot for class maverick_GTI_path
+#' @import ggplot2
 #' @noRd
 plot.maverick_GTI_path <- function(x, y, ...) {
   
@@ -286,29 +291,29 @@ plot.maverick_GTI_path <- function(x, y, ...) {
   df$q_max <- df$mean + 1.96*df$SE
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
-  if (y==1) {
-    q_x <- 1:(n+1)
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
+  if (y == 1) {
+    q_x <- 1:(n + 1)
     width <- 0.1
-    plot1 <- plot1 + geom_line(aes_(x = ~as.factor(0:n), y = ~q_mid, group = 1))
-    plot1 <- plot1 + xlab("rung")
+    plot1 <- plot1 + ggplot2::geom_line(ggplot2::aes_(x = ~as.factor(0:n), y = ~q_mid, group = 1))
+    plot1 <- plot1 + ggplot2::xlab("rung")
   } else {
-    q_x <- seq(0,1,l=n+1)
+    q_x <- seq(0, 1, l = n + 1)
     width <- 0.01
-    plot1 <- plot1 + geom_line(aes_(x = ~q_x, y = ~q_mid))
-    plot1 <- plot1 + xlab(parse(text = "beta"))
+    plot1 <- plot1 + ggplot2::geom_line(ggplot2::aes_(x = ~q_x, y = ~q_mid))
+    plot1 <- plot1 + ggplot2::xlab(parse(text = "beta"))
   }
   
   # continue building plot
-  plot1 <- plot1 + geom_area(aes_(x = ~q_x, y = ~q_mid, fill = "col1", colour = "col1", alpha = 0.5))
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max))
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min))
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max))
+  plot1 <- plot1 + ggplot2::geom_area(ggplot2::aes_(x = ~q_x, y = ~q_mid, fill = "col1", colour = "col1", alpha = 0.5))
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max))
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min))
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max))
   
-  plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
-  plot1 <- plot1 + scale_colour_manual(values = "black")
-  plot1 <- plot1 + guides(fill = FALSE, colour = FALSE, alpha = FALSE)
-  plot1 <- plot1 + ylab("weighted log-likelihood")
+  plot1 <- plot1 + ggplot2::scale_fill_manual(values = "#4575B4")
+  plot1 <- plot1 + ggplot2::scale_colour_manual(values = "black")
+  plot1 <- plot1 + ggplot2::guides(fill = "none", colour = "none", alpha = "none")
+  plot1 <- plot1 + ggplot2::ylab("weighted log-likelihood")
   
   # return plot object
   return(plot1)
@@ -330,7 +335,7 @@ plot.maverick_GTI_path <- function(x, y, ...) {
 plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -338,9 +343,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # set default K to first value with output
   null_output <- mapply(function(x) {is.null(x$summary$GTI_path)}, proj$output$single_set[[s]]$single_K)
@@ -353,6 +356,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
   }
   
   # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
   GTI_path <- proj$output$single_set[[s]]$single_K[[K]]$summary$GTI_path
   if (is.null(GTI_path)) {
     stop(sprintf("no GTI_path output for K = %s of active set", K))
@@ -367,6 +371,7 @@ plot_GTI_path <- function(proj, K = NULL, axis_type = 1) {
 
 #------------------------------------------------
 # Default plot for class maverick_GTI_logevidence
+#' @import ggplot2
 #' @noRd
 plot.maverick_GTI_logevidence <- function(x, y, ...) {
   
@@ -381,13 +386,13 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
   q_x <- 1:n
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
   width <- 0.1
-  plot1 <- plot1 + geom_point(aes_(x = ~as.factor(K), y = ~q_mid), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max), na.rm = TRUE)
-  plot1 <- plot1 + xlab("K") + ylab("log-evidence")
+  plot1 <- plot1 + ggplot2::geom_point(ggplot2::aes_(x = ~as.factor(K), y = ~q_mid), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x - width, y = ~q_min, xend = ~q_x + width, yend = ~q_min), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x - width, y = ~q_max, xend = ~q_x + width, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::xlab("K") + ggplot2::ylab("log-evidence")
   
   # return plot object
   return(plot1)
@@ -406,13 +411,11 @@ plot.maverick_GTI_logevidence <- function(x, y, ...) {
 plot_logevidence_K <- function(proj) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # check output exists for chosen K
   GTI_logevidence <- proj$output$single_set[[s]]$all_K$GTI_logevidence
@@ -429,6 +432,7 @@ plot_logevidence_K <- function(proj) {
 
 #------------------------------------------------
 # Default plot for class maverick_GTI_posterior
+#' @import ggplot2
 #' @noRd
 plot.maverick_GTI_posterior <- function(x, y, ...) {
   
@@ -438,20 +442,20 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
   width <- 0.1
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_bar(aes_(x = ~K, y = ~Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~K, y = ~Q2.5, xend = ~K, yend = ~Q97.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~K-width, y = ~Q2.5, xend = ~K+width, yend = ~Q2.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~K-width, y = ~Q97.5, xend = ~K+width, yend = ~Q97.5), na.rm = TRUE)
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
+  plot1 <- plot1 + ggplot2::geom_bar(ggplot2::aes_(x = ~K, y = ~Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~K, y = ~Q2.5, xend = ~K, yend = ~Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~K-width, y = ~Q2.5, xend = ~K+width, yend = ~Q2.5), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~K-width, y = ~Q97.5, xend = ~K+width, yend = ~Q97.5), na.rm = TRUE)
   
   # add legends
-  plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
-  plot1 <- plot1 + guides(fill = FALSE)
+  plot1 <- plot1 + ggplot2::scale_fill_manual(values = "#4575B4")
+  plot1 <- plot1 + ggplot2::guides(fill = "none")
   
   # modify scales etc.
-  plot1 <- plot1 + coord_cartesian(ylim = c(-0.05,1.05))
-  plot1 <- plot1 + scale_y_continuous(expand = c(0,0))
-  plot1 <- plot1 + xlab("K") + ylab("probability")
+  plot1 <- plot1 + ggplot2::coord_cartesian(ylim = c(-0.05,1.05))
+  plot1 <- plot1 + ggplot2::scale_y_continuous(expand = c(0,0))
+  plot1 <- plot1 + ggplot2::xlab("K") + ggplot2::ylab("probability")
   
   # return plot object
   return(plot1)
@@ -470,13 +474,11 @@ plot.maverick_GTI_posterior <- function(x, y, ...) {
 plot_posterior_K <- function(proj) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # check output exists for chosen K
   GTI_posterior <- proj$output$single_set[[s]]$all_K$GTI_posterior
@@ -493,6 +495,7 @@ plot_posterior_K <- function(proj) {
 
 #------------------------------------------------
 # Default plot for class maverick_GTI_logevidence_model
+#' @import ggplot2
 #' @noRd
 plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
   
@@ -507,14 +510,14 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
   q_x <- 1:n
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
   width <- 0.1
-  plot1 <- plot1 + geom_point(aes_(x = ~as.factor(set), y = ~q_mid), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max), na.rm = TRUE)
-  plot1 <- plot1 + scale_x_discrete(labels = df$name, breaks = 1:n)
-  plot1 <- plot1 + xlab("model") + ylab("log-evidence")
+  plot1 <- plot1 + ggplot2::geom_point(ggplot2::aes_(x = ~as.factor(set), y = ~q_mid), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x, y = ~q_min, xend = ~q_x, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x-width, y = ~q_min, xend = ~q_x+width, yend = ~q_min), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~q_x-width, y = ~q_max, xend = ~q_x+width, yend = ~q_max), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::scale_x_discrete(labels = df$name, breaks = 1:n)
+  plot1 <- plot1 + ggplot2::xlab("model") + ggplot2::ylab("log-evidence")
   
   # return plot object
   return(plot1)
@@ -533,7 +536,7 @@ plot.maverick_GTI_logevidence_model <- function(x, y, ...) {
 plot_logevidence_model <- function(proj) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   
   # check output exists
   GTI_logevidence_model <- proj$output$all_sets$GTI_logevidence_model
@@ -550,6 +553,7 @@ plot_logevidence_model <- function(proj) {
 
 #------------------------------------------------
 # Default plot for class maverick_GTI_posterior_model
+#' @import ggplot2
 #' @noRd
 plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   
@@ -559,21 +563,21 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
   width <- 0.1
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_bar(aes_(x = ~as.factor(set), y = ~Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~set, y = ~Q2.5, xend = ~set, yend = ~Q97.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~set-width, y = ~Q2.5, xend = ~set+width, yend = ~Q2.5), na.rm = TRUE)
-  plot1 <- plot1 + geom_segment(aes_(x = ~set-width, y = ~Q97.5, xend = ~set+width, yend = ~Q97.5), na.rm = TRUE)
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
+  plot1 <- plot1 + ggplot2::geom_bar(ggplot2::aes_(x = ~as.factor(set), y = ~Q50, fill = "blue"), stat = "identity", na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~set, y = ~Q2.5, xend = ~set, yend = ~Q97.5), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~set-width, y = ~Q2.5, xend = ~set+width, yend = ~Q2.5), na.rm = TRUE)
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~set-width, y = ~Q97.5, xend = ~set+width, yend = ~Q97.5), na.rm = TRUE)
   
   # add legends
-  plot1 <- plot1 + scale_fill_manual(values = "#4575B4")
-  plot1 <- plot1 + guides(fill = FALSE)
+  plot1 <- plot1 + ggplot2::scale_fill_manual(values = "#4575B4")
+  plot1 <- plot1 + ggplot2::guides(fill = "none")
   
   # modify scales etc.
-  plot1 <- plot1 + scale_x_discrete(labels = df$name, breaks = 1:n)
-  plot1 <- plot1 + coord_cartesian(ylim = c(-0.05,1.05))
-  plot1 <- plot1 + scale_y_continuous(expand = c(0,0))
-  plot1 <- plot1 + xlab("model") + ylab("probability")
+  plot1 <- plot1 + ggplot2::scale_x_discrete(labels = df$name, breaks = 1:n)
+  plot1 <- plot1 + ggplot2::coord_cartesian(ylim = c(-0.05,1.05))
+  plot1 <- plot1 + ggplot2::scale_y_continuous(expand = c(0,0))
+  plot1 <- plot1 + ggplot2::xlab("model") + ggplot2::ylab("probability")
   
   # return plot object
   return(plot1)
@@ -592,7 +596,7 @@ plot.maverick_GTI_posterior_model <- function(x, y, ...) {
 plot_posterior_model <- function(proj) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   
   # check output exists
   GTI_posterior_model <- proj$output$all_sets$GTI_posterior_model
@@ -620,12 +624,13 @@ plot_posterior_model <- function(proj) {
 #'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
 #' @param col colour of the trace
 #'   
+#' @import ggplot2
 #' @export
 
 plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -636,12 +641,10 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # split analysis between alpha and loglikelihood
-  if (param=="alpha") {
+  if (param == "alpha") {
     
     # set default K to first value with output
     null_output <- mapply(function(x) {is.null(x$raw$alpha)}, proj$output$single_set[[s]]$single_K)
@@ -654,6 +657,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
     if (is.null(alpha)) {
       stop(sprintf("no alpha output for K = %s of active set", K))
@@ -663,7 +667,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
     df <- data.frame(x = 1:length(alpha), y = alpha)
     
     # produce plot
-    plot1 <- ggplot(df) + theme_bw() + ylab("alpha")
+    plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw() + ggplot2::ylab("alpha")
     
   } else {
     
@@ -678,6 +682,7 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
     if (is.null(loglike_sampling)) {
       stop(sprintf("no loglike_sampling output for K = %s of active set", K))
@@ -692,16 +697,16 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
     df <- data.frame(x = 1:length(loglike), y = loglike)
     
     # produce plot
-    plot1 <- ggplot(df) + theme_bw() + ylab("log-likelihood")
+    plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw() + ggplot2::ylab("log-likelihood")
   }
   
   # complete plot
-  plot1 <- plot1 + geom_line(aes_(x = ~x, y = ~y, colour = "col1"))
-  plot1 <- plot1 + coord_cartesian(xlim = c(0,nrow(df)))
-  plot1 <- plot1 + scale_x_continuous(expand = c(0,0))
-  plot1 <- plot1 + scale_colour_manual(values = col)
-  plot1 <- plot1 + guides(colour = FALSE)
-  plot1 <- plot1 + xlab("iteration")
+  plot1 <- plot1 + ggplot2::geom_line(ggplot2::aes_(x = ~x, y = ~y, colour = "col1"))
+  plot1 <- plot1 + ggplot2::coord_cartesian(xlim = c(0,nrow(df)))
+  plot1 <- plot1 + ggplot2::scale_x_continuous(expand = c(0,0))
+  plot1 <- plot1 + ggplot2::scale_colour_manual(values = col)
+  plot1 <- plot1 + ggplot2::guides(colour = "none")
+  plot1 <- plot1 + ggplot2::xlab("iteration")
   
   # return plot object
   return(plot1)
@@ -720,12 +725,14 @@ plot_trace <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "blac
 #'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
 #' @param col colour of the trace
 #'
+#' @importFrom coda effectiveSize
+#' @import ggplot2
 #' @export
 
 plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -736,9 +743,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # split analysis between alpha and loglikelihood
   if (param=="alpha") {
@@ -754,6 +759,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
     if (is.null(alpha)) {
       stop(sprintf("no alpha output for K = %s of active set", K))
@@ -775,6 +781,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
     if (is.null(loglike_sampling)) {
       stop(sprintf("no loglike_sampling output for K = %s of active set", K))
@@ -790,7 +797,7 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   }
   
   # get autocorrelation
-  lag_max <- round(3*length(v)/effectiveSize(v))
+  lag_max <- round(3 * length(v) / coda::effectiveSize(v))
   lag_max <- max(lag_max, 20)
   lag_max <- min(lag_max, length(v))
   
@@ -800,11 +807,11 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
   df <- data.frame(lag = (1:length(acf))-1, ACF = acf)
   
   # produce plot
-  plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_segment(aes_(x = ~lag, y = 0, xend = ~lag, yend = ~ACF, colour = "col1"))
-  plot1 <- plot1 + scale_colour_manual(values = col)
-  plot1 <- plot1 + guides(colour = FALSE)
-  plot1 <- plot1 + xlab("lag") + ylab("ACF")
+  plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw()
+  plot1 <- plot1 + ggplot2::geom_segment(ggplot2::aes_(x = ~lag, y = 0, xend = ~lag, yend = ~ACF, colour = "col1"))
+  plot1 <- plot1 + ggplot2::scale_colour_manual(values = col)
+  plot1 <- plot1 + ggplot2::guides(colour = "none")
+  plot1 <- plot1 + ggplot2::xlab("lag") + ggplot2::ylab("ACF")
   
   # return plot object
   return(plot1)
@@ -823,12 +830,13 @@ plot_acf <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black"
 #'   (\code{"alpha"}) or the log-likelihood (\code{"loglike"})
 #' @param col colour of the trace
 #'
+#' @import ggplot2
 #' @export
 
 plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "black") {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   if (!is.null(K)) {
     assert_single_pos_int(K)
   }
@@ -839,12 +847,10 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
   
   # get active set and check non-zero
   s <- proj$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "no active parameter set")
   
   # split analysis between alpha and loglikelihood
-  if (param=="alpha") {
+  if (param == "alpha") {
     
     # set default K to first value with output
     null_output <- mapply(function(x) {is.null(x$raw$alpha)}, proj$output$single_set[[s]]$single_K)
@@ -857,6 +863,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     alpha <- as.vector(proj$output$single_set[[s]]$single_K[[K]]$raw$alpha)
     if (is.null(alpha)) {
       stop(sprintf("no alpha output for K = %s of active set", K))
@@ -866,7 +873,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
     df <- data.frame(v = alpha)
     
     # produce plot
-    plot1 <- ggplot(df) + theme_bw() + xlab("alpha")
+    plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw() + ggplot2::xlab("alpha")
     
   } else {
     
@@ -881,6 +888,7 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
     }
     
     # check output exists for chosen K
+    assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
     loglike_sampling <- proj$output$single_set[[s]]$single_K[[K]]$raw$loglike_sampling
     if (is.null(loglike_sampling)) {
       stop(sprintf("no loglike_sampling output for K = %s of active set", K))
@@ -895,15 +903,15 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
     df <- data.frame(v = loglike)
     
     # produce plot
-    plot1 <- ggplot(df) + theme_bw() + xlab("log-likelihood")
+    plot1 <- ggplot2::ggplot(df) + ggplot2::theme_bw() + ggplot2::xlab("log-likelihood")
   }
   
   # produce plot
   #plot1 <- ggplot(df) + theme_bw()
-  plot1 <- plot1 + geom_histogram(aes_(x = ~v, y = ~..density.., fill = "col1"), bins = 50)
-  plot1 <- plot1 + scale_fill_manual(values = col)
-  plot1 <- plot1 + guides(fill = FALSE)
-  plot1 <- plot1 + ylab("density")
+  plot1 <- plot1 + ggplot2::geom_histogram(ggplot2::aes_(x = ~v, y = ~..density.., fill = "col1"), bins = 50)
+  plot1 <- plot1 + ggplot2::scale_fill_manual(values = col)
+  plot1 <- plot1 + ggplot2::guides(fill = "none")
+  plot1 <- plot1 + ggplot2::ylab("density")
   
   # return plot object
   return(plot1)
@@ -919,22 +927,23 @@ plot_density <- function(proj, K = NULL, rung = NULL, param = "alpha", col = "bl
 #' @param K which value of K to produce the plot for
 #' @param col colour of the trace
 #'
+#' @import ggplot2
 #' @export
 
 plot_alpha <- function(proj, K = NULL, col = "black") {
   
   # produce individual diagnostic plots and add features
   plot1 <- plot_trace(proj, K = K, col = col)
-  plot1 <- plot1 + ggtitle("MCMC trace")
+  plot1 <- plot1 + ggplot2::ggtitle("MCMC trace")
   
   plot2 <- plot_acf(proj, K = K, col = col)
-  plot2 <- plot2 + ggtitle("autocorrelation")
+  plot2 <- plot2 + ggplot2::ggtitle("autocorrelation")
   
   plot3 <- plot_density(proj, K = K, col = col)
-  plot3 <- plot3 + ggtitle("density")
+  plot3 <- plot3 + ggplot2::ggtitle("density")
   
   # produce grid of plots
-  ret <- grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
+  ret <- gridExtra::grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
 }
 
 #------------------------------------------------
@@ -947,20 +956,111 @@ plot_alpha <- function(proj, K = NULL, col = "black") {
 #' @param K which value of K to produce the plot for
 #' @param col colour of the trace
 #'
+#' @import ggplot2
 #' @export
 
 plot_loglike <- function(proj, K = NULL, col = "black") {
   
   # produce individual diagnostic plots and add features
   plot1 <- plot_trace(proj, K = K, param = "loglike", col = col)
-  plot1 <- plot1 + ggtitle("MCMC trace")
+  plot1 <- plot1 + ggplot2::ggtitle("MCMC trace")
   
   plot2 <- plot_acf(proj, K = K, param = "loglike", col = col)
-  plot2 <- plot2 + ggtitle("autocorrelation")
+  plot2 <- plot2 + ggplot2::ggtitle("autocorrelation")
   
   plot3 <- plot_density(proj, K = K, param = "loglike", col = col)
-  plot3 <- plot3 + ggtitle("density")
+  plot3 <- plot3 + ggplot2::ggtitle("density")
   
   # produce grid of plots
-  ret <- grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
+  ret <- gridExtra::grid.arrange(plot1, plot2, plot3, layout_matrix = rbind(c(1,1), c(2,3)))
+}
+
+#------------------------------------------------
+#' @title Plot Metropolis coupling acceptance rates
+#'
+#' @description Plot Metropolis coupling acceptance rates between all adjacent
+#'   rungs. It is important that acceptance rates are greater than zero between
+#'   all pairs of rungs in order to give confidence that the MCMC has thoroughly
+#'   explored the full posterior distribution. If there are any points in this
+#'   plot where acceptance rates drop close to zero then consider changing the
+#'   number of rungs or their distribution (see \code{rungs} and \code{GTI_pow}
+#'   arguments in \code{run_mcmc()}, respectively).
+#'
+#' @param proj an rmaverick project, as produced by the function 
+#'   \code{mavproject()}
+#' @param K which value of K to produce the plot for
+#' @param x_axis_type how to format the x-axis. 1 = integer rungs, 2 = values of
+#'   the thermodynamic power.
+#'
+#' @importFrom grDevices grey
+#' @export
+
+plot_mc_acceptance <- function(proj, K = NULL, x_axis_type = 1) {
+  
+  # check inputs
+  assert_class(proj, "mavproject")
+  if (!is.null(K)) {
+    assert_single_pos_int(K)
+  }
+  assert_single_pos_int(x_axis_type)
+  assert_in(x_axis_type, 1:2)
+  
+  # get active set and check non-zero
+  s <- proj$active_set
+  assert_neq(s, 0, message = "no active parameter set")
+  
+  # set default K to first value with output
+  null_output <- mapply(function(x) {is.null(x$raw$coupling_accept)}, proj$output$single_set[[s]]$single_K)
+  if (all(null_output)) {
+    stop("no coupling acceptance rate output for active parameter set")
+  }
+  if (is.null(K)) {
+    K <- which(!null_output)[1]
+    message(sprintf("using K = %s by default", K))
+  }
+  
+  # check output exists for chosen K
+  assert_leq(K, length(proj$output$single_set[[s]]$single_K), message = "K out of bounds")
+  mc_accept <- proj$output$single_set[[s]]$single_K[[K]]$raw$coupling_accept
+  if (is.null(mc_accept)) {
+    stop(sprintf("no metropolis coupling output for K = %s of active set", K))
+  }
+  
+  # get acceptance rates and thermodynamic powers
+  GTI_pow <- proj$output$single_set[[s]]$single_K[[K]]$function_call$args$GTI_pow
+  rungs <- length(mc_accept) + 1
+  thermo_power <- seq(0, 1.0, l = rungs)^GTI_pow
+  thermo_power_mid <- thermo_power[-1] - diff(thermo_power)/2
+  
+  # exit if rungs = 1
+  if (rungs == 1) {
+    stop("no metropolis coupling when rungs = 1")
+  }
+  
+  # define x-axis type
+  if (x_axis_type == 1) {
+    breaks_vec <- 1:rungs
+    x_vec <- (2:rungs) - 0.5
+    x_lab <- "rung"
+  } else {
+    breaks_vec <- thermo_power
+    x_vec <- thermo_power_mid
+    x_lab <- "thermodynamic power"
+  }
+  
+  # get data into ggplot format and define temperature colours
+  df <- data.frame(x_vec = x_vec, mc_accept = mc_accept, col = thermo_power_mid)
+  
+  # produce plot
+  plot1 <- ggplot2::ggplot(df) + 
+    ggplot2::geom_vline(ggplot2::aes(xintercept = .data$x), col = grey(0.9), data = data.frame(x = breaks_vec)) +
+    ggplot2::scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
+    ggplot2::geom_point(ggplot2::aes(x = x_vec, y = mc_accept, color = col)) + 
+    ggplot2::xlab(x_lab) + ggplot2::ylab("coupling acceptance rate") + 
+    ggplot2::scale_colour_gradientn(colours = c("red", "blue"), name = "thermodynamic\npower", limits = c(0,1)) +
+    ggplot2::theme_bw() + 
+    ggplot2::theme(panel.grid.minor.x = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_blank())
+  
+  return(plot1)
 }

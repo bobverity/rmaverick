@@ -1,20 +1,5 @@
 
 #------------------------------------------------
-# The following commands ensure that package dependencies are listed in the NAMESPACE file.
-
-#' @useDynLib rmaverick
-#' @import parallel
-#' @import coda
-#' @import ggplot2
-#' @import gridExtra
-#' @importFrom Rcpp evalCpp
-#' @import graphics
-#' @import stats
-#' @import utils
-#' @importFrom grDevices colorRampPalette
-NULL
-
-#------------------------------------------------
 #' @title Check that rmaverick package has loaded successfully
 #'
 #' @description Simple function to check that rmaverick package has loaded
@@ -64,15 +49,17 @@ check_rmaverick_loaded <- function() {
 #'
 #' @export
 
-bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL, ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE, name = NULL, check_delete_output = TRUE) {
+bind_data <- function(project, df, ID_col = 1, pop_col = NULL, ploidy_col = NULL, data_cols = NULL,
+                      ID = NULL, pop = NULL, ploidy = NULL, missing_data = -9, wide_format = FALSE,
+                      name = NULL, check_delete_output = TRUE) {
   
   # check inputs (further checks carried out in process_data() function)
-  assert_custom_class(project, "mavproject")
+  assert_class(project, "mavproject")
   assert_dataframe(df)
   assert_noduplicates(c(ID_col, pop_col, ploidy_col, data_cols))
   
   # check before overwriting existing output
-  if (project$active_set>0 && check_delete_output) {
+  if ((project$active_set > 0) && check_delete_output) {
     
     # ask before overwriting. On abort, return original project
     if (!user_yes_no("All existing output and parameter sets for this project will be lost. Continue? (Y/N): ")) {
@@ -295,7 +282,7 @@ process_data_wide <- function(df, ID_col, pop_col, ploidy_col, data_cols, ID, po
 new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE, alpha = 0.1, estimate_alpha = TRUE) {
   
   # check inputs
-  assert_custom_class(project, "mavproject")
+  assert_class(project, "mavproject")
   assert_string(name)
   assert_single_pos(lambda)
   assert_single_logical(admix_on)
@@ -364,7 +351,7 @@ new_set <- function(project, name = "(no name)", lambda = 1.0, admix_on = FALSE,
 delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
   
   # check inputs
-  assert_custom_class(project, "mavproject")
+  assert_class(project, "mavproject")
   assert_single_logical(check_delete_output)
   
   # set index to active_set by default
@@ -423,7 +410,7 @@ delete_set <- function(project, set = NULL, check_delete_output = TRUE) {
 change_set <- function(project, set) {
   
   # check inputs
-  assert_custom_class(project, "mavproject")
+  assert_class(project, "mavproject")
   assert_single_pos_int(set)
   assert_leq(set, length(project$parameter_sets))
   
@@ -466,23 +453,32 @@ change_set <- function(project, set) {
 #'   case they are updated once at the end to avoid large amounts of output.
 #' @param silent whether to suppress all console output
 #' 
+#' @importFrom utils txtProgressBar
+#' @importFrom parallel clusterEvalQ clusterApplyLB
+#' @importFrom coda mcmc effectiveSize
+#' @importFrom stats var
 #' @export
 
-run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin/10), solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL, pb_markdown = FALSE, silent = FALSE) {
+run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10,
+                     GTI_pow = 2, auto_converge = TRUE, converge_test = ceiling(burnin / 10),
+                     solve_label_switching_on = TRUE, coupling_on = TRUE, cluster = NULL,
+                     pb_markdown = FALSE, silent = FALSE) {
   
   # start timer
   t0 <- Sys.time()
   
   # check inputs
-  assert_custom_class(project, "mavproject")
+  assert_class(project, "mavproject")
   assert_pos_int(K, zero_allowed = FALSE)
-  assert_single_pos_int(burnin, zero_allowed = FALSE)
-  assert_single_pos_int(samples, zero_allowed = FALSE)
+  assert_leq(K, 1e3)
+  assert_single_pos_cpp_int(burnin, zero_allowed = FALSE)
+  assert_single_pos_cpp_int(samples, zero_allowed = FALSE)
   assert_single_pos_int(rungs, zero_allowed = FALSE)
+  assert_leq(rungs, 1e4)
   assert_single_pos(GTI_pow)
   assert_gr(GTI_pow, 1.1)
   assert_single_logical(auto_converge)
-  assert_single_pos_int(converge_test, zero_allowed = FALSE)
+  assert_single_pos_cpp_int(converge_test, zero_allowed = FALSE)
   assert_single_logical(solve_label_switching_on)
   assert_single_logical(coupling_on)
   if (!is.null(cluster)) {
@@ -491,11 +487,12 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   assert_single_logical(pb_markdown)
   assert_single_logical(silent)
   
-  # get active set
+  # check that data is loaded
+  assert_non_null(project$data_processed, message = "data must be loaded before running MCMC")
+  
+  # check that parameter set defined and get active set
   s <- project$active_set
-  if (s==0) {
-    stop("no active parameter set")
-  }
+  assert_neq(s, 0, message = "at least one parameter set must be defined before running MCMC")
   
   # get useful quantities
   ploidy <- project$data_processed$ploidy
@@ -503,6 +500,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   n <- length(ploidy)
   L <- length(Jl)
   admix_on <- project$parameter_sets[[s]]$admix_on
+  
   
   # ---------- create argument lists ----------
   
@@ -535,8 +533,8 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   for (i in 1:length(K)) {
     
     # create progress bars
-    pb_burnin <- txtProgressBar(min = 0, max = burnin, initial = NA, style = 3)
-    pb_samples <- txtProgressBar(min = 0, max = samples, initial = NA, style = 3)
+    pb_burnin <- utils::txtProgressBar(min = 0, max = burnin, initial = NA, style = 3)
+    pb_samples <- utils::txtProgressBar(min = 0, max = samples, initial = NA, style = 3)
     args_progress <- list(pb_burnin = pb_burnin,
                           pb_samples = pb_samples)
     
@@ -554,8 +552,8 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   
   # split into parallel and serial implementations
   if (!is.null(cluster)) { # run in parallel
-    clusterEvalQ(cluster, library(rmaverick))
-    output_raw <- clusterApplyLB(cl = cluster, parallel_args, run_mcmc_cpp)
+    parallel::clusterEvalQ(cluster, library(rmaverick))
+    output_raw <- parallel::clusterApplyLB(cl = cluster, parallel_args, run_mcmc_cpp)
   } else { # run in serial
     output_raw <- lapply(parallel_args, run_mcmc_cpp)
   }
@@ -612,13 +610,13 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       # ---------- raw mcmc results ----------
       
       # get loglikelihood in coda::mcmc format
-      loglike_burnin <- mapply(function(x){mcmc(x)}, output_raw[[i]]$loglike_burnin)
-      loglike_sampling <- mcmc(t(rcpp_to_mat(output_raw[[i]]$loglike_sampling)))
+      loglike_burnin <- mapply(function(x){coda::mcmc(x)}, output_raw[[i]]$loglike_burnin)
+      loglike_sampling <- coda::mcmc(t(rcpp_to_mat(output_raw[[i]]$loglike_sampling)))
       
       # alpha
       alpha <- NULL
       if (admix_on) {
-        alpha <- mcmc(output_raw[[i]]$alpha_store)
+        alpha <- coda::mcmc(output_raw[[i]]$alpha_store)
       }
       
       # get whether rungs have converged
@@ -646,7 +644,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       # ---------- GTI path and model evidence ----------
       
       # get ESS
-      ESS <- effectiveSize(loglike_sampling)
+      ESS <- coda::effectiveSize(loglike_sampling)
       ESS[ESS == 0] <- samples # if no variation then assume zero autocorrelation
       ESS[ESS > samples] <- samples # ESS cannot exceed actual number of samples taken
       names(ESS) <- rung_names
@@ -660,7 +658,7 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       
       # calculate GTI path mean and SE
       GTI_path_mean <- colMeans(loglike_weighted)
-      GTI_path_var <- apply(loglike_weighted, 2, var)
+      GTI_path_var <- apply(loglike_weighted, 2, stats::var)
       GTI_path_SE <- sqrt(GTI_path_var/ESS)
       GTI_path <- data.frame(mean = GTI_path_mean, SE = GTI_path_SE)
       rownames(GTI_path) <- rung_names
@@ -676,11 +674,11 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
       GTI_logevidence_mean <- mean(GTI_vec)
       
       # calculate standard error of GTI estimate
-      GTI_ESS <- as.numeric(effectiveSize(GTI_vec))
+      GTI_ESS <- as.numeric(coda::effectiveSize(GTI_vec))
       if (GTI_ESS==0) {
         GTI_ESS <- samples # if no variation then assume perfect mixing
       }
-      GTI_logevidence_SE <- sqrt(var(GTI_vec)/GTI_ESS)
+      GTI_logevidence_SE <- sqrt(stats::var(GTI_vec) / GTI_ESS)
       
       # produce final GTI_logevidence object
       GTI_logevidence <- data.frame(estimate = GTI_logevidence_mean,
@@ -744,10 +742,10 @@ run_mcmc <- function(project, K = 3, burnin = 1e2, samples = 1e3, rungs = 10, GT
   # end timer
   if (!silent) {
     tdiff <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-    if (tdiff<60) {
+    if (tdiff < 60) {
       message(sprintf("Total run-time: %s seconds", round(tdiff, 2)))
     } else {
-      message(sprintf("Total run-time: %s minutes", round(tdiff/60, 2)))
+      message(sprintf("Total run-time: %s minutes", round(tdiff / 60, 2)))
     }
   }
   
@@ -956,7 +954,7 @@ align_qmatrix <- function(proj) {
 recalculate_evidence <- function(proj) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   
   # get active set
   s <- proj$active_set
@@ -996,7 +994,7 @@ recalculate_evidence <- function(proj) {
 get_qmatrix <- function(proj, K, s = NULL) {
   
   # check inputs
-  assert_custom_class(proj, "mavproject")
+  assert_class(proj, "mavproject")
   
   # default to active set
   s <- define_default(s, proj$active_set)

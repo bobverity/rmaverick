@@ -31,8 +31,12 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
   // thermodynamic parameters. The object beta_raised stores values of beta (the
   // thermodynamic power), raised to the power GTI_pow
   beta_raised = vector<double>(rungs);
-  for (int rung=0; rung<rungs; rung++) {
-    beta_raised[rung] = pow((rung+1)/double(rungs), GTI_pow);
+  if (rungs == 1) {
+    beta_raised[0] = 1.0;
+  } else {
+    for (int rung=0; rung<rungs; rung++) {
+      beta_raised[rung] = pow(rung / double(rungs - 1), GTI_pow);
+    }
   }
   rung_order = seq_int(0,rungs-1);
   cold_rung = rung_order[rungs-1];
@@ -75,8 +79,8 @@ mcmc_noadmix::mcmc_noadmix(Rcpp::List &args_data, Rcpp::List &args_model) {
 // find high likelihood group through EM algorithm
 void mcmc_noadmix::starting_group() {
   
-  // skip if K==1
-  if (K==1) {
+  // skip if K == 1
+  if (K == 1) {
     return;
   }
   
@@ -97,7 +101,7 @@ void mcmc_noadmix::starting_group() {
     }
     
     // update best estimates
-    if (particle_vec[cold_rung].loglike>best_loglike || EM_rep==0) {
+    if ((particle_vec[cold_rung].loglike > best_loglike) || (EM_rep == 0)) {
       best_group = particle_vec[cold_rung].group;
       best_loglike = particle_vec[cold_rung].loglike;
     }
@@ -115,8 +119,8 @@ void mcmc_noadmix::starting_group() {
 // loop through burn-in iterations
 void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress) {
   
-  // skip if K==1
-  if (K==1) {
+  // skip if K == 1
+  if (K == 1) {
     return;
   }
   
@@ -132,8 +136,8 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
   
   // define points at which convergence checked
   vector<int> convergence_checkpoint(1,converge_test);
-  while(convergence_checkpoint.back()<burnin) {
-    convergence_checkpoint.push_back(convergence_checkpoint.back()+converge_test);
+  while(convergence_checkpoint.back() < burnin) {
+    convergence_checkpoint.push_back(convergence_checkpoint.back() + converge_test);
   }
   int checkpoint_i = 0;
   
@@ -144,11 +148,6 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // update particles
     for (int r=0; r<rungs; r++) {
-      
-      // skip over converged rungs
-      if (convergence_reached[r]) {
-        continue;
-      }
       int rung = rung_order[r];
       
       // update group allocation of all individuals
@@ -182,45 +181,44 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
     
     // update progress bars
     if (!silent) {
-      if ((rep+1)==burnin) {
+      if ((rep+1) == burnin) {
         update_progress(args_progress, "pb_burnin", rep+1, burnin);
       } else {
         int remainder = rep % int(ceil(double(burnin)/100));
-        if (remainder==0 && !pb_markdown) {
+        if (remainder == 0 && !pb_markdown) {
           update_progress(args_progress, "pb_burnin", rep+1, burnin);
         }
       }
     }
     
     // check for convergence
-    if (auto_converge && (rep+1)==convergence_checkpoint[checkpoint_i]) {
+    if (auto_converge && ((rep+1) == convergence_checkpoint[checkpoint_i])) {
       
       // check for convergence of all unconverged chains
+      all_convergence_reached = true;
       for (int r=0; r<rungs; r++) {
         if (!convergence_reached[r]) {
           convergence_reached[r] = rcpp_to_bool(test_convergence(loglike_burnin[r], rep+1));
           if (convergence_reached[r]) {
             rung_converged[r] = true;
-            loglike_burnin[r].resize(rep+1);
+          } else {
+            all_convergence_reached = false;
           }
         }
       }
-      // break if convergence reached
-      all_convergence_reached = true;
-      for (int r=0; r<rungs; r++) {
-        if (!convergence_reached[r]) {
-          all_convergence_reached = false;
-          break;
-        }
-      }
+      
       // end if all reached convergence
       if (all_convergence_reached) {
+        for (int r=0; r<rungs; r++) {
+          loglike_burnin[r].resize(rep+1);
+        }
         if (!silent) {
           update_progress(args_progress, "pb_burnin", burnin, burnin);
           print("   converged within", rep+1, "iterations");
         }
         break;
       }
+      
       checkpoint_i++;
       
     }  // end if auto_converge
@@ -238,8 +236,8 @@ void mcmc_noadmix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_prog
 // loop through sampling iterations
 void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progress) {
   
-  // skip if K==1
-  if (K==1) {
+  // skip if K == 1
+  if (K == 1) {
     if (!silent) {
       print("Calculating exact solution for K = 1");
     }
@@ -292,7 +290,6 @@ void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_pr
     // fix labels
     if (solve_label_switching_on) {
       solve_label_switching();
-      //particle_vec[cold_rung].solve_label_switching(log_qmatrix_ind_running);
     }
     
     // add particle log_qmatrix to log_qmatrix_running
@@ -309,11 +306,11 @@ void mcmc_noadmix::sampling_mcmc(Rcpp::List &args_functions, Rcpp::List &args_pr
     
     // update progress bars
     if (!silent) {
-      if ((rep+1)==samples) {
+      if ((rep+1) == samples) {
         update_progress(args_progress, "pb_samples", rep+1, samples);
       } else {
         int remainder = rep % int(ceil(double(samples)/100));
-        if (remainder==0 && !pb_markdown) {
+        if ((remainder == 0) && !pb_markdown) {
           update_progress(args_progress, "pb_samples", rep+1, samples);
         }
       }

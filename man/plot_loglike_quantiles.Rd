@@ -4,8 +4,13 @@
 \alias{plot_loglike_quantiles}
 \title{Plot loglike quantiles of current active set}
 \usage{
-plot_loglike_quantiles(proj, K = NULL, axis_type = 1,
-  connect_points = FALSE, connect_whiskers = FALSE)
+plot_loglike_quantiles(
+  proj,
+  K = NULL,
+  axis_type = 1,
+  connect_points = FALSE,
+  connect_whiskers = FALSE
+)
 }
 \arguments{
 \item{proj}{an rmaverick project, as produced by the function 

@@ -34,8 +34,12 @@ mcmc_admix::mcmc_admix(Rcpp::List &args_data, Rcpp::List &args_model) {
   // thermodynamic parameters. The object beta_raised stores values of beta (the
   // thermodynamic power), raised to the power GTI_pow
   beta_raised = vector<double>(rungs);
-  for (int rung=0; rung<rungs; rung++) {
-    beta_raised[rung] = pow((rung+1)/double(rungs), GTI_pow);
+  if (rungs == 1) {
+    beta_raised[0] = 1.0;
+  } else {
+    for (int rung=0; rung<rungs; rung++) {
+      beta_raised[rung] = pow(rung / double(rungs - 1), GTI_pow);
+    }
   }
   rung_order = seq_int(0,rungs-1);
   cold_rung = rung_order[rungs-1];
@@ -144,11 +148,6 @@ void mcmc_admix::burnin_mcmc(Rcpp::List &args_functions, Rcpp::List &args_progre
     
     // update particles
     for (int r=0; r<rungs; r++) {
-      
-      // skip over converged rungs
-      if (convergence_reached[r]) {
-        continue;
-      }
       int rung = rung_order[r];
       
       // update group allocation of all individuals
